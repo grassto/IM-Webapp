@@ -7,23 +7,22 @@ Ext.define('IM.view.IM', {
 
     requires: [
         'IM.view.IMController',
-        'IM.view.chat.ChatView',
-        'IM.view.chat.ChatInput',
-        'IM.view.msgManager.MsgManager',
         'IM.view.leftTab.organization.Organization',
-        'IM.view.leftTab.recentChat.RecentChat'
+        'IM.view.leftTab.recentChat.RecentChat',
+        'IM.view.rightContainer.BlankPage',
+        'IM.model.viewModel.IMMainBind'
+    ],
+
+    uses: [
+        'IM.view.rightContainer.IMMainView',
+        'IM.view.msgManager.MsgManager',
+        'IM.view.rightContainer.Details'
     ],
     layout: 'hbox',
     viewModel: {
-        data: {
-            ownerName: '张龙',
-            ownerMail: 'zhanglong@163.com',
-            sendToName: '赵虎',
-            avatar: '',
-            status: ''
-        }
+        type: 'mainBind'
     },
-    
+
     config: {
         /**
          * @cfg {Boolean} enableUpload
@@ -39,10 +38,10 @@ Ext.define('IM.view.IM', {
         });
     },
     onPainted() {
-        var me = this;
-        Ext.get('addMem').on('click', function () {
-            me.getController().onShowGrpSel();
-        });
+        // var me = this;
+        // Ext.get('addMem').on('click', function () {
+        //     me.getController().onShowGrpSel();
+        // });
     },
 
     items: [{// 左边
@@ -50,7 +49,6 @@ Ext.define('IM.view.IM', {
         resizable: {
             edges: 'east'
         },
-        // flex: 0.3,
         layout: 'vbox',
         minWidth: 200,
         cls: 'left_panel',
@@ -82,19 +80,15 @@ Ext.define('IM.view.IM', {
                 xtype: 'formpanel', // 搜索框
                 reference: 'searchForm',
                 flex: 1,
-                items: [
-                    {
-                        xtype: 'fieldset',
-                        items: [
-                            {
-                                xtype: 'searchfield',
-                                placeholder: '搜索',
-                                name: 'query',
-                                ui: 'alt'
-                            }
-                        ]
-                    }
-                ]
+                items: [{
+                    xtype: 'fieldset',
+                    items: [{
+                        xtype: 'searchfield',
+                        placeholder: '搜索',
+                        name: 'query',
+                        ui: 'alt'
+                    }]
+                }]
             }, {
                 xtype: 'button',
                 iconCls: 'x-fa fa-plus',
@@ -146,61 +140,10 @@ Ext.define('IM.view.IM', {
     },
 
     // 右边，聊天区
-    {
+    /*{
         flex: 1,
-        layout: 'vbox',
-        cls: 'right_panel',
-
-        items: [
-            // 头
-            {
-                xtype: 'component',
-                bind: {
-                    html: `<div style="line-height:40px;border-bottom:1px solid #d6d6d6; text-align:center;">
-                                    <span class="right-title">{sendToName}</span>
-                                    <span id="addMem" class="addMem"></span>
-                            </div>`
-                }
-            },
-            // 内容显示区
-            {
-                // xtype: 'dataview',
-                xtype: 'chatView',
-                itemId: 'chatView',
-                flex: 1,
-                style: {
-                    borderBottom: '1px solid #d6d6d6'
-                }
-            },
-            // 聊天输入区
-            {
-                xtype: 'panel',
-                resizable: {
-                    edges: 'n'
-                },
-                minHeight: 170,
-                layout: 'vbox',
-                items: [
-                    {
-                        xtype: 'chatInput',
-                        userCls: 'editor-Ct',
-                        flex: 1
-                    },
-                    {
-                        xtype: 'container',
-                        items: [{
-                            docked: 'right',
-                            xtype: 'button',
-                            text: '发送',
-                            width: 50,
-                            height: 28,
-                            handler: 'onSend'
-                        }]
-                    }
-                ]
-            }
-        ]
-    }],
+        xtype: 'panel'
+    }*/],
 
     grpSel: { // 新建多人会话
         xtype: 'groupSel'

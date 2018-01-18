@@ -44,19 +44,19 @@ Ext.define('IM.view.groupSel.GroupSelController', {
 
     onOk() {
         this.getView().hide();
-        this.onHide();
+        // this.onHide();
     },
 
     onCancle() {
         this.getView().hide();
-        this.onHide();
+        // this.onHide();
     },
 
     onDisclosureTap(value) {
         this.getView().down('#grpSelMem').getStore().remove(value);
     },
 
-    onHide() {
+    onBeforeHide() {
         this.getView().down('#grpSelMem').getStore().removeAll();
     }
 });

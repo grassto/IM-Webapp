@@ -100,7 +100,7 @@ Ext.define('IM.view.groupSel.GroupSel', {
 
 
     listeners: {
-        close: 'onHide'
+        beforehide: 'onBeforeHide'
     }
 
 });

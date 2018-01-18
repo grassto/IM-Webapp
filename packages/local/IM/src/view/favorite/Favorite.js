@@ -7,6 +7,44 @@ Ext.define('IM.view.favorite.Favorite', {
     title: '我的收藏',
     closable: true,
     closeAction: 'hide',
-    maximizable: true,
-    html: '暂无收藏'
+    // maximizable: true,
+
+    layout: 'fit',
+
+    height: '70vh',
+    width: '70vw',
+
+    
+
+    constructor(config) {
+        config = config || {};
+        config.items = [{
+            layout: 'vbox',
+            padding: 20,
+            items: [{
+                xtype: 'textfield',
+                name: 'Subject',
+                role: 'filter',
+                placeholder: '搜索',
+                minHeight: 30,
+                triggers: {
+                    search: {
+                        type: 'search',
+                        // handler: 'onSearch'
+                    }
+                },
+                listeners: {
+                    // clearicontap: 'onSearch',
+                    // action: 'onSearch'
+                }
+            }, {
+                xtype: 'list',
+                flex: 1
+            }]
+        }];
+
+        this.callParent([
+            config
+        ]);
+    }
 });

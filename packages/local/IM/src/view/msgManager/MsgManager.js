@@ -8,5 +8,14 @@ Ext.define('IM.view.msgManager.MsgManager', {
     closable: true,
     resizable: true,
     closeAction: 'hide',
-    html: '暂无消息'
+    html: '暂无消息',
+
+    constructor(config) {
+        config = config || {};
+        config.items = [];
+
+        this.callParent([{
+            config
+        }]);
+    }
 });

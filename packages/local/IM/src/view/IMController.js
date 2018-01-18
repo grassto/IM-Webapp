@@ -2,6 +2,17 @@ Ext.define('IM.view.IMController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.IM',
 
+    listen: {
+        controller: {
+            'recentChat': {
+                'showRight': 'showRightView'
+            },
+            'left-orgController': {
+                'showRight': 'showRightView'
+            }
+        }
+    },
+
     init: function () {
         var me = this;
         me.callParent(arguments);
@@ -10,12 +21,6 @@ Ext.define('IM.view.IMController', {
         var viewmodel = me.getViewModel();
         var avatar = '<a class="avatar link-avatar firstletter " letter="' + AvatarMgr.getFirstLetter(viewmodel.get('ownerName')) + '" style="float:left;' + AvatarMgr.getColorStyle(viewmodel.get('ownerName')) + '" ></a>';
         viewmodel.set('avatar', avatar);
-
-        // 附件插件
-        var btnBrowse = me.getView().down('#btnBrowse');
-        me.initUploader(btnBrowse);
-        var btnFile = me.getView().down('#btnFile');
-        me.initUploader(btnFile, true);
 
         // 搜索框
         var form = me.lookup('searchForm');
@@ -28,13 +33,60 @@ Ext.define('IM.view.IMController', {
             scope: me
         });
 
-        // 建立连接
-        // me.mounted();
+        me.showRightView('pageblank');
+
     },
 
     /**
+     * 右侧的页面切换
+     * @param {string} xtype 需要展示的xtype
+     * @param {string} oldType 需要删除的xtype
+     */
+    showRightView(xtype, oldType) {
+        // debugger;
+        const me = this,
+            view = me.getView();
+
+        if (oldType) {
+            oldType = view.lookup(oldType);
+            view.remove(oldType, true);
+        }
+        let rightView = view.lookup(xtype); // 需要添加的
+        if (!rightView) {
+            rightView = view.add({
+                flex: 1,
+                xtype: xtype,
+                reference: xtype
+            });
+        }
+        // view.setActiveItem(rightView);
+
+        return rightView;
+    },
+
+    /**
+    * 右侧页面切换为聊天页面
+    */
+    onChgToIM() {
+        const me = this,
+            rootView = me.getView(),
+            imMainView = rootView.lookup('im-main');
+        if (!imMainView) { // 存在了就不切换
+            var detailsView = rootView.lookup('details'),
+                blankView = rootView.lookup('pageblank');
+            if (blankView) { // 不存在im-main容器，则添加
+                me.showRightView('im-main', 'pageblank');
+            }
+            if (detailsView) {
+                me.showRightView('im-main', 'details');
+            }
+        }
+    },
+
+
+    /**
      * websocket接收请求后执行，将数据绑定至页面
-     * @param {*} msg 服务器返回的数据
+     * @param {object} msg 服务器返回的数据
      */
     handleNewPostEvent(msg) {
 
@@ -201,7 +253,7 @@ Ext.define('IM.view.IMController', {
         var me = this;
         if (files.length > 0) {
             for (var i = 0; i < files.length; i++) {
-                
+
                 if (files[i].type == 'image/png') {// 是图片，要展示
                     // 上传图片，得到返回的预览图展示
                     // file转base64展示,

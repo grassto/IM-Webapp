@@ -1,10 +1,11 @@
 Ext.define('IM.view.leftTab.organization.Organization', {
     extend: 'Ext.grid.Tree',
     xtype: 'left-organization',
+    controller: 'left-orgController',
 
-    // requires: [
-    //     'IM.model.OrgTree'
-    // ],
+    requires: [
+        'IM.view.leftTab.organization.OrganizationController'
+    ],
 
     userCls: 'IM-org-field',
 
@@ -20,12 +21,9 @@ Ext.define('IM.view.leftTab.organization.Organization', {
         store: '{navItems}'
     },
 
-    // bind: {
-    //     store: {
-    //         type: '{navItems}',
-    //         // model: 'IM.model.OrgTree'
-    //     }
-    // },
+    listeners: {
+        itemTap: 'orgOnSelectMem'
+    },
 
     hideHeaders: true,
 

@@ -78,6 +78,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
         return view;
     },
     showView(xtype) {
+        // debugger;
         const me = this,
             viewport = me.getView();
 

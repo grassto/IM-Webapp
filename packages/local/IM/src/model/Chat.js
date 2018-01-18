@@ -6,7 +6,8 @@ Ext.define('IM.model.Chat', {
             name: 'updateTime',
             type: 'date',
             convert: function (value) {
-                if (value) {
+                // debugger;
+                if (typeof(value) == 'object') {
                     var now = new Date(),
                         nowYear = now.getFullYear(),
                         nowMonth = now.getMonth() + 1,
@@ -22,7 +23,7 @@ Ext.define('IM.model.Chat', {
                     var createTime = Ext.Date.format(value, 'Y-m-d H:i');
                     return createTime;
                 }
-                return null;
+                return value;
             }
         },
         'isMine',

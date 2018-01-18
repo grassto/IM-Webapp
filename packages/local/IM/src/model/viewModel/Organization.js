@@ -4,6 +4,13 @@ Ext.define('IM.model.Organization', {
 
     stores: {
         navItems: {
+            fields: [
+                'id', 'name',
+                {
+                    name: 'iconCls',
+                    defaultValue: 'hide-icon'
+                }
+            ],
             type: 'tree',
             rootVisible: true,
             root: {
@@ -91,18 +98,18 @@ Ext.define('IM.model.Organization', {
                         mtype: 'orgTree',
                         name: 'Notifications',
                         numItems: 16,
-                        iconCls: 'hide-icon',
+                        // iconCls: 'hide-icon',
                         leaf: true
                     }, {
                         mtype: 'orgTree',
                         name: 'Network',
                         numItems: 4,
-                        iconCls: 'hide-icon',
+                        // iconCls: 'hide-icon',
                         leaf: true
                     }]
                 }]
-            },
-            // model: 'IM.model.OrgTree'
+            }
+
         }
     }
 });

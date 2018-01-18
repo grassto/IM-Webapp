@@ -1,0 +1,9 @@
+// 高度高一点的 listitem
+@include listitem-ui(
+    $ui: 'medium',
+    $padding: $list-medium-padding,
+    $padding-big: $list-medium-padding-big
+);
+.x-listitem .x-innerhtml {
+    width: 100%;
+}

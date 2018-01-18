@@ -1,0 +1,68 @@
+// nav tree 导航树 ui: 'nav'
+//$nav-tree-background-color: dynamic(#32404e);
+//$nav-tree-item-line-height: dynamic(54px);
+//$nav-tree-item-text-color: dynamic(#ADB3B8);
+
+$treelist-nav-ui: (
+    padding: 0 10px,
+    background-color: $nav-tree-background-color,
+    toolstrip-background-color: #32404e,
+    tool-float-indicator-color: $base-color,
+    tool-float-indicator-width: 5px,
+    tool-indicator-selected-color: $base-color,
+    tool-indicator-selected-width: 5px,
+    tool-selected-background-color: mix(white, $nav-tree-background-color, 10%),
+    item-expanded-background-color: #2c3845,
+    item-line-height: $nav-tree-item-line-height,
+    row-over-background-color: mix(white, $nav-tree-background-color, 5%),
+    row-selected-background-color: mix(white, $nav-tree-background-color, 10%),
+    item-icon-color: $nav-tree-item-text-color,
+    item-expander-color: #fff,
+    item-text-color: $nav-tree-item-text-color,
+    item-icon-over-color: #fff,
+    item-expander-over-color: #fff,
+    item-text-over-color: mix(white, $nav-tree-item-text-color, 50%),
+    item-text-font-size: 14px,
+    item-icon-font-size: 18px,
+    item-icon-width: 44px,
+    item-expander-font-size: 16px,
+    item-expander-width: 24px,
+    row-indicator-width: 5px,
+    row-indicator-selected-color: $base-color,
+    row-indicator-selected-over-color: lighten($base-color, 7%),
+    row-indicator-over-color: transparent
+);
+.x-treelist-nav{
+    //transition: width 0.2s;
+
+    .x-treelist-item 
+    {
+        > * > * > .x-treelist-item-text
+        {
+            margin-left: 6px;
+        }
+
+        &.x-treelist-item-with-icon > * > * > .x-treelist-item-text
+        {
+            margin-left: 50px;
+        }
+
+        &.x-treelist-item-floated > * > * > .x-treelist-item-text
+        {
+            margin-left: 0
+        }
+    }
+}
+
+// for phone
+/*.main-nav-floated {
+    background-color: $nav-tree-background-color;
+    transition: left 0.3s;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 10;
+}
+.main-nav-slid-out {
+    left: -$task-main-nav-width;
+}*/

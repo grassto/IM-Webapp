@@ -1,0 +1,66 @@
+// Note: image from https://pixabay.com (Creative Commons CC0)
+$auth-color: white;
+$auth-background-color: #123d40;
+$auth-background-image: url(get-resource-path('images/background.jpg'));
+
+@include panel-ui(
+    $ui: 'auth',
+    $background-color: white,
+    $body-background-color: white,// transparentize($auth-background-color, 0.75),
+    $body-color: $auth-color,
+    $body-padding: 24px
+);
+
+.auth-login {
+    @include background-size(cover);
+    background-image: $auth-background-image;
+    background-position: center;
+
+    > .x-body-el {
+        background-color: rgba(black, 0.25);
+    }
+
+    .x-formpanel {
+        width: 256px;
+
+        .x-button {
+            // Balance button vertical spacing with form fields
+            margin: $field-vertical-spacing/2 0;
+
+            .x-big {
+                margin: $field-vertical-spacing-big/2 0;
+            }
+        }
+    }
+
+    .auth-header,
+    .auth-footer {
+        color: $auth-color;
+        text-align: center;
+        padding: 1rem;
+
+        a {
+            color: $auth-color;
+            text-decoration: none;
+        }
+    }
+
+    .auth-header {
+        .logo {
+            @include single-text-shadow;
+            color: $auth-color;
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .title, .caption {
+            white-space: nowrap;
+        }
+
+        .title {
+            margin-top: 1rem;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+    }
+}

@@ -1,0 +1,70 @@
+.circular-progress {
+    top: 50%;
+    left: 50%;
+    color: $base-color;
+    position: absolute;
+    margin-top: -12px;
+    margin-left: -12px;
+    width: 24px;
+    height: 24px;
+    svg.indeterminate {
+        -webkit-animation: mui-progress-circular-rotate 1.4s linear infinite;
+        animation: mui-progress-circular-rotate 1.4s linear infinite;
+        circle {
+            -webkit-animation: mui-progress-circular-dash 1.4s ease-in-out infinite;
+            animation: mui-progress-circular-dash 1.4s ease-in-out infinite;
+            stroke-dasharray: 80, 200;
+            stroke-dashoffset: 0;
+            stroke: currentColor;
+            stroke-linecap: round;
+        }
+    }
+}
+
+.x-button-confirm, .x-button-action {
+    .circular-progress {
+        color: $alert-color;
+    }
+}
+
+@-webkit-keyframes mui-progress-circular-rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes mui-progress-circular-rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes mui-progress-circular-dash {
+    0% {
+        stroke-dasharray: 1, 200;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 100, 200;
+        stroke-dashoffset: -15;
+    }
+    100% {
+        stroke-dasharray: 100, 200;
+        stroke-dashoffset: -120;
+    }
+}
+
+@keyframes mui-progress-circular-dash {
+    0% {
+        stroke-dasharray: 1, 200;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 100, 200;
+        stroke-dashoffset: -15;
+    }
+    100% {
+        stroke-dasharray: 100, 200;
+        stroke-dashoffset: -120;
+    }
+}

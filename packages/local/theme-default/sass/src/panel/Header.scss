@@ -1,0 +1,57 @@
+@include panelheader-ui(
+    $ui: 'list',
+    $background-color: $neutral-light-color,
+    //$border-width: 0,
+    $border-color: $neutral-highlight-color,
+    $padding: 0 10px,
+    $padding-big: 0 15px,
+    $min-height: $panel-header-min-height,
+    $min-height-big: $panel-header-min-height-big
+);
+
+@include paneltitle-ui(
+    $ui: 'list',
+    $color: $button-color
+);
+
+// panel header 里面的按钮 左右间距
+.x-panelheader {
+    &>.x-body-el {
+        &>.x-button {
+            margin: 0 $tool-spacing;
+    
+            @if $enable-big {
+                .#{$prefix}big & {
+                    margin: 0 $tool-spacing-big;
+                }
+            }
+        }
+        // 返回按钮，一般放第一个位置
+        .back-button {
+            margin: 0;
+            align-self: stretch;
+            min-width: $panel-header-min-height;
+            
+            @if $enable-big {
+                .#{$prefix}big & {
+                    min-width: $panel-header-min-height-big;
+                }
+            }
+        }
+    }
+    // 返回按钮靠最左边
+    &.has-backbtn > .x-body-el {
+        padding-left: 0;
+    
+        // title 离 返回按钮 的间距
+        .x-paneltitle {
+            padding-left: left($dialog-header-padding);
+            
+            @if $enable-big {
+                .#{$prefix}big & {
+                    padding-left: left($dialog-header-padding-big);
+                }
+            }
+        }
+    }
+}

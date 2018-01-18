@@ -1,0 +1,13 @@
+.IM-groupSel{
+    .IM-grp{
+        .IM-grp-left{
+            padding-right: 10px;
+            border-right: 1px solid lightgrey;
+            
+            .x-treecell .x-icon-el .hide-icon {
+                display: none;
+            }
+        }
+        
+    }
+}

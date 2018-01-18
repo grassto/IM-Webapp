@@ -1,0 +1,29 @@
+// 如果 tool 设置了 html，那么让 html 文字 的颜色（悬停、按下）和图标一致
+.x-tool {
+    .x-innerhtml {
+        opacity: $tool-opacity;
+        color: darken($tool-color, 40%);
+    }
+    &.x-hovered {
+        .x-innerhtml {
+            opacity: $tool-hovered-opacity;
+            color: $tool-hovered-color;
+        }
+    }
+    &.x-pressed {
+        .x-innerhtml {
+            opacity: $tool-pressed-opacity;
+            color: $tool-pressed-color;
+        }
+    }
+    &.x-disabled:not(.x-passive) {
+        .x-innerhtml {
+            opacity: $tool-disabled-opacity;
+            color: $tool-disabled-color;
+        }
+    }
+
+    &.no-margin {
+        margin: 0 !important;
+    }
+}

@@ -1,0 +1,7 @@
+$panelresizer-splitter-proxy-background-color: null;
+.x-panelresizer-proxy.x-splitter.x-horizontal {
+    border-left: 1px dashed $panelresizer-handle-proxy-border-color;
+}
+.x-panelresizer-proxy.x-splitter.x-vertical {
+    border-top: 1px dashed $panelresizer-handle-proxy-border-color;
+}

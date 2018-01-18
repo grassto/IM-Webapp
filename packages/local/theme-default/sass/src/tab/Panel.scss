@@ -1,0 +1,114 @@
+/**
+ * This file contains Ext.tab.Panel visual themes (ui)
+ * http://docs.sencha.com/extjs/latest/modern/Ext.tab.Bar.html#sass-mixins
+ * http://docs.sencha.com/extjs/latest/modern/Ext.tab.Tab.html#sass-mixins
+ */
+$flat-tabbar-padding: dynamic(4px 8px 0);
+$flat-tabbar-padding-big: dynamic(8px 12px 0);
+
+// 背景透明 的 tabbar
+@include tabbar-ui(
+    $ui: 'flat',
+    $background-color: transparent,
+    $border-color: mix($neutral-light-color, $neutral-highlight-color, 50%),
+    $border-style: solid,
+    $border-width: 0 0 1px 0,
+    $horizontal-spacing: 0,
+    $padding: $flat-tabbar-padding,
+    $padding-big: $flat-tabbar-padding-big
+);
+
+.x-tabbar-flat {
+    .x-field, .x-button:not(.x-tab) {
+        $toolbar-spacing-top: top($toolbar-padding);
+        $margin-top: max($toolbar-spacing-top - top($flat-tabbar-padding), 0);
+
+        margin: $margin-top $toolbar-horizontal-spacing $toolbar-spacing-top 0 !important;
+
+        @if $enable-big {
+            $toolbar-spacing-top-big: top($toolbar-padding-big);
+            $margin-top-big: max($toolbar-spacing-top-big - top($flat-tabbar-padding-big), 0);
+
+            .#{$prefix}big & {
+                margin: $margin-top-big $toolbar-horizontal-spacing-big $toolbar-spacing-top-big 0 !important;
+            }
+        }
+    }
+}
+// 背景透明，有下划线的 tab 按钮
+@include tab-ui(
+    $ui: 'flat',
+    $background-color: transparent,
+    $active-background-color: transparent,
+    /*$active-border-color: $base-color,
+    $border-color: transparent,
+    $border-style: solid,
+    $border-width: 0 0 $tab-flat-active-indicator-height 0,*/
+    $border-radius: 0,
+    $border-radius-big: 0,
+    $border-width: 0,
+    $active-indicator-background-color: $base-color,
+    $active-indicator-height: $tab-flat-active-indicator-height,
+    $color: $neutral-medium-dark-color,
+
+    $hovered-color: $neutral-dark-color,
+    //$hovered-border-color: $neutral-light-color,
+    $hovered-background-color: transparent,
+
+    //$focused-border-color: $neutral-highlight-color,
+    $focused-color: $neutral-dark-color,
+    $focused-outline-style: none,
+
+    $pressed-color: $base-color,
+    $pressed-background-color: transparent
+);
+
+.x-tab.x-tab-flat .x-inner-el {
+    margin-bottom: 3px;
+}
+
+
+// 用于切换多个导航树的 tabbar
+@include tabbar-ui(
+    $ui: 'nav',
+    $background-color: $nav-tree-background-color,
+    $border-color: mix($neutral-light-color, $neutral-highlight-color, 50%),
+    $border-style: solid,
+    $border-width: 0 0 1px 0,
+    $horizontal-spacing: 0,
+    $padding: 0,
+    $padding-big: 0
+);
+
+// 用于切换多个导航树的 tab 按钮
+@include tab-ui(
+    $ui: 'navtab',
+    $active-background-color: transparent,
+    $active-border-color: $base-color,
+    $background-color: transparent,
+    $border-color: #000,
+    $border-style: solid,
+    $border-width: 0 0 3px 0,
+    $border-radius: 0,
+    $border-radius-big: 0,
+    $color: $nav-tree-item-text-color,
+    $icon-color: $nav-tree-item-text-color,
+    //$padding: 14px 15px,
+    $icon-only-padding: 14px 15px,
+
+    $hovered-icon-color: #fff,
+    $hovered-border-color: #000,
+    //$hovered-background-color: transparent,
+
+    $focused-icon-color: #fff,
+    //$focused-border-color: #000,
+    $focused-outline-style: none,
+
+    $pressed-icon-color: #fff,
+    $pressed-border-color: #000,
+    //$pressed-background-color: transparent
+    
+    $active-icon-color: #fff,
+
+    $active-focused-icon-color: #fff
+);

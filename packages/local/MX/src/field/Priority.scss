@@ -1,0 +1,43 @@
+/*$priority-none-color: dynamic(#fff);
+$priority-low-color: dynamic($neutral-highlight-color);
+$priority-medium-color: dynamic(#fd9024);
+$priority-high-color: dynamic(#ff5141);
+*/
+.pri-symbol {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: dashed 1px transparent;
+    margin-right: .2rem;
+
+    &.none {
+        background-color: $priority-none-color;
+        border-color: #aaa;
+    }
+    &.L {
+        background-color: $priority-low-color;
+    }
+    &.M {
+        background-color: $priority-medium-color;
+    }
+    &.H {
+        background-color: $priority-high-color;
+    }
+}
+
+.x-priorityfield {
+    .pri-btn {
+        margin-right: .5rem;
+        cursor: pointer;
+        padding: 5px 8px;    
+    
+        &.selected {
+            background-color: $base-highlight-color;
+            color: #fff;
+    
+            .pri-symbol {
+                border:0;
+            }
+        }
+    }
+}

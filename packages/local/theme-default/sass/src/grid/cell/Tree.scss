@@ -1,0 +1,6 @@
+.x-treecell {
+    // record 设置 iconCls: 'hide-icon', 即可去掉 Grid 的节点图标
+    .x-icon-el.hide-icon {
+        display: none;
+    }
+}

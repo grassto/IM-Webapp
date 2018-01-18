@@ -1,0 +1,15 @@
+.x-ratingfield {
+    .rating-star {
+        text-align: center;
+    }
+    .rating-star:before {
+        font-family: "FontAwesome";
+        color: mix(#fff, $base-color, 60%);
+        content: "\f006";
+        font-size: 24px;
+    }
+    .rating-star.active:before {
+        color: $base-color;
+        content: "\f005";
+    }
+}

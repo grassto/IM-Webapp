@@ -1,0 +1,49 @@
+
+/*分页*/
+.#{$prefix}listpagination
+{
+    text-align: center;
+    padding: $listpaging-padding;
+
+    @if $enable-big {
+        .#{$prefix}big & {
+            padding: $listpaging-padding-big;
+        }
+    }
+
+    a {
+        cursor: pointer;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+    .page {
+        display: inline-block;
+        padding: 0 10px;
+        color: #666;
+        line-height: 28px;
+        border-radius: 3px;
+        margin: 0 1px;
+
+        &.current {
+            background: $base-color;
+            color: #fff;
+        }
+    }
+
+    a {
+        cursor: pointer;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: none;
+            background: mix(white, $base-color, 70%);
+        }
+    }
+
+    .disabled {
+        color: #aeaeae;
+    }
+}

@@ -1,0 +1,25 @@
+.fab-button {
+    border-radius: 50%;
+    @include box-shadow(0 8px 17px 0 rgba(0, 0, 0, 0.2));
+    border: none;
+
+    .x-inner-el {
+        border-radius: 50%;
+    }
+}
+
+.circular-fabprogress {
+    margin-top: unset;
+    margin-left: unset;
+    top: -6px;
+    left: -6px;
+    z-index: 1;
+    width: 64px;
+    height: 64px;
+}
+
+.x-button-confirm, .x-button-action {
+    .circular-fabprogress {
+        color: $confirm-color;
+    }
+}

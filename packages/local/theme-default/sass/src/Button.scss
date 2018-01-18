@@ -1,0 +1,93 @@
+/*$button-action-ui: (
+    border-width: 0
+);
+$button-confirm-ui: (
+    border-width: 0
+);*/
+
+$button-flat-ui: (
+    border-width: 0,
+    background-color: rgba(white, 0),
+    color: $neutral-medium-dark-color,
+    pressed-color: $base-color
+);
+
+@include button-ui(
+    $ui: 'action'
+);
+@include button-ui(
+    $ui: 'confirm'
+);
+
+$button-decline-ui: dynamic((
+    background-color: desaturate(darken($alert-color, 5%), 5%)
+));
+
+@include button-ui(
+    $ui: 'large',
+    $font-size: 14px,
+    $font-size-big: 14px,
+    $icon-size: 21px,
+    $icon-size-big: 21px,
+    $icon-font-size: 21px,
+    $icon-font-size-big: 21px,
+    $icon-only-padding: 16px,
+    $icon-only-padding-big: 18px,
+    $padding: 16px,
+    $padding-big: 18px
+);
+
+/*@include button-ui(
+    $ui: 'flat',
+    $background-color: transparent,
+    $color: $neutral-medium-dark-color,
+    $pressed-color: $base-color
+);*/
+
+
+// 导航树下面的收缩按钮 ui: 'nav'
+@include button-ui(
+    $ui: 'nav',
+    $border-color: transparent,
+    $hovered-border-color: transparent,
+    $pressed-border-color: transparent,
+
+    $color: $neutral-light-color,
+    $pressed-color: $neutral-light-color,
+
+    $background-color: mix(white, $nav-tree-background-color, 5%),
+    $hovered-background-color: mix(white, $nav-tree-background-color, 5%),
+    $pressed-background-color: mix(white, $nav-tree-background-color, 10%)
+  );
+
+// button 设置 border: false 即可去掉 border
+.x-button.x-noborder-trbl {
+    &>.x-inner-el {
+        border-width: 0;
+    }
+}
+
+// 让 toolbar 内的 button 和 input 一样高
+.x-toolbar:not(.x-tabbar) {
+    .x-button {
+        .x-inner-el {
+            padding: top($textfield-input-padding) top($textfield-input-padding) bottom($textfield-input-padding);
+        
+            @if $enable-big {
+                .#{$prefix}big & {
+                    padding: top($textfield-input-padding-big) top($textfield-input-padding-big) bottom($textfield-input-padding-big);
+                }
+            }
+        }
+
+        &.x-has-text .x-inner-el {
+            padding: $textfield-input-padding;
+        
+            @if $enable-big {
+                .#{$prefix}big & {
+                    padding: $textfield-input-padding-big;
+                }
+            }
+        }
+    }
+}

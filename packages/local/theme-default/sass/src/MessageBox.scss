@@ -1,0 +1,7 @@
+// messagebox 内文字可选
+.x-messagebox-text {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}

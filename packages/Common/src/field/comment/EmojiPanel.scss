@@ -1,0 +1,28 @@
+.emj-panel {
+    .faces
+    {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        .em {
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        li
+        {
+            float: left;
+            text-align: center;
+            padding: 3px;
+            margin: -1px 0 0 -1px;
+            border: 1px solid #eeeac9;
+
+            &:hover
+            {
+                border-color: #eb7350;
+                position: relative;
+            }
+        }
+    }
+}

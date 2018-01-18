@@ -1,0 +1,49 @@
+.#{$prefix}rich-textarea {
+    .#{$prefix}input-el {
+        width: 100%;
+        overflow: auto;
+        -webkit-user-drag: auto;
+        -webkit-user-select: auto;
+        -webkit-touch-callout: auto;
+        user-select: auto;
+        touch-action: auto;
+        * {
+            -webkit-user-drag: auto;
+            -webkit-user-select: auto;
+            -webkit-touch-callout: auto;
+            user-select: auto;
+            touch-action: auto;
+        }
+        &:empty:before {
+            cursor: text;
+            content: attr(placeholder);
+            color: $textfield-placeholder-color;
+            -webkit-text-fill-color: $textfield-placeholder-color;
+            line-height: 1;
+        }
+    }
+    &.#{$prefix}focused {
+        .#{$prefix}input-el {
+            &:empty:before {
+                color: $textfield-focused-placeholder-color;
+                -webkit-text-fill-color: $textfield-focused-placeholder-color;
+            }
+        }
+    }
+    &.#{$prefix}invalid {
+        .#{$prefix}input-el {
+            &:empty:before {
+                color: $textfield-invalid-placeholder-color;
+                -webkit-text-fill-color: $textfield-invalid-placeholder-color;
+            }
+        }
+    }
+    &.#{$prefix}disabled {
+        .#{$prefix}input-el {
+            &:empty:before {
+                color: $textfield-disabled-placeholder-color;
+                -webkit-text-fill-color: $textfield-disabled-placeholder-color;
+            }
+        }
+    }
+}

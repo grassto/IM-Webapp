@@ -1,0 +1,250 @@
+$auth-background-image: url(get-resource-path('images/2.png'));
+$right-addMem-image: url(get-resource-path('images/add-members.png'));
+$left-tab-color: #2e3238;
+
+.left_panel{
+    // 个人信息区
+    .x-button{
+        color: white;
+    }
+    .x-button .x-inner-el{
+        background-color: $left-tab-color;
+        border: 0;
+    }
+    .x-formpanel-body-el{
+        background-color: $left-tab-color;
+    }
+
+    // 搜索框
+    .x-form-fieldset .x-form-fieldset-body-el {
+        border: 0;
+    }
+
+
+    @include tabbar-ui(
+        $ui: 'tab',
+        $background-color: $left-tab-color
+    );
+    .x-listitem{
+        border:0;
+    }
+
+    background-color: #2e3238;
+    border-right: 1px solid #4f5969;
+    .mine-avatar{
+        &>.x-inner-el{
+            &>.x-body-el{
+                width: 100%;
+                display: block;
+            }
+        }
+        // background-image: $auth-background-image;
+        // background-position: left;
+        // width: 40px;
+        // height: 40px;
+        // background-size: 40px;
+        // background-repeat: no-repeat;
+        // margin-right: 20px;
+
+        // .x-button.x-has-icon .x-icon-el {
+        //     display: none;
+        // }
+    }
+
+    // 搜索框
+    .x-form-fieldset{
+        margin: 0;
+    }
+
+    .left_tab{
+        .logo{
+            float: left;
+            background-image: url(get-resource-path('images/LOGO1.png'));
+            width: 20px;
+            height: 20px;
+            background-size: 15px;
+            background-repeat: no-repeat;
+        }
+        .unRead{
+            display: block;
+            float: right;
+            background-image: url(get-resource-path('images/notify.png'));
+            width: 20px;
+            height: 20px;
+            background-size: 15px;
+            background-repeat: no-repeat;
+            // margin-left: 160px;
+        }
+        background-color: #2e3238;
+        .x-listitem{
+            color: #ffffff;
+            background-color: #2e3238;
+
+            &.x-hovered {
+                background-color: #3a3f45;
+            }
+
+            &.x-selected {
+                background-color: #3a3f45;
+            }
+        }
+    }
+
+    .left_bar{
+        #ext-toolbar-1{
+            background: $left-tab-color;
+            border-top: 1px solid #585b60;
+        }
+    }
+
+    // button的menu小角
+    .x-button.x-has-arrow .x-arrow-el, .x-button.x-has-menu:not(.x-no-arrow) .x-arrow-el {
+        display: none;
+    }
+}
+
+.right_panel{
+    .addMem{
+        float: right;
+        background-image: $right-addMem-image;
+        background-position: left;
+        width: 40px;
+        height: 40px;
+        background-size: 40px;
+        background-repeat: no-repeat;
+        margin-right: 20px;
+        cursor: pointer;
+    }
+
+    .right-title{
+        font-size: 30px;
+    }
+
+    .evAvatar{
+        float: left;
+    }
+
+    .bubble {
+        background-color: #b2e281;
+        max-width: 500px;
+        // min-height: 1em;
+        // min-height: 60px;
+        display: inline-block;
+        vertical-align: top;
+        position: relative;
+        text-align: left;
+        font-size: 14px;
+        border-radius: 3px;
+        -moz-border-radius: 3px;
+        -webkit-border-radius: 3px;
+        margin: 0 10px;
+
+        .plain{
+            padding: 9px 13px;
+            .viewPic{
+                // width:80px;
+                // height:80px;
+            }
+        }
+    }
+    .bubble:after, .bubble:before {
+        position: absolute;
+        top: 14px;
+        border: 6px solid transparent;
+    }
+    .bubble.right:after, .bubble.right:before {
+        left: 100%;
+    }
+    .bubble.bubble_primary.right:after {
+        border-left-color: #b2e281;
+        border-left-width: 4px;
+    }
+
+
+
+    .logo1{
+        // float: left;
+        // background-image: url(get-resource-path('images/LOGO1.png'));
+        width: 40px;
+        height: 40px;
+        background-size: 40px;
+        background-repeat: no-repeat;
+        margin-right:5px;
+    }
+    // border: 1px solid #d6d6d6;
+    .x-dataview-item {
+        // width: 6.4rem;
+        // border: solid 1px transparent;
+        padding: .3rem .5rem .2rem;
+        // margin: 2px;
+        // border: 1px solid #d6d6d6;
+        border-top: none;
+
+        &.x-hovered {
+            background-color: mix(#fff, $base-light-color, 60%);
+            .preview {
+                display: block;
+            }
+            .preview + .size {
+                display: none;
+            }
+        }
+        &.x-selected {
+            background-color: $base-light-color;
+            border-color: $base-color;
+        }
+    }
+
+    // 输入框
+    .x-textfield .x-input-wrap-el {
+        border: 0;
+    }
+
+    // 发送按钮
+    .x-button .x-inner-el {
+        padding: 8px;
+        border: 0;
+        background-color: white;
+        background-image: none;
+    }
+
+    .editor-Ct {
+        &>.x-innerhtml {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+
+            &>.simditor {
+                height: 100%;
+                border: 0;
+
+                &>.simditor-wrapper {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+
+                    &>.simditor-body {
+                        min-height: 20px;
+                        flex:1 0 0;
+                        overflow: auto;
+                    }
+
+                    &>.simditor-body img[data-emoji]{
+                        width: 26px;
+                        height: 20px;
+                    }
+
+                    &>.simditor-placeholder {
+                        top: 41px;
+                    }
+                }
+            }
+        }
+
+        .simditor-toolbar{
+            border-bottom: 1px solid #d6d6d6;
+        }
+    }
+}

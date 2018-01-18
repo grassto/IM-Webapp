@@ -1,0 +1,19 @@
+// 底部工具栏（比如 dialog 的底栏），加个 内阴影
+$toolbar-footer-ui: (
+    background-color: $neutral-light-color,
+    box-shadow: 0 4px 2px -3px rgba(black, 0.2) inset
+);
+
+@include toolbar-ui(
+    $ui: 'flat',
+    $background-color: transparent
+);
+
+// 顶部工具栏 左右 padding 15px
+// 一般和下面的表单、列表等容器左右间隔一致
+.top-bar {
+    .x-toolbar-body-el {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}

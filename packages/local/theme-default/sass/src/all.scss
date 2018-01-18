@@ -1,0 +1,24 @@
+/*滚动条样式*/
+
+/*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-button {
+    width: 0px;
+    height: 0px;
+}*/
+
+::-webkit-scrollbar-thumb {
+    background: rgba(#888, 0.30); //#bcbcbc;
+    //border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(#888, 0.35); //#a9a9aa;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: rgba(#888, 0.40); //#8d8d8e;
+}

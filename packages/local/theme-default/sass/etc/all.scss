@@ -1,0 +1,23 @@
+/*
+ * This is is imported by virtue of "sass.etc" in "app.json".
+ */
+@function contrasted($color, $percent: 50%) {
+    @if $percent < 0 {
+        $dark: lighten($color, -$percent);
+        $light: darken($color, -$percent);
+    } @else {
+        $dark: darken($color, $percent);
+        $light: lighten($color, $percent);
+    }
+
+    @return if(brightness($color) > 50, $dark, $light);
+}
+
+// 覆盖原本的 函数( border-color 颜色比较深 )
+@function button-border-color($background-color) {
+    @if $background-color == transparent or $background-color == null {
+        @return $background-color;
+    } @else {
+        @return darken($background-color, 0%);
+    }
+}

@@ -1,0 +1,4 @@
+// 给 grid 加上 has-border 样式类，即可出现边框
+.x-grid.has-border {
+    border: solid 1px $neutral-highlight-color;
+}

@@ -1,0 +1,20 @@
+// 给 list 加上 has-border 样式类，即可出现边框
+.x-list:not(.x-grid).has-border {
+    .x-listitem {
+        border-width: 1px;
+        border-left-color: $neutral-highlight-color;
+        border-right-color: $neutral-highlight-color;
+        &.x-first {
+            border-top-color: $neutral-highlight-color;
+        }
+        &.x-last {
+            border-bottom-color: $neutral-highlight-color;
+        }
+    }
+}
+
+.x-list {
+    .x-listitem-inner-el {
+        width: 100%;
+    }
+}

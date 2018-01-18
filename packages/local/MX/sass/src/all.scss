@@ -1,0 +1,128 @@
+$link-color: darken($base-color, 10%);
+a {
+    color: $link-color;
+    text-decoration: none;
+    cursor: pointer;
+    outline: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+a.black {
+    color: $color;
+    &:hover {
+        color: $link-color;
+    }
+}
+a.gray {
+    color: $neutral-dark-color;
+    &:hover {
+        color: $link-color;
+    }
+}
+a.button {
+    padding: $anchor-button-padding;
+    font-size: .9rem;
+    line-height: 1rem;
+    &:hover {
+        text-decoration: none;
+    }
+
+    &:before {
+        font-size: 1rem;
+    }
+    &.has-text {
+        &:before {
+            font-size: 1em;
+            margin-right: 4px;
+        }
+    }
+    
+    &.flat {
+        color: $neutral-medium-dark-color;
+        &:hover {
+            color: $neutral-dark-color;
+        }
+        &:active {
+            color: $link-color;
+        }
+    }
+
+    &.action {
+        border-radius: 2px;
+        background-color: $base-color;
+        color: $light-color;
+        &:hover {
+            background-color: button-hovered-background-color($base-color);
+        }
+        &:active {
+            background-color: button-pressed-background-color($base-color);
+        }
+    }
+    
+    &.confirm {
+        border-radius: 2px;
+        background-color: $confirm-color;
+        color: $light-color;
+        &:hover {
+            background-color: button-hovered-background-color($confirm-color);
+        }
+        &:active {
+            background-color: button-pressed-background-color($confirm-color);
+        }
+    }
+    
+    &.decline {
+        border-radius: 2px;
+        background-color: $alert-color;
+        color: $light-color;
+        &:hover {
+            background-color: button-hovered-background-color($alert-color);
+        }
+        &:active {
+            background-color: button-pressed-background-color($alert-color);
+        }
+    }
+}
+
+.flex1 {
+    flex: 1 1 auto;
+}
+.flex10 {
+    flex: 1 1 0;
+}
+.breakall
+{
+	word-break: break-all;
+}
+.ellipsis
+{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.bold
+{
+    font-weight: bold;
+}
+.subtitle {
+    font-size: .8rem;
+}
+.fullwidth {
+    width: 100%;
+}
+.light-shadow {
+    box-shadow: 1px 1px 5px #dfdfdf;
+}
+.bg-neutral-light {
+    background-color: $neutral-light-color;
+}
+.base-color {
+    color: $base-color !important;
+}
+.red {
+    color: $alert-color !important;
+}
+.green {
+    color: $confirm-color !important;
+}

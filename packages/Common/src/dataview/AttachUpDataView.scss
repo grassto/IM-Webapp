@@ -1,0 +1,100 @@
+.attach-dataview {
+
+    &.x-inline {
+        .x-dataview-body-el {
+            border: solid 1px #d5d5d5;
+            border-top: 0;
+        }
+        .name, .size, .preview {
+            font-size: .9em;
+        }
+        .name {
+            display: block;
+            padding: 5px 0 2px;
+        }
+        .preview {
+            display: none;
+            line-height: 1.2em;
+        }
+        .size {
+            line-height: 1.2em;
+            color: $neutral-dark-color;
+            padding: $anchor-button-padding;
+        }
+        .icon {
+            font-size: 2.5rem;
+            color: $neutral-medium-dark-color;
+            position: relative;
+        }
+        
+        .x-dataview-item {
+            width: 6.4rem;
+            border: solid 1px transparent;
+            padding: .3rem .5rem .2rem;
+            margin: 2px;
+            text-align: center;
+
+            &.x-hovered {
+                background-color: mix(#fff, $base-light-color, 60%);
+                .preview {
+                    display: block;
+                }
+                .preview + .size {
+                    display: none;
+                }
+            }
+            &.x-selected {
+                background-color: $base-light-color;
+                border-color: $base-color;
+            }
+        }
+    }
+
+    &:not(.x-inline) {
+
+        .x-dataview-item {
+            border: solid 1px #d5d5d5;
+            border-top: none;
+            padding-left: left($list-medium-padding);
+        }
+        .name {
+            padding-top: top($list-medium-padding);
+            padding-bottom: bottom($list-medium-padding);
+            display: block;
+        }
+        .icon {
+            font-size: 1rem;
+            color: $neutral-medium-dark-color;
+            width: 24px;
+            text-align: center;
+        }
+        .status {
+            width: 8rem;
+            position: relative;
+            margin-right: 10px;
+            text-align: center;
+    
+            .result-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                &:before {
+                    font-size: 1.2rem;
+                    margin-right: .3rem;
+                }
+            }
+        }
+        .preview, .delete {
+            margin-right: 4px;
+        }
+        .progress-wrap {
+            height: 1rem;
+            line-height: 1rem;
+            position: relative;
+            background-color: $neutral-highlight-color;
+            .progressbar {
+                background-color: $base-color;
+            }
+        }
+    }
+}

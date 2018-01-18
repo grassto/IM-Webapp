@@ -1,0 +1,22 @@
+.tagfield-item {
+    padding: 4px;
+    margin: 3px;
+    background-color: $base-color;
+    color: #fff;
+    border-radius: 2px;
+
+    .tagfield-item-close {
+        margin-left: 2px;
+        color: #fff;
+        cursor: pointer;
+    }
+}
+
+.x-textfield.tag-field {
+    .x-input-wrap-el {
+        flex-wrap: wrap;
+    }
+    .x-before-input-el {
+        flex-wrap: wrap;
+    }
+}

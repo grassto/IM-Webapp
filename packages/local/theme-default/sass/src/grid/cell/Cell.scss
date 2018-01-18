@@ -1,0 +1,22 @@
+.x-gridcell {
+    // cell 设置 userCls: 'clickable'，光标即可变为 可点击样式
+    &.clickable {
+        cursor: pointer;
+    }
+}
+
+// 放在 表格单元格内的图标 (非 tool)
+.grid-cell-icon {
+    @include icon(
+        $color: $tool-color,
+        $size: $tool-size,
+        $size-big: $tool-size-big,
+        $font-size: $tool-font-size,
+        $font-size-big: $tool-font-size-big
+    );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}

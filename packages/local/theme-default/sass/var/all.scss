@@ -1,0 +1,180 @@
+$enable-font-open-sans: dynamic(false);
+$enable-big: dynamic(false);
+
+// Compass variables
+$default-text-shadow-color: rgba(black, 0.25);
+$default-text-shadow-blur: 1px;
+$default-text-shadow-v-offset: 1px;
+$default-box-shadow-color: rgba(black, 0.2);
+$default-box-shadow-h-offset: 0;
+$default-box-shadow-v-offset: 0;
+$default-box-shadow-spread: 1px;
+$default-box-shadow-blur: 2px;
+$default-border-radius: 6px;
+
+// Application global variables
+$form-max-width: dynamic(768px);
+$invalid-base-color: dynamic(#d63e08);
+$invalid-text-color: dynamic(white);
+
+// Ext JS global variables
+// http://docs.sencha.com/extjs/latest/modern/Global_CSS.html
+$font-family: dynamic("Helvetica Neue", Helvetica, Arial, "Microsoft Yahei", "Hiragino Sans GB", "Heiti SC", "WenQuanYi Micro Hei", sans-serif);
+$font-size: 13px;
+$font-size-big: 14px;
+$font-weight-normal: dynamic(400);
+$font-weight-bold: dynamic(500);
+$line-height: 1.31;
+
+//$base-color: #39babf;
+//$base-dark-color: #257c80;
+//$base-light-color: #83efef;
+
+$neutral-color: #aaa;
+$neutral-dark-color: #666; //#767676
+$neutral-medium-dark-color: #888;
+$neutral-highlight-color: #d5d5d5;
+$neutral-light-color: #f5f5f5;
+
+$color: #0d1114;
+//$highlight-color: #606060; //333
+$background-color: white;
+
+$confirm-color: #5cb85c;
+$alert-color: $invalid-base-color;
+
+// Ext.panel.Header
+// http://docs.sencha.com/extjs/latest/modern/Ext.Panel.html#vars
+/*$panel-header-background-color: $panel-body-background-color;
+$panel-header-color: $panel-body-color;
+$panel-header-font-weight: 600;
+$panel-header-padding: 0;
+$panel-header-padding-big: 0;
+$panel-header-min-height: 53px;
+$panel-header-min-height-big: 53px;
+$panel-header-title-padding: 12px 16px;
+$panel-header-title-padding-big: 12px 16px;*/
+
+// Ext.Button
+// http://docs.sencha.com/extjs/latest/modern/Ext.Button.html#vars
+$button-padding: 8px 11px;
+$button-padding-big: 9px 12px;
+$button-icon-horizontal-spacing: 4px;
+$button-line-height: 17px;
+
+$splitButton-Inner-padding: $button-padding;
+$splitButton-Inner-padding-big: $button-padding-big;
+$splitButton-icon-horizontal-spacing: $button-icon-horizontal-spacing;
+$splitButton-line-height: $button-line-height;
+
+// Ext.tab.Tab
+// http://docs.sencha.com/extjs/latest/modern/Ext.tab.Tab.html#vars
+$tab-padding: 10px 14px; // 15px
+$tab-padding-big: 10px 14px;
+$tab-icon-vertical-spacing: 4px;
+$tab-line-height: 17px;
+$tab-font-size: 14px;
+
+// Ext.Toolbar
+// http://docs.sencha.com/extjs/latest/modern/Ext.Toolbar.html#vars
+$toolbar-horizontal-spacing: 6px;
+$toolbar-horizontal-spacing-big: 6px;
+//$toolbar-padding: 6px;
+//$toolbar-padding-big: 6px;
+
+// Ext.field
+// http://docs.sencha.com/extjs/latest/modern/Ext.field.Field.html#vars
+//$field-label-font-weight: normal;
+//$field-label-padding: 10px 5px 10px 0;
+//$field-label-padding-big: 13px 6px;
+$field-error-icon-under-size-big: 18px;
+$field-error-icon-under-margin-big: 0 4px 0 0;
+$field-error-message-line-height-big: 18px;
+$field-error-message-font-size-big: 13px;
+$field-error-under-margin-big: 4px;
+
+// Ext.field.Text
+// http://docs.sencha.com/extjs/latest/modern/Ext.field.Text.html#vars
+//$textfield-input-background-color: $neutral-light-color;
+$textfield-input-border-color: $neutral-highlight-color;
+$textfield-focused-input-background-color: $background-color;
+$textfield-focused-input-border-color: $base-color;
+//$textfield-input-padding: 10px 15px;
+//$textfield-input-padding-big: 11px 15px;
+$textfield-placeholder-color: $neutral-color;
+
+
+//Ext.field.Checkbox
+// http://docs.sencha.com/extjs/latest/modern/Ext.field.Checkbox.html#vars
+$checkboxfield-checkbox-color: $highlight-color;
+$checkboxfield-box-label-color: $highlight-color;
+
+// Ext.field.trigger.Trigger
+// http://docs.sencha.com/extjs/latest/modern/Ext.field.trigger.Trigger.html#vars
+$trigger-icon-color: $neutral-color;
+$trigger-hovered-icon-color: $neutral-dark-color;
+$trigger-pressed-icon-color: $base-color;
+
+// Ext.field.trigger.Clear
+// http://docs.sencha.com/extjs/latest/modern/Ext.field.trigger.Clear.html#vars
+$cleartrigger-icon: $fa-var-times;
+
+/*
+// Ext.grid.HeaderContainer
+// http://docs.sencha.com/extjs/latest/modern/Ext.grid.HeaderContainer.html#vars
+$headercontainer-background-color: contrasted($background-color, 20%);
+$headercontainer-border-width: 0;
+
+// Ext.grid.column.Column
+// http://docs.sencha.com/extjs/latest/modern/Ext.grid.column.Column.html#vars
+$gridcolumn-sorted-background-color: contrasted($background-color, 25%);
+$gridcolumn-border-color: transparent;
+$gridcolumn-border-style: none;
+$gridcolumn-color: white;
+$gridcolumn-sort-icon-color: white;
+$gridcolumn-trigger-background-color: transparent;
+$gridcolumn-trigger-icon-color: white;
+*/
+$headercontainer-background-color: contrasted($background-color, 10%);
+$headercontainer-border-width: 0 0 1px;
+$headercontainer-border-color: #ccc;
+
+$gridcolumn-sorted-background-color: contrasted($background-color, 20%);
+$gridcolumn-border-color: #ccc;
+$gridcolumn-font-weight: 800;
+$gridcolumn-padding: 10px 12px;
+$gridcell-padding: 10px 12px 9px;
+$gridcolumn-sort-asc-icon: $fa-var-angle-up $gridcolumn-sort-icon-font-size $font-icon-font-family;
+$gridcolumn-sort-desc-icon: $fa-var-angle-down $gridcolumn-sort-icon-font-size $font-icon-font-family;
+$gridcolumn-trigger-width: 24px;
+
+// Ext.grid.Tree
+$treecell-expander-font-size: 16px;
+$treecell-expander-font-size-big: 18px;
+$treecell-expander-size: 24px;
+$treecell-expander-size-big: 24px;
+
+// Ext.Mask
+// http://docs.sencha.com/extjs/latest/modern/Ext.Mask.html#vars
+$mask-background-color: rgba($neutral-color, 0.5); //$neutral-light-color;
+$mask-opacity: 1; //0.75;
+$mask-page-background-color: black;
+$mask-page-opacity: 0.5;
+$mask-message-color: #525252;
+$loading-spinner-color: #525252;
+
+// Ext.Sheet
+// http://docs.sencha.com/extjs/latest/modern/Ext.Sheet.html#vars
+$sheet-border-style: none;
+
+// Ext.Toast
+// http://docs.sencha.com/extjs/latest/modern/Ext.Toast.html#vars
+$toast-background-color: rgba(black, 0.75);
+$toast-padding: 8px;
+$toast-padding-big: 10px;
+
+// ToolTip
+$tooltip-background-color: transparent;
+
+// Panel Resizer
+$panelresizer-handle-size: 5px;

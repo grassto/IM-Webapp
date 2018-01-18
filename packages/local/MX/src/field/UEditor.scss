@@ -1,0 +1,21 @@
+.x-ueditor {
+
+    .edui-notadd {
+        .edui-editor {
+            border: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .edui-editor-iframeholder {
+            flex: 1 0 0;
+            display: flex;
+            flex-direction: column;
+            &>iframe {
+                flex: 1;
+            }
+        }
+        .edui-editor-bottomContainer {
+            border: 0;
+        }
+    }
+}

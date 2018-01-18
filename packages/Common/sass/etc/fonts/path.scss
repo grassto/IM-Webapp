@@ -1,0 +1,12 @@
+/* FONT PATH
+ * -------------------------- */
+
+//# fashion -inline
+@font-face {
+  font-family: 'common';
+  src: url('#{$i-common-font-path}/common.woff?v=#{$i-common-version}') format('woff'),
+    url('#{$i-common-font-path}/common.ttf?v=#{$i-common-version}') format('truetype'),
+    url('#{$i-common-font-path}/common.svg?v=#{$i-common-version}') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}

@@ -1,0 +1,19 @@
+// 必填的 * 号放到 label 前面，红色显示
+.#{$prefix}field {
+    &.#{$prefix}required>.#{$prefix}label-el:after {
+        content: "";
+    }
+    &.#{$prefix}required>.#{$prefix}label-el:before {
+        content: "*";
+        color: $alert-color;
+    }
+}
+
+// 设置了 clearable 的输入框，清空按钮比较占地方
+// //可以给输入框设置 userCls: 'focus-clearable'
+// 这样，清空按钮 会在输入框聚焦 或者 鼠标悬停的时候才显示出来
+.x-field:not(.x-focused):not(:hover) {
+    .x-cleartrigger:not(.x-hidden-display) {
+        display: none;
+    }
+}

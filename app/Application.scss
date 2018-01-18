@@ -1,0 +1,88 @@
+/*
+ *  This file can be used to set variables and supply global styling.  View specific 
+ *  styling should be located the view's corresponding scss file.
+ */
+// @import "../sass/etc/fonts/all";
+$enable-font-awesome: dynamic(true);
+
+// $base-color: #87BD3E;//强烈建议将样式代码放置在与其应用的视图相同的.scss文件中
+// $tab-background-color:#2e3238;
+// $formpanel-body-background-color: #2e3238;
+
+/*滚动条样式*/
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+ ::-webkit-scrollbar-button {
+    width: 0px;
+    height: 0px;
+}
+
+ ::-webkit-scrollbar-thumb {
+    background: #bcbcbc;
+    border-radius: 10px;
+}
+
+ ::-webkit-scrollbar-thumb:hover {
+    background: #a9a9aa;
+}
+
+ ::-webkit-scrollbar-thumb:active {
+    background: #8d8d8e;
+}
+
+
+
+// 头像
+$avatar-size: dynamic(38px);
+$avatar-size-large: dynamic(48px);
+.avatar {
+    @include border-radius(50%);
+    position: relative;
+    text-align: center;
+    color: #fff;
+    overflow: hidden;
+    height: $avatar-size;
+    width: $avatar-size;
+    line-height: $avatar-size;
+    &>img {
+        width: 100%;
+        height: 100%; //@include border-radius(50%);
+    }
+    &.firstletter {
+        //border: 1px solid #909090;
+        margin-right: .4em;
+        &:before {
+            content: attr(letter);
+            font-size: 16px;
+        }
+        &.loaded {
+            //border-color: #ddd;
+            &:before {
+                content: unset;
+            }
+        }
+        &.system {
+            //border: 0;
+            &:before {
+                font-family: "aio";
+                content: '\e901';
+                color: #1B53A3;
+                font-size: 38px;
+                font-weight: normal;
+            }
+        }
+    }
+    &.large {
+        height: $avatar-size-large;
+        width: $avatar-size-large;
+        line-height: $avatar-size-large;
+    }
+}
+
+a.link-avatar {
+    text-decoration: none;
+    display: block;
+}

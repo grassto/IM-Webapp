@@ -16,7 +16,9 @@ Ext.define('IM.view.leftTab.organization.Organization', {
     viewModel: {
         type: 'organization'
     },
-    bind: '{navItems}',
+    bind: {
+        store: '{navItems}'
+    },
 
     // bind: {
     //     store: {

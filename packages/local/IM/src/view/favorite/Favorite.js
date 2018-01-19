@@ -39,7 +39,8 @@ Ext.define('IM.view.favorite.Favorite', {
                 }
             }, {
                 xtype: 'list',
-                flex: 1
+                flex: 1,
+                itemTpl: '暂无收藏'
             }]
         }];
 

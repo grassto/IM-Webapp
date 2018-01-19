@@ -74,7 +74,16 @@ Ext.define('IM.view.groupSel.GroupSel', {
                 }, {
                     xtype: 'groupSel-organization',
                     flex: 1
-                }]
+                }/* , {
+                    xtype: 'textfield',
+                    label: '群名称',
+                    style: {
+                        textAlign: 'left'
+                    }
+                }, {
+                    xtype: 'textfield',
+                    label: '群类型'
+                }*/]
             }, {
                 xtype: 'list',
                 itemId: 'grpSelMem',

@@ -25,8 +25,8 @@ Ext.define('IM.view.groupSel.GroupSelController', {
 
     /**
      * 从树上选择节点添加到右侧list
-     * @param {*} data 需要添加的数据信息
-     * @param {*} list 目标list
+     * @param {object} data 需要添加的数据信息
+     * @param {object} list 目标list
      */
     addMemToList(data, list) {
         var me = this, result = [];

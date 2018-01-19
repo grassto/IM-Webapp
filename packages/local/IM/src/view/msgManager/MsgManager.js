@@ -8,17 +8,42 @@ Ext.define('IM.view.msgManager.MsgManager', {
     closable: true,
     resizable: true,
     closeAction: 'hide',
-    // html: '暂无消息',
+    height: '90vh',
+    maxWidth: '90vw',
+    layout: 'fit',
 
     constructor(config) {
         config = config || {};
         config.items = [{
-            width: '70pv',
-            height: '70pw'
+            xtype: 'container',
+            layout: 'hbox',
+            padding: 20,
+            items: [{
+                xtype: 'container',
+                layout: 'vbox',
+                userCls: 'left_msgMgr',
+                items: [{ // 搜索
+                    xtype: 'IM_msgSearch_textfield',
+                    itemId: 'msgSearchTxt'
+                }, { // list
+                    xtype: 'groupSel-organization',
+                    flex: 1
+                }]
+            }, {
+                html: '赞无结果',
+                style: {
+                    paddingLeft: '10px'
+                },
+                minWidth: 300
+            }]
         }];
 
-        this.callParent([{
+        this.callParent([
             config
-        }]);
+        ]);
+    },
+
+    listeners: {
+        beforehide: 'msgBeforeHide'
     }
 });

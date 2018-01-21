@@ -7,14 +7,18 @@ Ext.define('IM.view.msgManager.msgManagerController', {
     */
     onAdvancedSearch(field) {
         const panel = this.getQuickAddPanel();
-        if (panel.getParent() !== Ext.Viewport) {
-            Ext.Viewport.add(panel);
-        }
-        // bug，直接 showBy 有时候不显示，所以加下面2行
-        panel._hidden = true;
-        panel.setHidden(false);
+        if (!panel.isHidden()) {
+            panel.hide();
+        } else {
+            if (panel.getParent() !== Ext.Viewport) {
+                Ext.Viewport.add(panel);
+            }
+            // bug，直接 showBy 有时候不显示，所以加下面2行
+            panel._hidden = true;
+            panel.setHidden(false);
 
-        panel.showBy(field.element, 'tl-bl?');
+            panel.showBy(field.element, 'tl-bl?');
+        }
     },
 
     /**
@@ -51,6 +55,6 @@ Ext.define('IM.view.msgManager.msgManagerController', {
      */
     msgBeforeHide() {
         var advPanel = this.getView().down('#msgSearchTxt').quickAddPanel;
-        if(advPanel) advPanel.hide();
+        if (advPanel) advPanel.hide();
     }
 });

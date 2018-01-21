@@ -23,13 +23,6 @@ Ext.define('IM.view.IM', {
         type: 'mainBind'
     },
 
-    config: {
-        /**
-         * @cfg {Boolean} enableUpload
-         * 允许添加并上传文件
-         */
-        enableUpload: true
-    },
 
     initialize() {
         this.on({

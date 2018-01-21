@@ -209,6 +209,16 @@ $left-tab-color: #2e3238;
     }
 
     .editor-Ct {
+        &>.x-body-el{
+            &>.rich-editor-Ct{
+                flex: 1 1 0%;
+                display: flex;
+                height: 100%;
+                width: 100%;
+                padding-top: 33px;
+                position: absolute;
+            }
+        }
         &>.x-innerhtml {
             position: absolute;
             top: 0;

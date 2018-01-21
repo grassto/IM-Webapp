@@ -3,8 +3,11 @@ Ext.define('IM.view.chat.ChatInput', {
     xtype: 'chatInput',
 
     requires: [
-        'IM.view.chat.editor.RichEditor'
+        'IM.view.chat.editor.RichEditor',
+        'IM.view.chat.ChatInputController'
     ],
+
+    controller: 'chatController',
 
     defaultListenerScope: true,
 
@@ -13,9 +16,13 @@ Ext.define('IM.view.chat.ChatInput', {
          * @cfg {Boolean/Object} richTextArea
          * 配置评论输入框
          */
-        richTextArea: true
+        richTextArea: true,
+        /**
+         * @cfg {Boolean} enableUpload
+         * 允许添加并上传文件
+         */
+        enableUpload: true
     },
-
     // scrollable: {
     //     y: false
     // },
@@ -70,13 +77,14 @@ Ext.define('IM.view.chat.ChatInput', {
     }, {
         xtype: 'richEditor',
         itemId: 'richEditor',
-        flex: 1
+        flex: 1,
+        userCls: 'rich-editor-Ct'
     }],
 
     /**
-    * 显示 emoji 面板
-    * @param {Ext.Button} btn
-    */
+  * 显示 emoji 面板
+  * @param {Ext.Button} btn
+  */
     showEmjPanel(btn) {
         let panel = Ext.getCmp('global-emojipanel');
         if (!panel) {
@@ -106,10 +114,11 @@ Ext.define('IM.view.chat.ChatInput', {
         });
     },
 
+    
     /**
      * 回执按钮点击事件,btn.getPressed()判断是否按下
      */
     onReply(btn) {
         btn.toggle(true);
-    }
+    },
 });

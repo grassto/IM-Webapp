@@ -18,24 +18,25 @@ Ext.define('IM.view.IM', {
         'IM.view.msgManager.MsgManager',
         'IM.view.rightContainer.Details'
     ],
+
     layout: 'hbox',
     viewModel: {
         type: 'mainBind'
     },
 
 
-    initialize() {
-        this.on({
-            painted: 'onPainted',
-            scope: this
-        });
-    },
-    onPainted() {
-        // var me = this;
-        // Ext.get('addMem').on('click', function () {
-        //     me.getController().onShowGrpSel();
-        // });
-    },
+    // initialize() {
+    //     this.on({
+    //         painted: 'onPainted',
+    //         scope: this
+    //     });
+    // },
+    // onPainted() {
+    //     // var me = this;
+    //     // Ext.get('addMem').on('click', function () {
+    //     //     me.getController().onShowGrpSel();
+    //     // });
+    // },
 
     items: [{// 左边
         xtype: 'panel',
@@ -103,7 +104,7 @@ Ext.define('IM.view.IM', {
                 iconCls: 'x-fa fa-user',
                 xtype: 'left-organization',
                 cls: 'left_tab',
-                itemId: 'organization'
+                itemId: 'left-organization'
             }, {
                 // 设置
                 iconCls: 'x-fa fa-cog',

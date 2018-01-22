@@ -86,20 +86,8 @@ Ext.define('IM.utils.AvatarMgr', {
             '</a>'
         ].join('');
     },
-    getAvatarHtmlByName(option) {
-        // debugger;
-        option = option || {};
-
-        const name = option.name || '',
-            cls = option.cls || '',
-            title = option.title || '',
-            nameField = Ext.isEmpty(name) ? '' : `"${name}"`,
-            titleAttr = Ext.isEmpty(title) ? '' : ` title="${title}"`;
-
-        return [
-            `<a class="avatar link-avatar firstletter ${cls}" letter="{[AvatarMgr.getFirstLetter(${nameField})]}" style="{[AvatarMgr.getColorStyle(${nameField})]}" ${titleAttr}>`,
-            '</a>'
-        ].join('');
+    getAvatarHtmlByName(name) {
+        return '<a class="avatar link-avatar firstletter " letter="' + AvatarMgr.getFirstLetter(name) + '" style="float:left;' + AvatarMgr.getColorStyle(name) + '" ></a>';
     },
 
     /**

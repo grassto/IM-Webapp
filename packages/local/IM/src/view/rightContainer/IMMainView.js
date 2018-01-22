@@ -1,7 +1,7 @@
 Ext.define('IM.view.rightContainer.IMMainView', {
     extend: 'Ext.Container',
     xtype: 'im-main',
-    controller: 'im-main',
+    controller: 'im-right-main',
 
     requires: [
         'IM.view.rightContainer.IMMainViewController',
@@ -15,13 +15,17 @@ Ext.define('IM.view.rightContainer.IMMainView', {
     items: [
         // 头
         {
-            xtype: 'component',
+            xtype: 'container',
+            userCls: 'right-title',
             bind: {
-                html: `<div style="line-height:40px;border-bottom:1px solid #d6d6d6; text-align:center;">
-                                    <span class="right-title">{sendToName}</span>
-                                    <span id="addMem" class="addMem"></span>
-                            </div>`
-            }
+                html: '<span>{sendToName}</span>'
+            },
+            items: [{
+                xtype: 'button',
+                docked: 'right',
+                iconCls: 'addMem',
+                handler: 'onShowGrpSel'
+            }]
         },
         // 内容显示区
         {

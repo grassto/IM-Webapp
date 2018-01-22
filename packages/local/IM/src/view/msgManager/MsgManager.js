@@ -30,7 +30,7 @@ Ext.define('IM.view.msgManager.MsgManager', {
                     flex: 1
                 }]
             }, {
-                html: '赞无结果',
+                html: '暂无结果',
                 style: {
                     paddingLeft: '10px'
                 },

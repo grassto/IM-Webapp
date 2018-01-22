@@ -173,4 +173,8 @@ Ext.define('IM.view.chat.ChatInputController', {
         // }
     },
 
+    showFav() {
+        this.fireEvent('fav');
+    }
+
 });

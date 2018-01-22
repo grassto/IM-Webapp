@@ -9,6 +9,12 @@ Ext.define('IM.view.IMController', {
             },
             'left-orgController': {
                 'showRight': 'showRightView'
+            },
+            'im-right-main': {
+                'grpSel': 'onShowGrpSel'
+            },
+            'chatController': {
+                'fav': 'onShowFav'
             }
         }
     },
@@ -19,7 +25,7 @@ Ext.define('IM.view.IMController', {
 
         // 设置当前用户头像
         var viewmodel = me.getViewModel();
-        var avatar = '<a class="avatar link-avatar firstletter " letter="' + AvatarMgr.getFirstLetter(viewmodel.get('ownerName')) + '" style="float:left;' + AvatarMgr.getColorStyle(viewmodel.get('ownerName')) + '" ></a>';
+        var avatar = AvatarMgr.getAvatarHtmlByName(viewmodel.get('ownerName'));
         viewmodel.set('avatar', avatar);
 
         // 搜索框
@@ -33,8 +39,11 @@ Ext.define('IM.view.IMController', {
             scope: me
         });
 
+        // 右侧页面展示
         me.showRightView('pageblank');
 
+        // 打开连接
+        me.mounted();
     },
 
     /**
@@ -84,6 +93,9 @@ Ext.define('IM.view.IMController', {
     },
 
 
+
+    /* *************************************连接相关**************************************/
+
     /**
      * websocket接收请求后执行，将数据绑定至页面
      * @param {object} msg 服务器返回的数据
@@ -96,7 +108,7 @@ Ext.define('IM.view.IMController', {
     mounted() {
         var me = this;
         me.getMe();
-        WebSocketHelper.initialize(Config.wsDevUrl);
+        WebSocketHelper.initialize(Config.wsDevGoUrl);
         WebSocketHelper.setEventCallback((msg) => {
             switch (msg.event) {
                 case 'posted':
@@ -122,6 +134,7 @@ Ext.define('IM.view.IMController', {
                 var viewmodel = me.getView().getViewModel();
                 viewmodel.set('ownerName', data.nickname);
                 viewmodel.set('ownerMail', data.email);
+                viewmodel.set('avatar', AvatarMgr.getAvatarHtmlByName(data.nickname));
             }
         });
     },
@@ -142,11 +155,10 @@ Ext.define('IM.view.IMController', {
                 }
 
                 BindHelper.loadOrganization(me.getView());
-                // me.getChannels();
 
+                me.getChannels();
 
-
-                // // 定时获取状态 30s
+                // 定时获取状态 30s
                 // me.getStatus(data);
                 // setInterval(() => {
                 //     me.getStatus(data);
@@ -156,17 +168,64 @@ Ext.define('IM.view.IMController', {
 
     },
 
+    // 获取频道，单人对话也是频道
+    getChannels() {
+        var me = this;
+        Utils.ajaxByZY('get', 'users/me/channels', {
+            success: function (data) {
+                console.log('所有频道：');
+                console.log(data);
+
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].type == 'D') {
+                        for (let j = 0; j < User.allOthers.length; j++) {
+                            if (data[i].name.indexOf(User.allOthers[j].id) > -1) {
+                                data[i].channelname = User.allOthers[j].nickname;
+                                User.allChannels.push(data[i]);
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        User.allChannels.push(data[i]);
+                    }
+                }
+                BindHelper.loadRecentChat(me.getView());
+
+                // 设置默认选中第一个
+                // var record = me.getView().down('#left_members').getStore().getAt(0);
+                // me.onSelectChannel('', '', '', record);
+            }
+        });
+    },
+
+    // 状态信息
+    getStatus(us) {
+        var me = this,
+            uArray = [],
+            tmp = (User.allUsers != null && User.allUsers.length > 0) ? User.allUsers : us;
+        for (let i = 0; i < tmp.length; i++) {
+            uArray.push(tmp[i].id);
+        }
+        Utils.ajax('POST', 'users/status/ids', {
+            params: JSON.stringify(uArray),
+            success: function (data) {
+                console.log('所有人员状态：');
+                console.log(data);
+                User.allStatus = data;
+            }
+        });
+    },
 
 
-    
 
 
 
 
 
-    /**
-     * 弹出的dialog
-     */
+
+    /* **************************************** 弹出的dialog ***********************************/
+    // 群聊选人
     onShowGrpSel() {
         var view = this.getView(),
             grpSel = this.grpSel;
@@ -181,6 +240,7 @@ Ext.define('IM.view.IMController', {
 
         grpSel.show();
     },
+    // 消息管理器
     onShowMsgManger() {
         var me = this,
             msgMgr = me.msgMgr;
@@ -195,6 +255,7 @@ Ext.define('IM.view.IMController', {
 
         msgMgr.show();
     },
+    // 收藏夹
     onShowFav() {
         var view = this.getView(),
             fav = this.fav;

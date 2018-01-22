@@ -24,7 +24,7 @@ Ext.define('IM.view.rightContainer.Details', {
     items: [{
         // 可以使用父容器的viewModel
         bind: {
-            html: '{orgHtml}'
+            html: '{detailHtml}'
         }
     }, {
         xtype: 'button',

@@ -34,8 +34,6 @@ Ext.define('PushIM.Webapp.Application', {
         Ext.Msg.defaultAllowedConfig.hideAnimation = null;
         Ext.Msg.defaultAllowedConfig.showAnimation = null;
 
-        // me.setHighchartOptions();
-
         // ajax 请求的主机地址（域名和端口等）
         // if (Utils.isDev) { //development
         //     Config.httpUrl = Config.devHttpUrl;
@@ -55,7 +53,6 @@ Ext.define('PushIM.Webapp.Application', {
         Ext.Viewport.getController().onLaunch();
         me.callParent([profile]);
 
-        // var ava = AvatarMgr.getAvatarHtmlByName();
     },
 
     /**

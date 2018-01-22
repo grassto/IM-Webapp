@@ -17,17 +17,21 @@ Ext.define('IM.model.viewModel.IMMainBind', {
         ownerMail: 'zhanglong@163.com',
         sendToName: '赵虎',
         avatar: '',
-        status: ''
+        status: '',
+
+        detailHtml: ''
     },
 
     formulas: {
         personHtml: function (get) {
             var html = [
-                '<div class="sendToName">' + get('sendToName') + '</div>',
-                '<div class="phone">手机：' + get('phone') + '</div>',
-                '<div class="mobile">座机：' + get('mobile') + '</div>',
-                '<div class="eMail">邮箱：' + get('eMail') + '</div>',
-                '<div class="department">部门：' + get('department') + '</div>'
+                '<div style="font-size: 25px;">',
+                    '<div class="sendToName">' + get('sendToName') + '</div>',
+                    '<div class="phone">手机：' + get('phone') + '</div>',
+                    '<div class="mobile">座机：' + get('mobile') + '</div>',
+                    '<div class="eMail">邮箱：' + get('eMail') + '</div>',
+                    '<div class="department">部门：' + get('department') + '</div>',
+                '</div>'
             ].join('');
 
             return html;
@@ -36,9 +40,9 @@ Ext.define('IM.model.viewModel.IMMainBind', {
         orgHtml: function (get) {
             var html = [
                 '<div style="text-align:center;">',
-                '<div class="company">' + get('company') + '</div>',
-                '<div class="org">' + get('org') + '</div>',
-                '<div class="personNum">' + get('personNum') + '人</div>',
+                    '<div class="company">' + get('company') + '</div>',
+                    '<div class="org">' + get('org') + '</div>',
+                    '<div class="personNum">' + get('personNum') + '人</div>',
                 '</div>'
             ].join('');
 

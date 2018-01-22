@@ -4,22 +4,22 @@ Ext.define('IM.view.leftTab.organization.Organization', {
     controller: 'left-orgController',
 
     requires: [
-        'IM.view.leftTab.organization.OrganizationController'
+        'IM.view.leftTab.organization.OrganizationController',
+        'IM.store.IMOrg'
     ],
 
     userCls: 'IM-org-field',
 
-    // store: {
-    //     type: '',
-    //     model: 'IM.model.OrgTree'
-    // },
+    store: {
+        type: 'IMOrg'
+    },
 
-    viewModel: {
-        type: 'organization'
-    },
-    bind: {
-        store: '{navItems}'
-    },
+    // viewModel: {
+    //     type: 'organization'
+    // },
+    // bind: {
+    //     store: '{navItems}'
+    // },
 
     listeners: {
         itemTap: 'orgOnSelectMem'

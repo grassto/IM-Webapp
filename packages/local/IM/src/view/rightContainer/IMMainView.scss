@@ -1,0 +1,18 @@
+.right-title{
+    line-height:56px;
+    border-bottom:1px solid #d6d6d6; 
+    text-align:center;
+    font-size: 30px;
+
+    .addMem{
+        float: right;
+        background-image: $right-addMem-image;
+        background-position: left;
+        width: 40px;
+        height: 40px;
+        background-size: 40px;
+        background-repeat: no-repeat;
+        margin-right: 20px;
+        cursor: pointer;
+    }
+}

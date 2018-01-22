@@ -11,6 +11,7 @@ Ext.define('IM.utils.BindHelper', {
 
     // 最近会话
     loadRecentChat(mainView) {
+        // debugger;
         var leftMembers = mainView.down('#left_members'),
             store = leftMembers.getStore();
         for (let i = 0; i < User.allChannels.length; i++) {
@@ -34,16 +35,19 @@ Ext.define('IM.utils.BindHelper', {
 
     // 加载组织结构树信息(之后还需处理)
     loadOrganization(mainView) {
-        // debugger;
-        var orgTree = mainView.down('#organization'),
-            treeStore = orgTree.getViewModel().data.navItems,
+        var orgTree = mainView.down('#left-organization'),
+            // treeStore = orgTree.getViewModel().data.navItems,
+            treeStore = orgTree.getStore(),
             target = orgTree.getSelections()[0] || treeStore.getRoot(),
             node = [];
+
+        // 设置根节点
+        target.data.name = 'PushSoft';
 
         for (let i = 0; i < User.allOthers.length; i++) {
             User.allOthers[i].name = User.allOthers[i].nickname;
             User.allOthers[i].leaf = true;
-            User.allOthers[i].iconCls = 'hide-icon';
+            // User.allOthers[i].iconCls = 'hide-icon';
             node.push(User.allOthers[i]);
         }
         target.appendChild(node);

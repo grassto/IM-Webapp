@@ -66,7 +66,8 @@ Ext.define('IM.view.chat.ChatInput', {
         }, {
             xtype: 'button',
             ui: 'flat',
-            iconCls: 'x-fa fa-star-o'
+            iconCls: 'x-fa fa-star-o',
+            handler: 'onShowFav'
         }, {
             xtype: 'component',
             flex: 1
@@ -82,9 +83,9 @@ Ext.define('IM.view.chat.ChatInput', {
     }],
 
     /**
-  * 显示 emoji 面板
-  * @param {Ext.Button} btn
-  */
+    * 显示 emoji 面板
+    * @param {Ext.Button} btn
+    */
     showEmjPanel(btn) {
         let panel = Ext.getCmp('global-emojipanel');
         if (!panel) {
@@ -121,4 +122,8 @@ Ext.define('IM.view.chat.ChatInput', {
     onReply(btn) {
         btn.toggle(true);
     },
+
+    onShowFav() {
+        this.getController().showFav();
+    }
 });

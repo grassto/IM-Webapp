@@ -8,6 +8,8 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
     orgOnSelectMem(sItem, index, target, record) {
         this.onShowDetails();
         this.onSetDetails(record);
+        // this.onOpenChat(record);
+        this.getViewModel().set('orgSelRecord', record);
     },
 
     /**
@@ -30,6 +32,7 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
 
     /**
      * 更改详细内容
+     * @param {object} record store中的数据
      */
     onSetDetails(record) {
         var viewmodel = this.getViewModel();
@@ -42,7 +45,7 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
             // viewmodel.set('mobile', );
             viewmodel.set('eMail', record.data.email);
             // viewmodel.set('department', );
-            viewmodel.set('detailHtml', viewmodel.get('personHtml'));
+            viewmodel.set('isOrgDetail', false);
 
         }else {
             viewmodel.set('btnText', '发起群聊');
@@ -50,7 +53,8 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
             // viewmodel.set('company', );
             // viewmodel.set('org', );
             // viewmodel.set('personNum', );
-            viewmodel.set('detailHtml', viewmodel.get('orgHtml'));
+            viewmodel.set('isOrgDetail', true);
         }
     }
+
 });

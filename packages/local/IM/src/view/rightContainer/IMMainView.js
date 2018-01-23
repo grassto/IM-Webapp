@@ -59,7 +59,7 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                         text: '发送',
                         width: 50,
                         height: 28,
-                        // handler: 'onSend'
+                        handler: 'onSend'
                     }]
                 }
             ]

@@ -19,7 +19,8 @@ Ext.define('IM.model.viewModel.IMMainBind', {
         avatar: '',
         status: '',
 
-        detailHtml: ''
+        isOrgDetail: true,
+        orgSelRecord: {}
     },
 
     formulas: {
@@ -47,6 +48,13 @@ Ext.define('IM.model.viewModel.IMMainBind', {
             ].join('');
 
             return html;
+        },
+
+        detailHtml: function(get) {
+            if(get('isOrgDetail')) {
+                return get('orgHtml');
+            }
+            return get('personHtml');
         }
     }
 });

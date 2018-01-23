@@ -51,6 +51,11 @@ Ext.define('IM.utils.BindHelper', {
             node.push(User.allOthers[i]);
         }
         target.appendChild(node);
+    },
+
+
+    setDetails() {
+        
     }
 
 });

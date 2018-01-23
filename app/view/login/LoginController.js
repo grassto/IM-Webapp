@@ -1,6 +1,9 @@
 Ext.define('PushIM.Webapp.view.login.LoginController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.authlogin',
+    requires: [
+        'PushIM.Webapp.util.User'
+    ],
 
     init() {
         var me = this;

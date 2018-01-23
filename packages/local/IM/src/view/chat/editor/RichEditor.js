@@ -174,7 +174,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                     } else if (item.kind == 'file') {
                         var blob = item.getAsFile();
                         // 图片上传
-                        // me.uploadPic(blob);
+                        me.uploadPic(blob);
 
 
                         var reader = new FileReader();
@@ -280,13 +280,14 @@ Ext.define('IM.view.chat.editor.RichEditor', {
      * @param File类型
      */
     uploadPic(file) {
+        // debugger;
         var formData = new FormData(),
             clientId = new Date().getTime() + '';
         formData.append('files', file);
         formData.append('channel_id', User.crtChannelId);
         formData.append('client_ids', clientId);
         $.ajax({
-            url: Config.httpUrl + 'files',
+            url: Config.httpUrlForGo + 'files',
             type: 'post',
             data: formData,
             contentType: false,
@@ -296,7 +297,9 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                 withCredentials: true
             },
             success: function (data) {
-                //
+                for (var i = 0; i < data.file_infos.length; i++) {
+                    User.files.push(data.file_infos[i]);
+                }
             }
         });
     }

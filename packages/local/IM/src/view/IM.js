@@ -9,14 +9,16 @@ Ext.define('IM.view.IM', {
         'IM.view.IMController',
         'IM.view.leftTab.organization.Organization',
         'IM.view.leftTab.recentChat.RecentChat',
-        'IM.view.rightContainer.BlankPage',
         'IM.model.viewModel.IMMainBind'
     ],
 
     uses: [
         'IM.view.rightContainer.IMMainView',
+        'IM.view.rightContainer.Details',
+        'IM.view.rightContainer.BlankPage',
         'IM.view.msgManager.MsgManager',
-        'IM.view.rightContainer.Details'
+        'IM.view.groupSel.GroupSel',
+        'IM.view.favorite.Favorite'
     ],
 
     layout: 'hbox',
@@ -93,6 +95,9 @@ Ext.define('IM.view.IM', {
             xtype: 'tabpanel',
             flex: 1,
             ui: 'tab',
+            listeners: {
+                activeItemchange: 'onTabChanges'
+            },
             items: [{
                 // 最近会话
                 iconCls: 'x-fa fa-comment',
@@ -107,7 +112,7 @@ Ext.define('IM.view.IM', {
                 itemId: 'left-organization'
             }, {
                 // 设置
-                iconCls: 'x-fa fa-cog',
+                iconCls: 'x-fa fa-th-large',
                 cls: 'left_tab'
             }]
         }, {

@@ -19,6 +19,8 @@ Ext.define('IM.view.rightContainer.Details', {
     //     }
     // },
 
+    // defaultListenerScope: true,
+
     userCls: 'details',
 
     items: [{
@@ -33,7 +35,7 @@ Ext.define('IM.view.rightContainer.Details', {
         },
         ui: 'action',
         userCls: 'detailBtn',
-        handler: 'onChgToIM',
+        handler: 'btnOnChgToIM',
         width: '300px'
     }]
 });

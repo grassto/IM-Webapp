@@ -3,7 +3,8 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     alias: 'controller.viewport',
     requires: [
         'PushIM.Webapp.view.login.Login',
-        'IM.view.IM'
+        'IM.view.IM',
+        'MX.util.Utils'
     ],
 
     listen: {

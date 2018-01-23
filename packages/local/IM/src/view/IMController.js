@@ -2,6 +2,12 @@ Ext.define('IM.view.IMController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.IM',
 
+    requires: [
+        'IM.utils.AvatarMgr',
+        'IM.utils.WebSocketHelper',
+        'IM.utils.BindHelper'
+    ],
+
     listen: {
         controller: {
             'recentChat': {
@@ -76,7 +82,12 @@ Ext.define('IM.view.IMController', {
     /**
     * 右侧页面切换为聊天页面
     */
-    onChgToIM() {
+    btnOnChgToIM() {
+        this.chgToIMView();
+        this.getView().lookup('im-main').getController().onOpenChat();
+    },
+
+    chgToIMView() {
         const me = this,
             rootView = me.getView(),
             imMainView = rootView.lookup('im-main');
@@ -92,8 +103,6 @@ Ext.define('IM.view.IMController', {
         }
     },
 
-
-
     /* *************************************连接相关**************************************/
 
     /**
@@ -101,7 +110,147 @@ Ext.define('IM.view.IMController', {
      * @param {object} msg 服务器返回的数据
      */
     handleNewPostEvent(msg) {
+        var me = this,
+            data = JSON.parse(msg.data.post),
+            cName = msg.data.channel_name,
+            cid = msg.broadcast.channel_id,
+            text = Utils.htmlEncode(data.message),
+            flag = true;
 
+        if (msg.data.channel_display_name == '多人会话') {
+            // 不是自己发的
+            if (data.user_id !== User.ownerID) {
+                // 选中的不是当前频道
+                if (User.crtChannelId !== cid) {
+                    var store = me.getView().down('#left_members').getStore();
+                    store.getById(cid).set('isUnRead', true);
+                }
+                // 给通知
+                me.notify('多人会话：' + me.getName(data.user_id), data.message);
+            }
+        }
+        else {
+            // 先判断是不是发给你的,若是的
+            if (cName.indexOf(User.ownerID) > -1) {
+                // 当前缓存中的所有频道中包含该频道
+                for (var i = 0; i < User.allChannels.length; i++) {
+                    // 找到了,给未读提示，直接退出
+                    if (User.allChannels[i].id == cid) {
+                        flag = false;
+                        // 选中的不是当前频道
+                        if (User.crtChannelId !== cid) {
+                            var memStore = me.getView().down('#left_members').getStore();
+                            memStore.getById(cid).set('isUnRead', true);
+                            if (data.user_id !== User.ownerID) {
+                                me.notify(me.getName(data.user_id), data.message);
+                            }
+                            break;
+                        }
+                    }
+                }
+                // 未找到相同的channelid，则添加
+                if (flag) {
+                    User.allChannels.push({ id: cid, name: cName });
+                    var channelStore = me.getView().down('#left_members').getStore();
+                    channelStore.add({
+                        id: cid,
+                        name: me.getName(data.user_id),
+                        isUnRead: true
+                        // isMine: true
+                    });
+
+                    me.notify(me.getName(data.user_id), data.message);
+                }
+            }
+        }
+
+
+        // 若选中的是当前频道，则在聊天区展示数据
+        if (User.crtChannelId == data.channel_id) {
+            data.username = me.getName(data.user_id);
+            User.posts.push(data);
+
+            // var chatView = Ext.app.Application.instance.viewport.getController().getView().down('main #chatView');
+            var chatView = me.getView().lookup('im-main').down('#chatView');
+            if (data.file_ids) {
+                for (var i = 0; i < data.file_ids.length; i++) {
+                    if (User.ownerID == data.user_id) {
+                        chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at), file: Config.httpUrlForGo + '/files/' + data.file_ids[i] + '/thumbnail' });
+                    }
+                    else {
+                        chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at), file: Config.httpUrlForGo + '/files/' + data.file_ids[i] + '/thumbnail' });
+                    }
+                }
+            }
+            else {
+                if (User.ownerID == data.user_id) {
+                    chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
+                }
+                else {
+                    chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
+                }
+            }
+
+            // debugger;
+            me.onScroll(chatView);
+        }
+    },
+
+    // 消息通知
+    notify(senderName, sendText) {
+        if (!window.Notification) {
+            alert("浏览器不支持通知！");
+        }
+        console.log(window.Notification.permission);
+        if (window.Notification.permission != 'granted') {
+            Notification.requestPermission(function (status) {
+                //status是授权状态，如果用户允许显示桌面通知，则status为'granted'
+                console.log('status: ' + status);
+                //permission只读属性:
+                //  default 用户没有接收或拒绝授权 不能显示通知
+                //  granted 用户接受授权 允许显示通知
+                //  denied  用户拒绝授权 不允许显示通知
+                var permission = Notification.permission;
+                console.log('permission: ' + permission);
+            });
+        }
+        if (Notification.permission === 'granted') {
+            var n = new Notification(senderName,
+                {
+                    'icon': 'resources/images/LOGO1.png',
+                    'body': sendText
+                }
+            );
+            n.onshow = function () {
+                console.log("显示通知");
+                setTimeout(function () { n.close() }, 8000);
+            };
+            n.onclick = function () {
+                window.focus();
+                n.close();
+            };
+            n.onclose = function () {
+                console.log("通知关闭");
+            };
+            n.onerror = function () {
+                console.log('产生错误');
+            }
+        }
+    },
+
+    getName(uid) {
+        for (var i = 0; i < User.allUsers.length; i++) {
+            if (User.allUsers[i].id === uid) {
+                return User.allUsers[i].nickname;
+            }
+        }
+        return '';
+    },
+
+    onScroll(chatView) {
+        var sc = chatView.getScrollable(),
+            scHeight = sc.getScrollElement().dom.scrollHeight;
+        sc.scrollTo(0, scHeight + 1000);
     },
 
 
@@ -219,8 +368,11 @@ Ext.define('IM.view.IMController', {
 
 
 
-
-
+    /* **************************************** 切换tab ***********************************/
+    // 切换tab时调用
+    onTabChanges() {
+        
+    },
 
 
 

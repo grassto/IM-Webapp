@@ -9,7 +9,8 @@ Ext.define('PushIM.Webapp.Application', {
     name: 'PushIM.Webapp',
     requires: [
         'PushIM.Webapp.view.viewport.ViewportController',
-        'PushIM.Webapp.view.viewport.ViewportModel'
+        'PushIM.Webapp.view.viewport.ViewportModel',
+        'PushIM.Webapp.util.User'
     ],
 
     viewport: {

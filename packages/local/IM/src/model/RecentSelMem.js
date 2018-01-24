@@ -6,6 +6,10 @@ Ext.define('IM.model.RecentSelMem', {
         { // 用于排序
             name: 'last_post_at',
             type: 'date'
+        },
+        {
+            name: 'unReadNum',
+            type: 'int'
         }
     ],
 

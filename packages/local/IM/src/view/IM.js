@@ -9,7 +9,10 @@ Ext.define('IM.view.IM', {
         'IM.view.IMController',
         'IM.view.leftTab.organization.Organization',
         'IM.view.leftTab.recentChat.RecentChat',
-        'IM.model.viewModel.IMMainBind'
+        'IM.model.viewModel.IMMainBind',
+        'Ext.form.FieldSet',
+        'Ext.field.Search',
+        'Ext.tab.Panel'
     ],
 
     uses: [

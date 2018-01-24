@@ -4,6 +4,10 @@ Ext.define('IM.view.groupSel.organization.Organization', {
 
     userCls: 'IM-grp-org',
 
+    requires: [
+        'IM.model.Organization'
+    ],
+
     viewModel: {
         type: 'organization'
     },

@@ -62,6 +62,7 @@ Ext.define('IM.view.widget.AdvancedSearchPanel', {
 
     onOk() {
         this.fireEvent('ok'); // 调用搜索框的ok事件
+        this.hide();
     },
 
     onCancle() {

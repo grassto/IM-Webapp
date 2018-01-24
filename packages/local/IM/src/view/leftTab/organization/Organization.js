@@ -1,12 +1,13 @@
 Ext.define('IM.view.leftTab.organization.Organization', {
     extend: 'Ext.grid.Tree',
     xtype: 'left-organization',
-    controller: 'left-orgController',
 
     requires: [
         'IM.view.leftTab.organization.OrganizationController',
         'IM.store.IMOrg'
     ],
+    
+    controller: 'left-orgController',
 
     userCls: 'IM-org-field',
 

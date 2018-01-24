@@ -17,10 +17,11 @@ Ext.define('IM.view.rightContainer.IMMainView', {
         {
             xtype: 'container',
             userCls: 'right-title',
-            bind: {
-                html: '<span>{sendToName}</span>'
-            },
             items: [{
+                bind: {
+                    html: '<span>{sendToName}</span>'
+                }
+            }, {
                 xtype: 'button',
                 docked: 'right',
                 iconCls: 'addMem',

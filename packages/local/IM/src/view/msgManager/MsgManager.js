@@ -2,6 +2,12 @@ Ext.define('IM.view.msgManager.MsgManager', {
     extend: 'Ext.Dialog',
     xtype: 'msgManager',
 
+    requires: [
+        'IM.view.msgManager.msgManagerController',
+        'IM.view.widget.MsgSearchField',
+        'IM.view.groupSel.organization.Organization'
+    ],
+
     controller: 'msgManager',
 
     title: '消息管理器',

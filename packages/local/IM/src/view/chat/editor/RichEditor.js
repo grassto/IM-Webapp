@@ -5,7 +5,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         'IM.model.Mention'
     ],
 
-    placeholder: 'Ctrl+Enter发送',
+    placeholder: 'Ctrl+Enter换行',
     clearable: false,
     // minHeight: 80,
     // maxHeight: 300,
@@ -15,6 +15,35 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         var me = this;
         me.callParent(arguments);
         me.onclickPic();
+        me.preventKeydown();
+
+        // ctrl 17
+        // var map = new Ext.util.KeyMap({
+        //     target: me.element,
+        //     key: 13, // or Ext.event.Event.ENTER
+        //     handler(a,b,c,d) {
+        //         me.onSend(a,b,c,d);
+        //     },
+        //     scope: me
+        // });
+    },
+
+    preventKeydown() {
+        var me= this,
+            editor = this.inputElement.dom;
+        $(editor).keydown(function(event) {
+            if(event.keyCode == 13) {
+                if(event.ctrlKey) {
+                    editor.value += '<br>';
+                }
+                else {
+                    if(editor.value) {
+                        me.up('im-main').getController().onSend();
+                    }
+                    return false;
+                }
+            }
+        });
     },
 
     /**
@@ -173,26 +202,27 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                         }
                     } else if (item.kind == 'file') {
                         var blob = item.getAsFile();
-                        // 图片上传
+                        // 图片上传,并黏贴到输入框
                         me.uploadPic(blob);
 
 
-                        var reader = new FileReader();
-                        reader.onload = function (event) {
-                            text = '<img src="' + event.target.result + '"/>' + '&#8203'; // 后面加的这个是定位光标的
-                            setTimeout(() => {
-                                if (document.queryCommandSupported('insertHTML')) {
-                                    document.execCommand('insertHTML', false, text);
-                                } else {
-                                    document.execCommand('paste', false, text);
-                                }
-                                me._checkRegexes(outEvent);
+                        // 使用base64格式的图片
+                        // var reader = new FileReader();
+                        // reader.onload = function (event) {
+                        //     text = '<img style="width:40px;height:40px;" src="' + event.target.result + '"/>' + '&#8203'; // 后面加的这个是定位光标的
+                        //     setTimeout(() => {
+                        //         if (document.queryCommandSupported('insertHTML')) {
+                        //             document.execCommand('insertHTML', false, text);
+                        //         } else {
+                        //             document.execCommand('paste', false, text);
+                        //         }
+                        //         me._checkRegexes(outEvent);
 
-                                // $(me.inputElement.dom).append(text);
-                                // me.focusEnd();
-                            });
-                        }
-                        reader.readAsDataURL(blob);
+                        //         // $(me.inputElement.dom).append(text);
+                        //         // me.focusEnd();
+                        //     });
+                        // }
+                        // reader.readAsDataURL(blob);
                     }
 
 
@@ -276,7 +306,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     },
 
     /**
-     * 上传图片,
+     * 上传图片,黏贴，拼凑图片img
      * @param File类型
      */
     uploadPic(file) {
@@ -297,8 +327,15 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                 withCredentials: true
             },
             success: function (data) {
+                var text;
                 for (var i = 0; i < data.file_infos.length; i++) {
                     User.files.push(data.file_infos[i]);
+                    text = '<img class="viewPic" src="' + Config.httpUrlForGo + '/files/' + data.file_infos[i].id + '/thumbnail">' + '&#8203';
+                    if (document.queryCommandSupported('insertHTML')) {
+                        document.execCommand('insertHTML', false, text);
+                    } else {
+                        document.execCommand('paste', false, text);
+                    }
                 }
             }
         });

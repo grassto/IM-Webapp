@@ -2,6 +2,10 @@ Ext.define('IM.view.favorite.Favorite', {
     extend: 'Ext.Dialog',
     xtype: 'favorite',
 
+    requires: [
+        'IM.view.favorite.FavoriteController'
+    ],
+
     controller: 'favorite',
 
     title: '我的收藏',

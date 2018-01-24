@@ -294,6 +294,7 @@
         "cache": {
             "enable": true
         },
+        // "compressor": null
         "compressor": {
             "type": "yui"
         }

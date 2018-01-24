@@ -4,7 +4,8 @@ Ext.define('PushIM.Webapp.view.login.Login', {
     controller: 'authlogin',
     requires: [
         'Ext.field.Password',
-        'PushIM.Webapp.view.login.LoginController'
+        'PushIM.Webapp.view.login.LoginController',
+        'Ext.field.Checkbox'
     ],
 
     cls: 'auth-login',

@@ -2,6 +2,10 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.im-right-main',
 
+    requires: [
+        'MX.util.Utils'
+    ],
+
     onShowGrpSel() {
         this.fireEvent('grpSel');
     },
@@ -41,26 +45,34 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 for (var i = order.length - 1; i >= 0; i--) {
                     posts[order[i]].username = me.getName(posts[order[i]].user_id);
                     User.posts.push(posts[order[i]]);
-                    message = me.textToHtml(posts[order[i]].message);
+                    // message = me.textToHtml(posts[order[i]].message);
+                    message = posts[order[i]].message;
 
-                    if (posts[order[i]].file_ids) {
-                        for (var j = 0; j < posts[order[i]].file_ids.length; j++) {
-                            // 若是自己发送的消息，则靠右排列
-                            if (posts[order[i]].user_id == User.ownerID) {
-                                chatStore.add({ ROL: 'right', senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at), file: Config.httpUrlForGo + '/files/' + posts[order[i]].file_ids[j] + '/thumbnail' });
-                            }
-                            else {
-                                chatStore.add({ senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at), file: Config.httpUrlForGo + '/files/' + posts[order[i]].file_ids[j] + '/thumbnail' });
-                            }
-                        }
+                    // if (posts[order[i]].file_ids) {
+                    //     for (var j = 0; j < posts[order[i]].file_ids.length; j++) {
+                    //         // 若是自己发送的消息，则靠右排列
+                    //         if (posts[order[i]].user_id == User.ownerID) {
+                    //             chatStore.add({ ROL: 'right', senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at), file: Config.httpUrlForGo + '/files/' + posts[order[i]].file_ids[j] + '/thumbnail' });
+                    //         }
+                    //         else {
+                    //             chatStore.add({ senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at), file: Config.httpUrlForGo + '/files/' + posts[order[i]].file_ids[j] + '/thumbnail' });
+                    //         }
+                    //     }
+                    // }
+                    // else {
+                    //     if (posts[order[i]].user_id == User.ownerID) {
+                    //         chatStore.add({ ROL: 'right', senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
+                    //     }
+                    //     else {
+                    //         chatStore.add({ senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
+                    //     }
+                    // }
+
+                    if (posts[order[i]].user_id == User.ownerID) {
+                        chatStore.add({ ROL: 'right', senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
                     }
                     else {
-                        if (posts[order[i]].user_id == User.ownerID) {
-                            chatStore.add({ ROL: 'right', senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
-                        }
-                        else {
-                            chatStore.add({ senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
-                        }
+                        chatStore.add({ senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
                     }
                 }
 

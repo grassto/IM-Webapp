@@ -4,7 +4,8 @@ Ext.define('IM.view.groupSel.GroupSel', {
 
     requires: [
         'IM.view.groupSel.organization.Organization',
-        'IM.model.GrpSelMem'
+        'IM.model.GrpSelMem',
+        'IM.view.groupSel.GroupSelController'
     ],
 
     controller: 'groupSel',

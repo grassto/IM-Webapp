@@ -20,6 +20,7 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
         '<div style="line-height:38px;">',
             '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]} " style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
             '</a>',
+            '<a class="RecentUnRead" unRead="{unReadNum}" style="display:{[values.isUnRead?"block":"none"]}"></a>',
             '{name}',
         '</div>'
     ].join(''),

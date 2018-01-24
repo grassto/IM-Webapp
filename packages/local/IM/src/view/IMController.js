@@ -5,7 +5,8 @@ Ext.define('IM.view.IMController', {
     requires: [
         'IM.utils.AvatarMgr',
         'IM.utils.WebSocketHelper',
-        'IM.utils.BindHelper'
+        'IM.utils.BindHelper',
+        'MX.util.Utils'
     ],
 
     listen: {
@@ -18,9 +19,6 @@ Ext.define('IM.view.IMController', {
             },
             'im-right-main': {
                 'grpSel': 'onShowGrpSel'
-            },
-            'chatController': {
-                'fav': 'onShowFav'
             }
         }
     },
@@ -79,14 +77,14 @@ Ext.define('IM.view.IMController', {
         return rightView;
     },
 
-    /**
-    * 右侧页面切换为聊天页面
-    */
     btnOnChgToIM() {
         this.chgToIMView();
         this.getView().lookup('im-main').getController().onOpenChat();
     },
 
+    /**
+    * 右侧页面切换为聊天页面
+    */
     chgToIMView() {
         const me = this,
             rootView = me.getView(),
@@ -114,13 +112,15 @@ Ext.define('IM.view.IMController', {
             data = JSON.parse(msg.data.post),
             cName = msg.data.channel_name,
             cid = msg.broadcast.channel_id,
-            text = Utils.htmlEncode(data.message),
+            // text = Utils.htmlEncode(data.message),
+            text = data.message,
             flag = true;
 
+        /* ****************************************** 未读提示 ********************************************************************/
         if (msg.data.channel_display_name == '多人会话') {
             // 不是自己发的
             if (data.user_id !== User.ownerID) {
-                // 选中的不是当前频道
+                // 选中的不是当前频道，给未读通知
                 if (User.crtChannelId !== cid) {
                     var store = me.getView().down('#left_members').getStore();
                     store.getById(cid).set('isUnRead', true);
@@ -129,7 +129,7 @@ Ext.define('IM.view.IMController', {
                 me.notify('多人会话：' + me.getName(data.user_id), data.message);
             }
         }
-        else {
+        else { // 个人用户
             // 先判断是不是发给你的,若是的
             if (cName.indexOf(User.ownerID) > -1) {
                 // 当前缓存中的所有频道中包含该频道
@@ -165,6 +165,7 @@ Ext.define('IM.view.IMController', {
         }
 
 
+        /* ****************************************** 当前频道，消息展示 ********************************************************************/
         // 若选中的是当前频道，则在聊天区展示数据
         if (User.crtChannelId == data.channel_id) {
             data.username = me.getName(data.user_id);
@@ -172,25 +173,32 @@ Ext.define('IM.view.IMController', {
 
             // var chatView = Ext.app.Application.instance.viewport.getController().getView().down('main #chatView');
             var chatView = me.getView().lookup('im-main').down('#chatView');
-            if (data.file_ids) {
-                for (var i = 0; i < data.file_ids.length; i++) {
-                    if (User.ownerID == data.user_id) {
-                        chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at), file: Config.httpUrlForGo + '/files/' + data.file_ids[i] + '/thumbnail' });
-                    }
-                    else {
-                        chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at), file: Config.httpUrlForGo + '/files/' + data.file_ids[i] + '/thumbnail' });
-                    }
-                }
+            // if (data.file_ids) {
+            //     for (var i = 0; i < data.file_ids.length; i++) {
+            //         if (User.ownerID == data.user_id) {
+            //             chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at), file: Config.httpUrlForGo + '/files/' + data.file_ids[i] + '/thumbnail' });
+            //         }
+            //         else {
+            //             chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at), file: Config.httpUrlForGo + '/files/' + data.file_ids[i] + '/thumbnail' });
+            //         }
+            //     }
+            // }
+            // else {
+            //     if (User.ownerID == data.user_id) {
+            //         chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
+            //     }
+            //     else {
+            //         chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
+            //     }
+            // }
+
+
+            if (User.ownerID == data.user_id) {
+                chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
             }
             else {
-                if (User.ownerID == data.user_id) {
-                    chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
-                }
-                else {
-                    chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
-                }
+                chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
             }
-
             // debugger;
             me.onScroll(chatView);
         }
@@ -371,7 +379,7 @@ Ext.define('IM.view.IMController', {
     /* **************************************** 切换tab ***********************************/
     // 切换tab时调用
     onTabChanges() {
-        
+
     },
 
 

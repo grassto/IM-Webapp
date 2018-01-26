@@ -93,7 +93,7 @@ Ext.define('IM.view.chat.ChatView', {
      * 点击头像展示详细信息
      */
     showMoreAboutHim() {
-        alert(432);
+
     },
 
     addStore() {

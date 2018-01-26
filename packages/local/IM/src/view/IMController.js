@@ -87,7 +87,7 @@ Ext.define('IM.view.IMController', {
                     me.getView().lookup('im-main').getController().onOpenChat();
                 }
             });
-        }else {
+        } else {
             me.chgToIMView();
             me.getView().lookup('im-main').getController().onOpenChat();
         }
@@ -318,8 +318,9 @@ Ext.define('IM.view.IMController', {
 
     // 获取所有成员
     getMembers() {
-        var me = this;
-        Utils.ajaxByZY('GET', 'users', {
+        var me = this,
+            orgTree = me.getView().down('#left-organization');
+            Utils.ajaxByZY('GET', 'users', {
             success: function (data) {
                 console.log('所有人员：');
                 console.log(data);
@@ -458,7 +459,7 @@ Ext.define('IM.view.IMController', {
         this.callParent();
     },
 
-    
+
     /* **************************************** 注销 ***********************************/
 
     onLogout() {

@@ -16,10 +16,10 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
      * @param {*} target 
      * @param {*} record 
      */
-    onSelRecentMem(sItem, index, target, record) {
+    onSelRecentMem(me, location) {
         this.onShowChatView();
-        this.setRightTitle(record.data.name);
-        this.fireEvent('openCnl', record.data.id);
+        this.setRightTitle(location.record.data.name);
+        this.fireEvent('openCnl', location.record.data.id);
     },
 
     /**

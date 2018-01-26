@@ -26,6 +26,6 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
     ].join(''),
 
     listeners: {
-        itemTap: 'onSelRecentMem'
+        childTap: 'onSelRecentMem'
     }
 });

@@ -23,7 +23,8 @@ Ext.define('IM.view.leftTab.organization.Organization', {
     // },
 
     listeners: {
-        itemTap: 'orgOnSelectMem'
+        childTap: 'orgOnSelectMem',
+        childdoubletap: 'orgOnDblSelMem'
     },
 
     hideHeaders: true,

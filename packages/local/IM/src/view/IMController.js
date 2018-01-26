@@ -78,8 +78,19 @@ Ext.define('IM.view.IMController', {
     },
 
     btnOnChgToIM() {
-        this.chgToIMView();
-        this.getView().lookup('im-main').getController().onOpenChat();
+        var me = this,
+            record = me.getViewModel().get('orgSelRecord');
+        if (!record.data.leaf) {
+            Ext.Msg.confirm('提示', '确定要发起群聊吗？', function (btn) {
+                if (btn == 'yes') {
+                    me.chgToIMView();
+                    me.getView().lookup('im-main').getController().onOpenChat();
+                }
+            });
+        }else {
+            me.chgToIMView();
+            me.getView().lookup('im-main').getController().onOpenChat();
+        }
     },
 
     /**
@@ -120,10 +131,10 @@ Ext.define('IM.view.IMController', {
         if (msg.data.channel_display_name == '多人会话') {
             // 不是自己发的
             if (data.user_id !== User.ownerID) {
+
                 // 选中的不是当前频道，给未读通知
                 if (User.crtChannelId !== cid) {
-                    var store = me.getView().down('#left_members').getStore();
-                    store.getById(cid).set('isUnRead', true);
+                    me.promptUnRead(cid);
                 }
                 // 给通知
                 me.notify('多人会话：' + me.getName(data.user_id), data.message);
@@ -137,10 +148,11 @@ Ext.define('IM.view.IMController', {
                     // 找到了,给未读提示，直接退出
                     if (User.allChannels[i].id == cid) {
                         flag = false;
+
                         // 选中的不是当前频道
                         if (User.crtChannelId !== cid) {
-                            var memStore = me.getView().down('#left_members').getStore();
-                            memStore.getById(cid).set('isUnRead', true);
+                            me.promptUnRead(cid);
+
                             if (data.user_id !== User.ownerID) {
                                 me.notify(me.getName(data.user_id), data.message);
                             }
@@ -155,8 +167,8 @@ Ext.define('IM.view.IMController', {
                     channelStore.add({
                         id: cid,
                         name: me.getName(data.user_id),
-                        isUnRead: true
-                        // isMine: true
+                        isUnRead: true,
+                        unReadNum: 1
                     });
 
                     me.notify(me.getName(data.user_id), data.message);
@@ -204,6 +216,14 @@ Ext.define('IM.view.IMController', {
         }
     },
 
+    // 提示未读
+    promptUnRead(cid) {
+        var store = this.getView().down('#left_members').getStore(),
+            record = store.getById(cid);
+        record.set('isUnRead', true);
+        record.set('unReadNum', record.get('unReadNum') + 1);
+    },
+
     // 消息通知
     notify(senderName, sendText) {
         if (!window.Notification) {
@@ -226,7 +246,7 @@ Ext.define('IM.view.IMController', {
             var n = new Notification(senderName,
                 {
                     'icon': 'resources/images/LOGO1.png',
-                    'body': sendText
+                    'body': sendText // body中不能放html
                 }
             );
             n.onshow = function () {
@@ -436,5 +456,12 @@ Ext.define('IM.view.IMController', {
         Ext.destroy(this.msgMgr);
         Ext.destroy(this.grpSel);
         this.callParent();
+    },
+
+    
+    /* **************************************** 注销 ***********************************/
+
+    onLogout() {
+        this.fireEvent('logout');
     }
 });

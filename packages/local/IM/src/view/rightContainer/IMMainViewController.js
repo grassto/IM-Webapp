@@ -36,6 +36,9 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             chatView = me.getView().down('#chatView'),
             message;
         var chatStore = chatView.store;
+
+        me.setUnReadToRead(crtChannelID);
+
         chatStore.removeAll();
         Utils.ajaxByZY('get', 'channels/' + crtChannelID + '/posts', {
             success: function (data) {
@@ -79,6 +82,11 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 me.onScroll(chatView);
             }
         });
+    },
+
+    setUnReadToRead(crtChannelID) {
+        var memStore = this.getView().up('IM').down('#left_members').getStore();
+        memStore.getById(crtChannelID).set('isUnRead', false);
     },
 
     /**

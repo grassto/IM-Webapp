@@ -3,14 +3,27 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
     alias: 'controller.left-orgController',
 
     /**
-     * 组织结构树选中事件
+     * 组织结构树单击事件
+     * @param {*} me 
+     * @param {*} location 
      */
-    orgOnSelectMem(sItem, index, target, record) {
+    orgOnSelectMem(me, location) {
         this.onShowDetails();
-        this.onSetDetails(record);
+        this.onSetDetails(location.record);
         // this.onOpenChat(record);
-        this.getViewModel().set('orgSelRecord', record);
+        this.getViewModel().set('orgSelRecord', location.record);
     },
+
+    /**
+     * 组织结构树双击事件
+     * @param {*} me 
+     * @param {*} location 
+     */
+    orgOnDblSelMem(me, location) {
+        // debugger;
+        alert(123);
+    },
+
 
     /**
      * 展示详细信息
@@ -56,5 +69,7 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
             viewmodel.set('isOrgDetail', true);
         }
     }
+
+    
 
 });

@@ -311,7 +311,8 @@ Ext.define('IM.view.chat.editor.RichEditor', {
      */
     uploadPic(file) {
         // debugger;
-        var formData = new FormData(),
+        var me = this.inputElement.dom,
+            formData = new FormData(),
             clientId = new Date().getTime() + '';
         formData.append('files', file);
         formData.append('channel_id', User.crtChannelId);
@@ -330,7 +331,9 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                 var text;
                 for (var i = 0; i < data.file_infos.length; i++) {
                     User.files.push(data.file_infos[i]);
-                    text = '<img class="viewPic" src="' + Config.httpUrlForGo + '/files/' + data.file_infos[i].id + '/thumbnail">' + '&#8203';
+                    text = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + data.file_infos[i].id + '/thumbnail">' + '&#8203';
+
+                    me.focus();
                     if (document.queryCommandSupported('insertHTML')) {
                         document.execCommand('insertHTML', false, text);
                     } else {

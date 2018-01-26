@@ -3,7 +3,8 @@ Ext.define('IM.view.chat.ChatView', {
     xtype: 'chatView',
 
     requires: [
-        'IM.store.ChatView'
+        'IM.store.ChatView',
+        'IM.view.widget.RightClickMenu'
     ],
 
     store: {
@@ -19,7 +20,19 @@ Ext.define('IM.view.chat.ChatView', {
             scope: me
         });
 
+        me.element.on({
+            // delegate: '.x-dataview-item',
+            contextmenu: 'onRightClick',
+            scope: me
+        });
+
         // me.addStore();
+    },
+
+    onRightClick(e) {
+        var menu = Ext.create('IM.view.widget.RightClickMenu');
+        menu.showAt(e.getPoint());
+        e.preventDefault();
     },
 
     itemTpl: '<div style="width:100%;color:#6f6a60;text-align:center;">{updateTime}</div>' +
@@ -76,6 +89,9 @@ Ext.define('IM.view.chat.ChatView', {
         // ImgUtil.viewImgs(src);
     },
 
+    /**
+     * 点击头像展示详细信息
+     */
     showMoreAboutHim() {
         alert(432);
     },

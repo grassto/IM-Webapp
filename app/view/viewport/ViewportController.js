@@ -11,7 +11,8 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
         controller: {
             '*': {
                 needlogin: 'onNeedLogin',
-                login: 'onLogin'
+                login: 'onLogin',
+                logout: 'onLogout'
             }
         }
     },
@@ -66,7 +67,17 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     },
 
     onLogout() {
+        Utils.ajaxByZY('post', 'users/logout', {
+            params: JSON.stringify(User.ownerID),
+            success: function (data) {
+                // debugger;
 
+            }
+        });
+        localStorage.setItem('USERID', '');
+        localStorage.setItem('PASSWORD', '');
+        User.clear();
+        this.showView('authlogin');
     },
 
     /**
@@ -95,5 +106,5 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
         viewport.setActiveItem(view);
 
         return view;
-    },
+    }
 });

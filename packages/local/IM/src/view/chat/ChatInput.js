@@ -135,6 +135,9 @@ Ext.define('IM.view.chat.ChatInput', {
         btn.toggle(true);
     },
 
+    /**
+     * 收藏
+     */
     onShowFav() {
         var view = this.up('IM'),
             fav = this.fav;
@@ -250,16 +253,18 @@ Ext.define('IM.view.chat.ChatInput', {
 
                 if (files[i].type == 'image/png') {// 是图片，要展示
                     // 上传图片，得到返回的预览图展示
+                    me.down('#richEditor').uploadPic(files[i].getNative());
+
                     // file转base64展示,
-                    var reader = new FileReader();
-                    reader.readAsDataURL(files[i].getNative());
-                    reader.onload = function () {
-                        var editor = me.down('#richEditor'),
-                            base64 = this.result,
-                            img = '<img src="' + base64 + '" style="width:40px;height:40px"/>&#8203';
-                        editor.inputElement.dom.focus();
-                        document.execCommand('insertHTML', false, img);
-                    };
+                    // var reader = new FileReader();
+                    // reader.readAsDataURL(files[i].getNative());
+                    // reader.onload = function () {
+                    //     var editor = me.down('#richEditor'),
+                    //         base64 = this.result,
+                    //         img = '<img src="' + base64 + '" style="width:40px;height:40px"/>&#8203';
+                    //     editor.inputElement.dom.focus();
+                    //     document.execCommand('insertHTML', false, img);
+                    // };
                 } else {
                     // 不是图片
                 }

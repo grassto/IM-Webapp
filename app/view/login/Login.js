@@ -8,6 +8,16 @@ Ext.define('PushIM.Webapp.view.login.Login', {
         'Ext.field.Checkbox'
     ],
 
+    initialize() {
+        var form = this.lookup('form');
+        
+        form.setValues({
+            userId:localStorage.getItem('USERID'),
+            password:localStorage.getItem('PASSWORD'),
+            remember: true
+        });
+    },
+
     cls: 'auth-login',
 
     layout: {

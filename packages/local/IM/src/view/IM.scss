@@ -1,6 +1,7 @@
 $auth-background-image: url(get-resource-path('images/2.png'));
 $right-addMem-image: url(get-resource-path('images/add-members.png'));
-$left-tab-color: #2e3238;
+$left-tab-backgroundcolor: rgb(225,230,235);// #2e3238;
+$left-tab-color: black;
 
 .left_panel{
     // 个人信息区
@@ -8,11 +9,11 @@ $left-tab-color: #2e3238;
         color: white;
     }
     .x-button .x-inner-el{
-        background-color: $left-tab-color;
+        background-color: $left-tab-backgroundcolor;
         border: 0;
     }
     .x-formpanel-body-el{
-        background-color: $left-tab-color;
+        background-color: $left-tab-backgroundcolor;
     }
 
     // 搜索框
@@ -23,13 +24,13 @@ $left-tab-color: #2e3238;
 
     @include tabbar-ui(
         $ui: 'tab',
-        $background-color: $left-tab-color
+        $background-color: $left-tab-backgroundcolor
     );
     .x-listitem{
         border:0;
     }
 
-    background-color: #2e3238;
+    background-color: $left-tab-backgroundcolor;
     border-right: 1px solid #4f5969;
     .mine-avatar{
         &>.x-inner-el{
@@ -38,17 +39,6 @@ $left-tab-color: #2e3238;
                 display: block;
             }
         }
-        // background-image: $auth-background-image;
-        // background-position: left;
-        // width: 40px;
-        // height: 40px;
-        // background-size: 40px;
-        // background-repeat: no-repeat;
-        // margin-right: 20px;
-
-        // .x-button.x-has-icon .x-icon-el {
-        //     display: none;
-        // }
     }
 
     // 搜索框
@@ -104,10 +94,10 @@ $left-tab-color: #2e3238;
             background-repeat: no-repeat;
             // margin-left: 160px;
         }
-        background-color: #2e3238;
+        background-color: $left-tab-backgroundcolor;
         .x-listitem{
             color: #ffffff;
-            background-color: #2e3238;
+            background-color: $left-tab-backgroundcolor;
 
             &.x-hovered {
                 background-color: #3a3f45;
@@ -121,7 +111,7 @@ $left-tab-color: #2e3238;
 
     .left_bar{
         #ext-toolbar-1{
-            background: $left-tab-color;
+            background: $left-tab-backgroundcolor;
             border-top: 1px solid #585b60;
         }
     }
@@ -133,21 +123,6 @@ $left-tab-color: #2e3238;
 }
 
 .right_panel{
-    // .addMem{
-    //     float: right;
-    //     background-image: $right-addMem-image;
-    //     background-position: left;
-    //     width: 40px;
-    //     height: 40px;
-    //     background-size: 40px;
-    //     background-repeat: no-repeat;
-    //     margin-right: 20px;
-    //     cursor: pointer;
-    // }
-
-    // .right-title{
-    //     font-size: 30px;
-    // }
 
     .evAvatar{
         float: left;

@@ -28,6 +28,9 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         // });
     },
 
+    /**
+     * Enter发送，Ctrl+Enter回车
+     */
     preventKeydown() {
         var me= this,
             editor = this.inputElement.dom;
@@ -160,7 +163,6 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                             } else {
                                 document.execCommand('paste', false, text);
                             }
-                            me._checkRegexes(outEvent);
 
                         } else if (item.typeEx == 'text/html') {
                             item.getAsString(function (data) {
@@ -171,7 +173,6 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                                 } else {
                                     document.execCommand('paste', false, text);
                                 }
-                                me._checkRegexes(outEvent);
 
                                 // var imgs = $('img[url]');
                                 // for (let i = 0; i < imgs.length; i++) {
@@ -193,13 +194,14 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                                 } else {
                                     document.execCommand('paste', false, text);
                                 }
-                                me._checkRegexes(outEvent);
                                 // var arr = text.split('\n');
                                 // for (let i = 0; i < arr.length; i++) {
                                 //     $(me.inputElement.dom).append('<div>' + arr[i] + '</div>');
                                 // }
                             });
                         }
+                        
+                        me._checkRegexes(outEvent);
                     } else if (item.kind == 'file') {
                         var blob = item.getAsFile();
                         // 图片上传,并黏贴到输入框

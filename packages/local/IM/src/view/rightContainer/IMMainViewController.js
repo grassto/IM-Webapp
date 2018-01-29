@@ -22,7 +22,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     },
 
 
-    /* ********************************recentChat****************************************/
+/* ********************************recentChat****************************************/
 
     /**
      * 打开会话，获取历史记录进行绑定
@@ -50,6 +50,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     User.posts.push(posts[order[i]]);
                     // message = me.textToHtml(posts[order[i]].message);
                     message = posts[order[i]].message;
+                    message = window.minEmoji(message);
 
                     // if (posts[order[i]].file_ids) {
                     //     for (var j = 0; j < posts[order[i]].file_ids.length; j++) {
@@ -119,7 +120,8 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
 
 
-    /* ********************************left-orgController****************************************/
+/* ********************************left-orgController****************************************/
+
     /**
      * 若选中的人无频道，则添加频道，若有，则直接获取历史消息
      */
@@ -177,7 +179,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
 
 
-    /* ********************************消息发送****************************************/
+/* ********************************消息发送****************************************/
 
     onSend() {
         var me = this,
@@ -187,8 +189,9 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         }
 
         var textAreaField = me.getView().down('richEditor'),
-            sendText = textAreaField.inputElement.dom.value;// 内容
-        sendText = me.onParseMsg(sendText);
+            sendHtml = textAreaField.getSubmitValue(),
+            sendText = Utils.htmlToText(sendHtml);// 内容
+        // sendText = me.onParseMsg(sendText);
         // sendText = textAreaField.getValue();// 内容
         // 判断是否有内容或文件
         if (fileIds.length > 0 || sendText) {

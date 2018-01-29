@@ -112,7 +112,7 @@ Ext.define('IM.view.IMController', {
         }
     },
 
-    /* *************************************连接相关**************************************/
+/* *************************************连接相关**************************************/
 
     /**
      * websocket接收请求后执行，将数据绑定至页面
@@ -182,6 +182,7 @@ Ext.define('IM.view.IMController', {
         if (User.crtChannelId == data.channel_id) {
             data.username = me.getName(data.user_id);
             User.posts.push(data);
+            text = window.minEmoji(text);
 
             // var chatView = Ext.app.Application.instance.viewport.getController().getView().down('main #chatView');
             var chatView = me.getView().lookup('im-main').down('#chatView');

@@ -77,6 +77,9 @@ Ext.define('IM.view.IMController', {
         return rightView;
     },
 
+    /**
+     * 详细界面，转到IM聊天界面
+     */
     btnOnChgToIM() {
         var me = this,
             record = me.getViewModel().get('orgSelRecord');
@@ -112,7 +115,7 @@ Ext.define('IM.view.IMController', {
         }
     },
 
-/* *************************************连接相关**************************************/
+    /* *************************************连接相关**************************************/
 
     /**
      * websocket接收请求后执行，将数据绑定至页面
@@ -183,6 +186,7 @@ Ext.define('IM.view.IMController', {
             data.username = me.getName(data.user_id);
             User.posts.push(data);
             text = window.minEmoji(text);
+            text = me.antiParse(text);
 
             // var chatView = Ext.app.Application.instance.viewport.getController().getView().down('main #chatView');
             var chatView = me.getView().lookup('im-main').down('#chatView');
@@ -215,6 +219,20 @@ Ext.define('IM.view.IMController', {
             // debugger;
             me.onScroll(chatView);
         }
+    },
+
+    antiParse(text) {
+        var reg = /\[\w+\]/g;
+        var result = text.replace(reg, function (str) {
+            var out = '',
+                id = str.substring(1, str.length - 2);
+            Utils.ajaxByZY('GET', 'files/' + id + '/hasFile', {
+                params: JSON.stringify(id),
+                success: function (data) {
+                    debugger;
+                }
+            });
+        });
     },
 
     // 提示未读
@@ -321,7 +339,7 @@ Ext.define('IM.view.IMController', {
     getMembers() {
         var me = this,
             orgTree = me.getView().down('#left-organization');
-            Utils.ajaxByZY('GET', 'users', {
+        Utils.ajaxByZY('GET', 'users', {
             success: function (data) {
                 console.log('所有人员：');
                 console.log(data);

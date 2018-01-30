@@ -22,7 +22,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     },
 
 
-/* ********************************recentChat****************************************/
+    /* ********************************recentChat****************************************/
 
     /**
      * 打开会话，获取历史记录进行绑定
@@ -120,7 +120,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
 
 
-/* ********************************left-orgController****************************************/
+    /* ********************************left-orgController****************************************/
 
     /**
      * 若选中的人无频道，则添加频道，若有，则直接获取历史消息
@@ -179,7 +179,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
 
 
-/* ********************************消息发送****************************************/
+    /* ********************************消息发送****************************************/
 
     onSend() {
         var me = this,
@@ -189,7 +189,8 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         }
 
         var textAreaField = me.getView().down('richEditor'),
-            sendHtml = textAreaField.getSubmitValue(),
+            sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
+            sendHtml = me.onParseMsg(sendPicHtml),
             sendText = Utils.htmlToText(sendHtml);// 内容
         // sendText = me.onParseMsg(sendText);
         // sendText = textAreaField.getValue();// 内容
@@ -217,7 +218,19 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     },
 
     // 消息解析
-    onParseMsg(sendText) {
-        return sendText;
+    onParseMsg(sendPicHtml) {
+        // debugger;
+        var reg = /\<img[^\>]*src="([^"]*)"[^\>]*\>/g;
+        // var imgs = sendPicHtml.match(reg);
+        // for(var i=0;i<imgs.length;i++) {
+        //     $(imgs[i]).attr('id');
+        // }
+        var result = sendPicHtml.replace(reg, function (str) {
+            var out = '',
+                id = $(str).attr('id');
+            return '[' + id + ']';
+        });
+        // debugger;
+        return result;
     }
 });

@@ -1,12 +1,13 @@
 $auth-background-image: url(get-resource-path('images/2.png'));
 $right-addMem-image: url(get-resource-path('images/add-members.png'));
 $left-tab-backgroundcolor: rgb(225,230,235);// #2e3238;
+$left-tab-list: rgb(24,156,245);
 $left-tab-color: black;
 
 .left_panel{
     // 个人信息区
     .x-button{
-        color: white;
+        // color: white;
     }
     .x-button .x-inner-el{
         background-color: $left-tab-backgroundcolor;
@@ -69,7 +70,7 @@ $left-tab-color: black;
             border-radius: 20%;
             position: absolute;
             text-align: center;
-            color: #fff;
+            // color: #fff;
             overflow: hidden;
             height: 20px;
             width: 20px;
@@ -96,15 +97,15 @@ $left-tab-color: black;
         }
         background-color: $left-tab-backgroundcolor;
         .x-listitem{
-            color: #ffffff;
+            //color: #ffffff;
             background-color: $left-tab-backgroundcolor;
 
             &.x-hovered {
-                background-color: #3a3f45;
+                background-color: $left-tab-list;
             }
 
             &.x-selected {
-                background-color: #3a3f45;
+                background-color: $left-tab-list;
             }
         }
     }

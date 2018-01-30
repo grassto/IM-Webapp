@@ -85,7 +85,7 @@ Ext.define('IM.view.IM', {
                         xtype: 'searchfield',
                         placeholder: '搜索',
                         name: 'query',
-                        ui: 'alt'
+                        // ui: 'alt'
                     }]
                 }]
             }, {

@@ -32,15 +32,15 @@ Ext.define('IM.view.chat.editor.RichEditor', {
      * Enter发送，Ctrl+Enter回车
      */
     preventKeydown() {
-        var me= this,
+        var me = this,
             editor = this.inputElement.dom;
-        $(editor).keydown(function(event) {
-            if(event.keyCode == 13) {
-                if(event.ctrlKey) {
+        $(editor).keydown(function (event) {
+            if (event.keyCode == 13) {
+                if (event.ctrlKey) {
                     editor.value += '<br>';
                 }
                 else {
-                    if(editor.value) {
+                    if (editor.value) {
                         me.up('im-main').getController().onSend();
                     }
                     return false;
@@ -200,40 +200,41 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                                 // }
                             });
                         }
-                        
-                        me._checkRegexes(outEvent);
                     } else if (item.kind == 'file') {
                         var blob = item.getAsFile();
                         // 图片上传,并黏贴到输入框
                         me.uploadPic(blob);
 
-
-                        // 使用base64格式的图片
-                        // var reader = new FileReader();
-                        // reader.onload = function (event) {
-                        //     text = '<img style="width:40px;height:40px;" src="' + event.target.result + '"/>' + '&#8203'; // 后面加的这个是定位光标的
-                        //     setTimeout(() => {
-                        //         if (document.queryCommandSupported('insertHTML')) {
-                        //             document.execCommand('insertHTML', false, text);
-                        //         } else {
-                        //             document.execCommand('paste', false, text);
-                        //         }
-                        //         me._checkRegexes(outEvent);
-
-                        //         // $(me.inputElement.dom).append(text);
-                        //         // me.focusEnd();
-                        //     });
-                        // }
-                        // reader.readAsDataURL(blob);
+                        // me.bindPicToEditor(blob);
                     }
 
-
+                    me._checkRegexes(outEvent);
                 }
 
                 outEvent.preventDefault();
             }
 
         }
+    },
+
+    /**
+     * 将图片以img标签base64的方式来展示
+     * @param {File} blob 图片
+     */
+    bindPicToEditor(blob) {
+        // 使用base64格式的图片
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            var text = '<img style="width:40px;height:40px;" src="' + event.target.result + '"/>' + '&#8203'; // 后面加的这个是定位光标的
+            setTimeout(() => {
+                if (document.queryCommandSupported('insertHTML')) {
+                    document.execCommand('insertHTML', false, text);
+                } else {
+                    document.execCommand('paste', false, text);
+                }
+            });
+        };
+        reader.readAsDataURL(blob);
     },
 
     rtfhtmlToPlain(html) {
@@ -313,7 +314,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
      */
     uploadPic(file) {
         // debugger;
-        var me = this.inputElement.dom,
+        var me = this,
             formData = new FormData(),
             clientId = new Date().getTime() + '';
         formData.append('files', file);
@@ -330,19 +331,33 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                 withCredentials: true
             },
             success: function (data) {
-                var text;
+                var text, url, id;
                 for (var i = 0; i < data.file_infos.length; i++) {
                     User.files.push(data.file_infos[i]);
-                    text = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + data.file_infos[i].id + '/thumbnail">' + '&#8203';
 
-                    me.focus();
-                    if (document.queryCommandSupported('insertHTML')) {
-                        document.execCommand('insertHTML', false, text);
-                    } else {
-                        document.execCommand('paste', false, text);
-                    }
+                    me.bindPicByID(data.file_infos[i].id);
                 }
             }
         });
+    },
+
+    /**
+     * 根据id绑定图片至img
+     * @param {string} infoID 图片id
+     */
+    bindPicByID(infoID) {
+        var id = infoID,
+            text = '<img id="' + id + '" class="viewPic" style="width:40px;height:40px;background:url(/resources/images/loading.gif) no-repeat center center;"/>' + '&#8203',
+            url = Config.httpUrlForGo + 'files/' + id + '/thumbnail';
+
+        this.inputElement.dom.focus();
+        if (document.queryCommandSupported('insertHTML')) {
+            document.execCommand('insertHTML', false, text);
+        } else {
+            document.execCommand('paste', false, text);
+        }
+
+        // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
+        window.imagess(url, id);
     }
 });

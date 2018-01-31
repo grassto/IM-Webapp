@@ -18,7 +18,8 @@ Ext.define('IM.view.IMController', {
                 'showRight': 'showRightView'
             },
             'im-right-main': {
-                'grpSel': 'onShowGrpSel'
+                'grpSel': 'onShowGrpSel',
+                antiParse: 'antiParse'
             }
         }
     },
@@ -186,7 +187,7 @@ Ext.define('IM.view.IMController', {
             data.username = me.getName(data.user_id);
             User.posts.push(data);
             text = window.minEmoji(text);
-            text = me.antiParse(text);
+            text = me.antiParse(text, data.file_ids);
 
             // var chatView = Ext.app.Application.instance.viewport.getController().getView().down('main #chatView');
             var chatView = me.getView().lookup('im-main').down('#chatView');
@@ -221,18 +222,41 @@ Ext.define('IM.view.IMController', {
         }
     },
 
-    antiParse(text) {
+    /**
+     * 反解析
+     * @param {string} text 消息内容
+     * @param {array} fileIds 文件id
+     */
+    antiParse(text, fileIds) {
         var reg = /\[\w+\]/g;
         var result = text.replace(reg, function (str) {
             var out = '',
-                id = str.substring(1, str.length - 2);
-            Utils.ajaxByZY('GET', 'files/' + id + '/hasFile', {
-                params: JSON.stringify(id),
-                success: function (data) {
-                    debugger;
+                id = str.substring(1, str.length - 1);
+            // debugger;
+            if (fileIds) {
+                for (var i = 0; i < fileIds.length; i++) {
+                    if (fileIds[i] == id) {
+                        out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
+                        break;
+                    } else {
+                        out = str;
+                    }
                 }
-            });
+            }
+            // Utils.ajaxByZY('GET', 'files/' + id + '/hasFile', {
+            //     async: false, // 此处不能使用异步加载
+            //     // params: JSON.stringify(id),
+            //     success: function (data) {
+            //         if (data == 'yes') {
+            //             out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
+            //         } else {
+            //             out = str;
+            //         }
+            //     }
+            // });
+            return out;
         });
+        return result;
     },
 
     // 提示未读

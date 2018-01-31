@@ -52,6 +52,9 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     message = posts[order[i]].message;
                     message = window.minEmoji(message);
 
+                    // message = me.fireEvent('antiParse', message, posts[order[i]].file_ids) // 这边的fireEvent返回值为true
+                    message = me.antiParse(message, posts[order[i]].file_ids);
+
                     // if (posts[order[i]].file_ids) {
                     //     for (var j = 0; j < posts[order[i]].file_ids.length; j++) {
                     //         // 若是自己发送的消息，则靠右排列
@@ -83,6 +86,26 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 me.onScroll(chatView);
             }
         });
+    },
+    antiParse(text, fileIds) {
+        var reg = /\[\w+\]/g;
+        var result = text.replace(reg, function (str) {
+            var out = '',
+                id = str.substring(1, str.length - 1);
+            // debugger;
+            if (fileIds) {
+                for (var i = 0; i < fileIds.length; i++) {
+                    if (fileIds[i] == id) {
+                        out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
+                        break;
+                    } else {
+                        out = str;
+                    }
+                }
+            }
+            return out;
+        });
+        return result;
     },
 
     setUnReadToRead(crtChannelID) {

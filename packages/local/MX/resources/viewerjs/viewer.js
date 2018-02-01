@@ -143,7 +143,7 @@ var EVENT_RESIZE = 'resize';
 var EVENT_TRANSITION_END = 'transitionend';
 var EVENT_WHEEL = 'wheel mousewheel DOMMouseScroll';
 
-var BUTTONS = ['zoom-in', 'zoom-out', 'one-to-one', 'reset', 'prev', 'play', 'next', 'rotate-left', 'rotate-right', 'flip-horizontal', 'flip-vertical'];
+var BUTTONS = ['download', 'zoom-in', 'zoom-out', 'one-to-one', 'reset', 'prev', 'play', 'next', 'rotate-left', 'rotate-right', 'flip-horizontal', 'flip-vertical'];
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -1055,6 +1055,10 @@ var handlers = {
     var action = getData(target, 'action');
 
     switch (action) {
+      case 'download':
+        this.download(this.image.getAttribute('src'));
+        break;
+
       case 'mix':
         if (this.played) {
           this.stop();
@@ -1526,6 +1530,15 @@ var methods = {
     return this;
   },
 
+  download: function download(src) {
+    var $a = document.createElement('a');
+    $a.setAttribute("href", src);
+    $a.setAttribute("download", "");
+
+    var evObj = document.createEvent('MouseEvents');
+    evObj.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null);
+    $a.dispatchEvent(evObj);
+  },
 
   /**
    * View one of the images with image's index

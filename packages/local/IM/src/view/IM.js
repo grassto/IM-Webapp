@@ -24,6 +24,7 @@ Ext.define('IM.view.IM', {
         'IM.view.favorite.Favorite'
     ],
 
+
     layout: 'hbox',
     viewModel: {
         type: 'mainBind'

@@ -45,7 +45,9 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
      * @param {string} name 名字
      */
     setRightTitle(name) {
-        this.getViewModel().set('sendToName', name);
+        var viewmodel = this.getViewModel();
+        viewmodel.set('sendToName', name);
+        viewmodel.set('isOrgDetail', false);
     },
 
     // /**

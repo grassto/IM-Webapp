@@ -28,6 +28,16 @@ Ext.define('IM.view.widget.AdvancedSearchPanel', {
         handler: 'onCancle'
     }],
 
+    initialize() {
+        const me = this;
+        me.callParent(arguments);
+        
+        me.on({
+            action: 'onOk',
+            scope: me
+        });
+    },
+
     constructor(config) {
         config = config || {};
         config.items = [{

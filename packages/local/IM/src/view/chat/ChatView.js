@@ -1,15 +1,30 @@
 Ext.define('IM.view.chat.ChatView', {
-    extend: 'Ext.dataview.DataView',
+    extend: 'Ext.List',
     xtype: 'chatView',
 
     requires: [
         'IM.store.ChatView',
-        'IM.view.widget.RightClickMenu'
+        'IM.view.widget.RightClickMenu',
+        'IM.model.viewModel.ChatViewDetail'
     ],
+
+    viewModel: {
+        type: 'chatView_detail'
+    },
 
     store: {
         type: 'chatView'
     },
+
+    itemsFocusable: false,
+
+    classCls: 'chatVeiw-list',
+
+    hoveredCls: 'hovered', // 去掉鼠标悬浮的背景色样式
+
+    selectable: false,
+
+    itemContentCls: 'fullwidth',
 
     initialize() {
         const me = this;
@@ -26,7 +41,6 @@ Ext.define('IM.view.chat.ChatView', {
             scope: me
         });
 
-        // me.addStore();
     },
 
     onRightClick(e) {
@@ -66,7 +80,8 @@ Ext.define('IM.view.chat.ChatView', {
             // me.onPreviewAttach(record);
         }
         if(t.hasCls('avatar')) {
-            this.showMoreAboutHim();
+            this.setHisDetails(record);
+            this.showMoreAboutHim(location.sourceElement);
         }
     },
 
@@ -77,26 +92,64 @@ Ext.define('IM.view.chat.ChatView', {
     //     ImgUtil.viewImgs(src);
     // },
 
-    onPreviewAttach(record) {
-        var thumb = record.data.sendText,
-            img = thumb.replace(/\<img[^\>]*src="([^"]*)"[^\>]*\>/g, '<img src="$1">'),
-            html = $(img);
-        for (var i = 0; i < html.length; i++) {
-            if(html[i].nodeName == 'IMG') {
-                
-            }
-        }
-        // ImgUtil.viewImgs(src);
+    setHisDetails(record) {
+        var viewmodel = this.getViewModel();
+        viewmodel.set('nickName', record.data.senderName);
     },
 
     /**
      * 点击头像展示详细信息
      */
-    showMoreAboutHim() {
+    showMoreAboutHim(field) {
+        // debugger;
+        const panel = this.getAvatarDetailPanel();
+        // if (!panel.isHidden()) {
+        //     panel.hide();
+        // } else {
+            if (panel.getParent() !== Ext.Viewport) {
+                Ext.Viewport.add(panel);
+            }
+            // bug，直接 showBy 有时候不显示，所以加下面2行
+            panel._hidden = true;
+            panel.setHidden(false);
 
+            panel.showBy(field, 'tl-bl?');
+        // }
     },
 
-    addStore() {
-        var store = this.getStore();
+    getAvatarDetailPanel() {
+        const me = this;
+        if (!me.detailPanel) {
+            me.detailPanel = Ext.widget('avatarDetail', {
+                ownerCmp: me,
+                listeners: {
+                    show(p) {
+                        me.setAvaDetail(p);
+                    },
+                    hide(p) {
+                        // p.reset();
+                        if (p.getParent() === Ext.Viewport) {
+                            Ext.Viewport.remove(p, false);
+                        }
+                        // me.setRequired(false);
+                        // me.blur();
+                    },
+                    // ok: 'onSearchOk', // 自定义监听函数
+                    scope: me
+                }
+            });
+        }
+
+        return me.detailPanel;
+    },
+
+    setAvaDetail(p, html) {
+        // p.setHtml(this.getViewModel().get('chatView_detail_html'));
+        p.setHtml(html);
+    },
+
+    destory() {
+        Ext.destroy(this.detailPanel);
+        this.callParent();
     }
 });

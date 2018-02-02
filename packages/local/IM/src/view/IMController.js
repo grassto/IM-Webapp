@@ -15,7 +15,8 @@ Ext.define('IM.view.IMController', {
                 'showRight': 'showRightView'
             },
             'left-orgController': {
-                'showRight': 'showRightView'
+                'showRight': 'showRightView',
+                doubleTapOrg: 'btnOnChgToIM'
             },
             'im-right-main': {
                 'grpSel': 'onShowGrpSel',

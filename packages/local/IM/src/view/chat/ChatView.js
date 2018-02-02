@@ -8,6 +8,10 @@ Ext.define('IM.view.chat.ChatView', {
         'IM.model.viewModel.ChatViewDetail'
     ],
 
+    uses: [
+        'IM.view.chat.AvatarDetailPanel'
+    ],
+
     viewModel: {
         type: 'chatView_detail'
     },
@@ -24,7 +28,7 @@ Ext.define('IM.view.chat.ChatView', {
 
     selectable: false,
 
-    itemContentCls: 'fullwidth',
+    // itemContentCls: 'fullwidth',
 
     initialize() {
         const me = this;
@@ -43,10 +47,17 @@ Ext.define('IM.view.chat.ChatView', {
 
     },
 
+    /**
+     * 右击事件
+     * @param {Event} e 事件
+     */
     onRightClick(e) {
-        var menu = Ext.create('IM.view.widget.RightClickMenu');
-        menu.showAt(e.getPoint());
-        e.preventDefault();
+        const t = Ext.fly(e.target);
+        if (t.hasCls('plain') || t.hasCls('viewPic')) {
+            var menu = Ext.create('IM.view.widget.RightClickMenu');
+            menu.showAt(e.getPoint());
+        }
+        e.preventDefault(); // 取消默认事件
     },
 
     itemTpl: '<div style="width:100%;color:#6f6a60;text-align:center;">{updateTime}</div>' +
@@ -76,21 +87,15 @@ Ext.define('IM.view.chat.ChatView', {
         if (t.hasCls('viewPic')) {
             var thumbSrc = t.dom.src;
             // 请求原图浏览
-            ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail')-1));
+            ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
             // me.onPreviewAttach(record);
         }
-        if(t.hasCls('avatar')) {
-            this.setHisDetails(record);
-            this.showMoreAboutHim(location.sourceElement);
+        if (t.hasCls('avatar')) {
+            // this.setHisDetails(record);
+            this.showMoreAboutHim(location.sourceElement, record);
+            e.stopPropagation(); // 防止事件冒泡，会调用到document的tap事件
         }
     },
-
-    // onPreviewAttach(record) {
-    //     var thumb = record.data.file.indexOf('thumbnail'),
-    //     src = record.data.file.substring(0, thumb-1);
-    //     // debugger;
-    //     ImgUtil.viewImgs(src);
-    // },
 
     setHisDetails(record) {
         var viewmodel = this.getViewModel();
@@ -100,31 +105,31 @@ Ext.define('IM.view.chat.ChatView', {
     /**
      * 点击头像展示详细信息
      */
-    showMoreAboutHim(field) {
+    showMoreAboutHim(field, record) {
         // debugger;
-        const panel = this.getAvatarDetailPanel();
+        const panel = this.getAvatarDetailPanel(record);
         // if (!panel.isHidden()) {
         //     panel.hide();
         // } else {
-            if (panel.getParent() !== Ext.Viewport) {
-                Ext.Viewport.add(panel);
-            }
-            // bug，直接 showBy 有时候不显示，所以加下面2行
-            panel._hidden = true;
-            panel.setHidden(false);
+        if (panel.getParent() !== Ext.Viewport) {
+            Ext.Viewport.add(panel);
+        }
+        // bug，直接 showBy 有时候不显示，所以加下面2行
+        panel._hidden = true;
+        panel.setHidden(false);
 
-            panel.showBy(field, 'tl-bl?');
+        panel.showBy(field, 'tl-bl?');
         // }
     },
 
-    getAvatarDetailPanel() {
+    getAvatarDetailPanel(record) {
         const me = this;
         if (!me.detailPanel) {
             me.detailPanel = Ext.widget('avatarDetail', {
                 ownerCmp: me,
                 listeners: {
                     show(p) {
-                        me.setAvaDetail(p);
+                        me.setAvaDetail(p, record);
                     },
                     hide(p) {
                         // p.reset();
@@ -143,9 +148,26 @@ Ext.define('IM.view.chat.ChatView', {
         return me.detailPanel;
     },
 
-    setAvaDetail(p, html) {
-        // p.setHtml(this.getViewModel().get('chatView_detail_html'));
-        p.setHtml(html);
+    setAvaDetail(p,record) {
+        p.setHtml(this.getDetailHtml(record));
+        // p.setHtml(html);
+    },
+
+
+    getDetailHtml(record) {
+        // 之后可以直接使用record中的值来赋值
+        // viewModel的formulas会慢一步，所以在此自己拼凑
+        var viewModel = this.getViewModel();
+        var html = [
+            '<div style="font-size: 20px;">',
+            '<div class="sendToName">' + viewModel.get('nickName') + '</div>',
+            '<div class="phone">手机：' + viewModel.get('phone') + '</div>',
+            '<div class="mobile">座机：' + viewModel.get('mobile') + '</div>',
+            '<div class="eMail">邮箱：' + viewModel.get('eMail') + '</div>',
+            '<div class="department">部门：' + viewModel.get('department') + '</div>',
+            '</div>'
+        ].join('');
+        return html;
     },
 
     destory() {

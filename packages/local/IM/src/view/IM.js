@@ -12,7 +12,8 @@ Ext.define('IM.view.IM', {
         'IM.model.viewModel.IMMainBind',
         'Ext.form.FieldSet',
         'Ext.field.Search',
-        'Ext.tab.Panel'
+        'Ext.tab.Panel',
+        'Ext.panel.Resizer'
     ],
 
     uses: [
@@ -121,7 +122,7 @@ Ext.define('IM.view.IM', {
             }]
         }, {
             xtype: 'panel',
-            userCls: 'left_bar',
+            cls: 'left_bar',
             bbar: [{
                 iconCls: 'x-fa fa-clock-o',
                 handler: 'onShowMsgManger'

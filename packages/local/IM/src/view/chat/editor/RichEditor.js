@@ -2,7 +2,8 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     extend: 'MX.field.RichTextArea',
     xtype: 'richEditor',
     requires: [
-        'IM.model.Mention'
+        'IM.model.Mention',
+        'Ext.drag.Target'
     ],
 
     placeholder: 'Ctrl+Enter换行',
@@ -17,15 +18,42 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         me.onclickPic();
         me.preventKeydown();
 
-        // ctrl 17
-        // var map = new Ext.util.KeyMap({
-        //     target: me.element,
-        //     key: 13, // or Ext.event.Event.ENTER
-        //     handler(a,b,c,d) {
-        //         me.onSend(a,b,c,d);
-        //     },
-        //     scope: me
-        // });
+        me.initDrap();
+    },
+
+    /**
+     * 允许拖拽文件至输入框
+     */
+    initDrap() {
+        this.target = new Ext.drag.Target({
+            element: this.element,
+            listeners: {
+                scope: this,
+                dragenter: this.onDragEnter,
+                dragleave: this.onDragLeave,
+                drop: this.onDrop
+            }
+        });
+    },
+    onDragEnter(a, b, c) { // 可以在此增加样式
+
+    },
+    onDragLeave(a, b, c) {
+
+    },
+    onDrop(target, info) {
+        var me = this,
+            files = info.files,
+            len = files.length;
+        if (len > 0) {
+            for (var i = 0; i < len; i++) {
+                if (files[i].type == 'image/png') { // 图片类型，则上传并绑定到editor
+                    me.uploadPic(files[i]);
+                } else { // 其他类型再处理
+
+                }
+            }
+        }
     },
 
     /**
@@ -37,7 +65,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         $(editor).keydown(function (event) {
             if (event.keyCode == 13) {
                 if (event.ctrlKey) {
-                    editor.value += '<br>';
+                    editor.value += '<br>' + '&#8203;';
                 }
                 else {
                     if (editor.value) {

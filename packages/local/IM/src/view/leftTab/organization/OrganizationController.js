@@ -20,8 +20,8 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
      * @param {*} location 
      */
     orgOnDblSelMem(me, location) {
-        // debugger;
-        alert(123);
+        this.getViewModel().set('orgSelRecord', location.record);
+        this.fireEvent('doubleTapOrg');
     },
 
 

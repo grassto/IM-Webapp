@@ -5,7 +5,8 @@ Ext.define('IM.view.groupSel.GroupSel', {
     requires: [
         'IM.view.groupSel.organization.Organization',
         'IM.model.GrpSelMem',
-        'IM.view.groupSel.GroupSelController'
+        'IM.view.groupSel.GroupSelController',
+        // 'Ext.panel.Resizer'
     ],
 
     controller: 'groupSel',
@@ -16,8 +17,8 @@ Ext.define('IM.view.groupSel.GroupSel', {
     closable: true,
     closeAction: 'hide',
     resizable: true,
-    height: '90vh',
-    maxWidth: '90vw',
+    // height: '90vh',
+    // maxWidth: '90vw',
 
     layout: 'fit',
 
@@ -41,10 +42,11 @@ Ext.define('IM.view.groupSel.GroupSel', {
             padding: 20,
             cls: 'IM-grp',
             items: [{
-                // style: {
-                //     paddingRight: '10px',
-                //     borderRight: '1px solid lightgrey'
+                xtype: 'panel',
+                // resizable: {
+                //     edges: 'east'
                 // },
+                // flex: 1,
                 cls: 'IM-grp-left',
                 layout: 'vbox',
                 items: [{
@@ -53,15 +55,6 @@ Ext.define('IM.view.groupSel.GroupSel', {
                     role: 'filter',
                     placeholder: '搜索',
                     minHeight: 30,
-                    // responsiveConfig: {
-                    //     'width > 1366': {
-                    //         width: 250
-                    //     },
-                    //     'width <= 1024': {
-                    //         width: 150
-                    //     }
-                    // },
-                    // plugins: 'responsive',
                     triggers: {
                         search: {
                             type: 'search',
@@ -73,7 +66,11 @@ Ext.define('IM.view.groupSel.GroupSel', {
                         action: 'onSearch'
                     }
                 }, {
-                    xtype: 'groupSel-organization',
+                    // xtype: 'component',
+                    // minHeight: 300,
+                    // items: [{
+                        xtype: 'groupSel-organization',
+                    // }],
                     flex: 1
                 }/* , {
                     xtype: 'textfield',
@@ -89,6 +86,7 @@ Ext.define('IM.view.groupSel.GroupSel', {
                 xtype: 'list',
                 itemId: 'grpSelMem',
                 minWidth: 300,
+                // maxHeight: 300,
                 style: {
                     paddingLeft: '10px'
                 },

@@ -6,7 +6,8 @@ Ext.define('IM.view.rightContainer.IMMainView', {
     requires: [
         'IM.view.rightContainer.IMMainViewController',
         'IM.view.chat.ChatView',
-        'IM.view.chat.ChatInput'
+        'IM.view.chat.ChatInput',
+        'Ext.panel.Resizer'
     ],
 
     layout: 'vbox',

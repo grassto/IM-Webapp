@@ -48,12 +48,30 @@ Ext.define('PushIM.Webapp.Application', {
         Config.httpUrl = Config.httpAIOUrl;
         Config.httpUrlForGo = Config.httpDevGoUrl;
 
+        me.hideAvaDetail();
 
         // The viewport controller requires xtype defined by profiles, so let's perform extra
         // initialization when the application and its dependencies are fully accessible.
         Ext.Viewport.getController().onLaunch();
         me.callParent([profile]);
 
+    },
+
+    /**
+     * 监听document的tap事件，点击隐藏panel
+     */
+    hideAvaDetail() {
+        Ext.get(document).on({
+            tap: function () {
+                var viewport = Ext.Viewport,
+                    avaDetail = viewport.child('avatarDetail');
+                if (avaDetail) {
+                    if (!avaDetail.isHidden()) {
+                        avaDetail.hide();
+                    }
+                }
+            }
+        });
     },
 
     /**

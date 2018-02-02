@@ -4,7 +4,7 @@ Ext.define('IM.view.groupSel.GroupSelController', {
 
 
     onSearch() {
-
+        console.log('搜索');
     },
 
     init() {

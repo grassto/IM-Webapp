@@ -10,6 +10,7 @@ Ext.define('IM.model.viewModel.ChatViewDetail', {
         department: 'pushsoft/技术部'
     },
 
+    // formulas会慢一步
     formulas: {
         chatView_detail_html: function (get) {
             var html = [

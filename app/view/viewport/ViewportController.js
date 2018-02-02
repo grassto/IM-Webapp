@@ -52,7 +52,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
                 Utils.toastShort('会话已超时，请重新登录');
                 me.onNeedLogin();
             }
-        }else {
+        } else {
             me.onLogin();
         }
 

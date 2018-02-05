@@ -5,16 +5,24 @@ Ext.define('IM.view.groupSel.organization.Organization', {
     userCls: 'IM-grp-org',
 
     requires: [
-        'IM.model.Organization'
+        'IM.store.IMOrg'
     ],
 
-    viewModel: {
-        type: 'organization'
+    store: {
+        type: 'IMOrg'
     },
 
-    bind: {
-        store: '{navItems}'
-    },
+    // requires: [
+    //     'IM.model.Organization'
+    // ],
+
+    // viewModel: {
+    //     type: 'organization'
+    // },
+
+    // bind: {
+    //     store: '{navItems}'
+    // },
     // height: 'auto',
     height: 300,
     width: 300,

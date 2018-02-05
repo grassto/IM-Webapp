@@ -34,7 +34,7 @@ Ext.define('IM.view.IMController', {
         var avatar = AvatarMgr.getAvatarHtmlByName(viewmodel.get('ownerName'));
         viewmodel.set('avatar', avatar);
 
-        // 搜索框
+        // 左侧搜索框，快速搜索联系人
         var form = me.lookup('searchForm');
         var map = new Ext.util.KeyMap({
             target: form.element,
@@ -62,8 +62,8 @@ Ext.define('IM.view.IMController', {
         const me = this,
             view = me.getView();
 
+        oldType = view.lookup(oldType);
         if (oldType) {
-            oldType = view.lookup(oldType);
             view.remove(oldType, true);
         }
         let rightView = view.lookup(xtype); // 需要添加的
@@ -321,8 +321,9 @@ Ext.define('IM.view.IMController', {
 
     onScroll(chatView) {
         var sc = chatView.getScrollable(),
-            scHeight = sc.getScrollElement().dom.scrollHeight;
-        sc.scrollTo(0, scHeight + 1000);
+            scHeight = sc.getScrollElement().dom.scrollHeight,
+            scTop = sc.getScrollElement().dom.scrollTop;
+        sc.scrollTo(0, scHeight - scTop);
     },
 
 
@@ -364,6 +365,7 @@ Ext.define('IM.view.IMController', {
     getMembers() {
         var me = this,
             orgTree = me.getView().down('#left-organization');
+        Utils.mask(orgTree);
         Utils.ajaxByZY('GET', 'users', {
             success: function (data) {
                 console.log('所有人员：');
@@ -376,8 +378,8 @@ Ext.define('IM.view.IMController', {
                     }
                 }
 
-                BindHelper.loadOrganization(me.getView());
-
+                BindHelper.loadOrganization(me.getView().down('#left-organization'));
+                Utils.unMask(orgTree);
                 me.getChannels();
 
                 // 定时获取状态 30s
@@ -392,7 +394,10 @@ Ext.define('IM.view.IMController', {
 
     // 获取频道，单人对话也是频道
     getChannels() {
-        var me = this;
+        var me = this,
+            view = me.getView().down('#left_members');
+        Utils.mask(view);
+        // debugger;
         Utils.ajaxByZY('get', 'users/me/channels', {
             success: function (data) {
                 console.log('所有频道：');
@@ -412,7 +417,8 @@ Ext.define('IM.view.IMController', {
                         User.allChannels.push(data[i]);
                     }
                 }
-                BindHelper.loadRecentChat(me.getView());
+                BindHelper.loadRecentChat(view);
+                Utils.unMask(view);
 
                 // 设置默认选中第一个
                 // var record = me.getView().down('#left_members').getStore().getAt(0);
@@ -463,6 +469,7 @@ Ext.define('IM.view.IMController', {
             this.grpSel = grpSel = Ext.create(grpSel);
         }
 
+        // debugger;grpSel.down('#grpSelMem');
         grpSel.show();
     },
     // 消息管理器

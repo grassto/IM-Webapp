@@ -65,15 +65,7 @@ Ext.define('IM.view.IM', {
                 text: '{avatar}' +
                     '<div>{ownerName}</div>' +
                     '<div>{ownerMail}</div>'
-            },
-            menu: [{
-                text: '设置',
-                iconCls: 'x-fa fa-wrench'
-            }, {
-                text: '注销',
-                handler: 'onLogout',
-                iconCls: 'x-fa fa-times-rectangle-o'
-            }]
+            }
         }, {
             xtype: 'panel',
             layout: 'hbox',
@@ -132,13 +124,16 @@ Ext.define('IM.view.IM', {
             }, {
                 iconCls: 'x-fa fa-list',
                 docked: 'right',
-                menu: {
-                    items: [{
-                        text: '设置'
-                    }, {
-                        text: '关于'
-                    }]
-                }
+                menu: [{
+                    text: '设置',
+                    // iconCls: 'x-fa fa-wrench'
+                }, {
+                    text: '注销',
+                    handler: 'onLogout',
+                    // iconCls: 'x-fa fa-times-rectangle-o'
+                }, {
+                    text: '关于'
+                }]
             }]
         }]
     },

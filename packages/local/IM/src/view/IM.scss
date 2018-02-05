@@ -7,7 +7,7 @@ $left-tab-color: black;
 .left_panel{
     // 个人信息区
     .x-button{
-        // color: white;
+        color: $left-tab-color;
     }
     .x-button .x-inner-el{
         background-color: $left-tab-backgroundcolor;

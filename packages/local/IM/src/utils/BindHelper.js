@@ -10,10 +10,9 @@ Ext.define('IM.utils.BindHelper', {
     },
 
     // 最近会话
-    loadRecentChat(mainView) {
+    loadRecentChat(leftMembers) {
         // debugger;
-        var leftMembers = mainView.down('#left_members'),
-            store = leftMembers.getStore();
+        var store = leftMembers.getStore();
         for (let i = 0; i < User.allChannels.length; i++) {
             if (User.allChannels[i].type == 'D') {
                 store.add({
@@ -34,15 +33,16 @@ Ext.define('IM.utils.BindHelper', {
 
 
     // 加载组织结构树信息(之后还需处理)
-    loadOrganization(mainView) {
-        var orgTree = mainView.down('#left-organization'),
+    loadOrganization(orgTree) {
+        // var orgTree = mainView.down('#left-organization'),
             // treeStore = orgTree.getViewModel().data.navItems,
-            treeStore = orgTree.getStore(),
+            var treeStore = orgTree.getStore(),
             target = orgTree.getSelections()[0] || treeStore.getRoot(),
             node = [];
 
         // 设置根节点
         target.data.name = 'PushSoft';
+        // debugger;
 
         for (let i = 0; i < User.allOthers.length; i++) {
             User.allOthers[i].name = User.allOthers[i].nickname;
@@ -50,6 +50,8 @@ Ext.define('IM.utils.BindHelper', {
             // User.allOthers[i].iconCls = 'hide-icon';
             node.push(User.allOthers[i]);
         }
+        target.data.children = node;
+        
         target.appendChild(node);
     },
 

@@ -70,6 +70,7 @@ Ext.define('IM.view.groupSel.GroupSel', {
                     // minHeight: 300,
                     // items: [{
                         xtype: 'groupSel-organization',
+                        itemId: 'grpSel-org',
                     // }],
                     flex: 1
                 }/* , {
@@ -83,21 +84,34 @@ Ext.define('IM.view.groupSel.GroupSel', {
                     label: '群类型'
                 }*/]
             }, {
-                xtype: 'list',
-                itemId: 'grpSelMem',
+                xtype: 'panel',
+                layout: 'vbox',
                 minWidth: 300,
-                // maxHeight: 300,
                 style: {
                     paddingLeft: '10px'
                 },
-                store: {
-                    model: 'IM.model.GrpSelMem'
-                },
-                itemTpl: '<div style="line-height:38px;">' +
-                    '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]}" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}" ></a>' +
-                    '{name}' +
-                    '</div>',
-                onItemDisclosure: 'onDisclosureTap'
+                items: [{
+                    xtype: 'list',
+                    itemId: 'grpSelMem',
+                    flex: 1,
+                    store: {
+                        model: 'IM.model.GrpSelMem'
+                    },
+                    itemTpl: '<div style="line-height:38px;">' +
+                        '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]}" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}" ></a>' +
+                        '{name}' +
+                        '</div>',
+                    onItemDisclosure: 'onDisclosureTap'
+                }, {
+                    xtype: 'button',
+                    itemId: 'btnDelAll',
+                    text: '删除所有',
+                    textAlign: 'right',
+                    hidden: true,
+                    ui: 'flat',
+                    handler: 'onDelAll'
+                }]
+                
             }]
         }];
 

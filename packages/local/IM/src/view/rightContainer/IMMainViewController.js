@@ -6,10 +6,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         'MX.util.Utils'
     ],
 
-    onShowGrpSel() {
-        this.fireEvent('grpSel');
-    },
-
     listen: {
         controller: {
             'recentChat': {
@@ -19,6 +15,26 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 'openChat': 'onOpenChat'
             }
         }
+    },
+
+    /* *********************************** rightTitle *************************************/
+    onShowGrpSel() {
+        const me = this,
+            userID = User.ownerID,
+            channelID = User.crtChannelId;
+        Utils.mask(Ext.Viewport);
+        Utils.ajaxByZY('get', 'users/' + userID + '/channels/members', {
+            success: function (data) {
+                debugger;
+            },
+            failure(data) {
+                debugger;
+            },
+            callback: function () {
+                Utils.unMask(Ext.Viewport);
+            }
+        });
+        me.fireEvent('grpSel');
     },
 
 
@@ -155,32 +171,38 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 uid = record.data.id;
             User.crtSelUserId = uid;
 
-            var channelId = me.getChannelId(uid);
-            if (channelId !== '') {
-                // 获取历史消息
-                console.log('存在,获取历史消息');
-                me.onOpenChannel(channelId);
-            } else {
-                console.log('不存在，创建会话');
-                // 创建会话
-                Utils.ajaxByZY('post', 'channels/direct', {
-                    params: JSON.stringify([User.crtUser.id, uid]),
-                    success: function (data) {
-                        // debugger;
-                        User.allChannels.push(data);
-                        var channelStore = me.getView().up('IM').down('#left_members').getStore();
-                        channelStore.add({
-                            id: data.id,
-                            name: record.data.nickname
-                        });
-                        me.onOpenChannel(data.id);
-                    },
-                    failure: function (data) {
-                        // debugger;
-                        alert('创建出错');
-                    }
-                });
-            }
+            me.openChat(uid, record.data.nickname);
+        }
+    },
+    openChat(uid, nickname) {
+        var me = this,
+            channelId = me.getChannelId(uid);
+        if (channelId !== '') {
+            // 获取历史消息
+            console.log('存在,获取历史消息');
+            me.onOpenChannel(channelId);
+        } else {
+            console.log('不存在，创建会话');
+            // 创建会话
+            Utils.ajaxByZY('post', 'channels/direct', {
+                params: JSON.stringify([User.crtUser.id, uid]),
+                success: function (data) {
+                    // debugger;
+                    User.allChannels.push(data);
+                    var channelStore = me.getView().up('IM').down('#left_members').getStore();
+                    channelStore.add({
+                        id: data.id,
+                        name: nickname
+                        // type: data.type
+                    });
+                    me.onOpenChannel(data.id);
+                },
+                failure: function (data) {
+                    // debugger;
+                    console.log(data);
+                    alert('创建出错');
+                }
+            });
         }
     },
 

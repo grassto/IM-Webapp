@@ -91,7 +91,7 @@ Ext.define('IM.view.chat.ChatView', {
             // me.onPreviewAttach(record);
         }
         if (t.hasCls('avatar')) {
-            // this.setHisDetails(record);
+            this.setHisDetails(record);
             this.showMoreAboutHim(location.sourceElement, record);
             e.stopPropagation(); // 防止事件冒泡，会调用到document的tap事件
         }
@@ -161,8 +161,8 @@ Ext.define('IM.view.chat.ChatView', {
         var html = [
             '<div style="font-size: 20px;">',
             '<div class="sendToName">' + viewModel.get('nickName') + '</div>',
-            '<div class="phone">手机：' + viewModel.get('phone') + '</div>',
-            '<div class="mobile">座机：' + viewModel.get('mobile') + '</div>',
+            '<div class="phone">座机：' + viewModel.get('phone') + '</div>',
+            // '<div class="mobile">手机：' + viewModel.get('mobile') + '</div>',
             '<div class="eMail">邮箱：' + viewModel.get('eMail') + '</div>',
             '<div class="department">部门：' + viewModel.get('department') + '</div>',
             '</div>'

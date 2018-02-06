@@ -18,22 +18,25 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     },
 
     /* *********************************** rightTitle *************************************/
+    /**
+     * 右侧页面的发起群聊图标，选中后会在发起群聊的框中展示出已经选中的人
+     */
     onShowGrpSel() {
         const me = this,
             userID = User.ownerID,
             channelID = User.crtChannelId;
-        Utils.mask(Ext.Viewport);
-        Utils.ajaxByZY('get', 'users/' + userID + '/channels/members', {
-            success: function (data) {
-                debugger;
-            },
-            failure(data) {
-                debugger;
-            },
-            callback: function () {
-                Utils.unMask(Ext.Viewport);
-            }
-        });
+        // Utils.mask(Ext.Viewport);
+        // Utils.ajaxByZY('get', 'users/' + userID + '/channels/members', {
+        //     success: function (data) {
+        //         debugger;
+        //     },
+        //     failure(data) {
+        //         debugger;
+        //     },
+        //     callback: function () {
+        //         Utils.unMask(Ext.Viewport);
+        //     }
+        // });
         me.fireEvent('grpSel');
     },
 

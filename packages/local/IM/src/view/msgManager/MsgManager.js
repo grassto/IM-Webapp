@@ -5,7 +5,8 @@ Ext.define('IM.view.msgManager.MsgManager', {
     requires: [
         'IM.view.msgManager.msgManagerController',
         'IM.view.widget.MsgSearchField',
-        'IM.view.groupSel.organization.Organization'
+        'IM.view.msgManager.list.msgList',
+        'IM.view.msgManager.msgView.MsgView'
     ],
 
     controller: 'msgManager',
@@ -28,15 +29,18 @@ Ext.define('IM.view.msgManager.MsgManager', {
                 xtype: 'container',
                 layout: 'vbox',
                 userCls: 'left_msgMgr',
+                minWidth: 200,
                 items: [{ // 搜索
                     xtype: 'IM_msgSearch_textfield',
                     itemId: 'msgSearchTxt'
                 }, { // list
-                    xtype: 'groupSel-organization',
+                    xtype: 'msgList',
+                    itemId: 'msgRecentChat',
                     flex: 1
                 }]
             }, {
-                html: '暂无结果',
+                // html: '<div style="color:#aaa;">暂无结果</div>',
+                xtype: 'msgView',
                 style: {
                     paddingLeft: '10px'
                 },

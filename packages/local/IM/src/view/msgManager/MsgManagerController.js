@@ -2,6 +2,12 @@ Ext.define('IM.view.msgManager.msgManagerController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.msgManager',
 
+    init() {
+        var me = this,
+        list = me.getView().down('#msgRecentChat');
+        BindHelper.loadRecentChat(list);
+    },
+
     /**
     * 高级搜索，打开panel
     */

@@ -92,6 +92,12 @@ Ext.define('IM.view.IM', {
             xtype: 'tabpanel',
             flex: 1,
             ui: 'tab',
+            // tabBar: {
+            //     cls: 'light-shadow',
+            //     layout: {
+            //         pack: 'center'
+            //     }
+            // },
             listeners: {
                 activeItemchange: 'onTabChanges'
             },

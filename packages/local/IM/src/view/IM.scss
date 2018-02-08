@@ -79,6 +79,7 @@ $left-tab-color: black;
             top: 3px;
             left: 35px;
             font-family: cursive;
+            color: #fff;
         }
         .RecentUnRead:before{
             content: attr(unRead);

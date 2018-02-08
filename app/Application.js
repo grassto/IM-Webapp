@@ -48,7 +48,7 @@ Ext.define('PushIM.Webapp.Application', {
         Config.httpUrl = Config.httpAIOUrl;
         Config.httpUrlForGo = Config.httpDevGoUrl;
 
-        me.hideAvaDetail();
+        me.hideAvaDetail(); // 监听document的单击事件
 
         // The viewport controller requires xtype defined by profiles, so let's perform extra
         // initialization when the application and its dependencies are fully accessible.

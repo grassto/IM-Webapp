@@ -4,10 +4,11 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
 
     /**
      * 最近会话选中事件
-     * @param {*} me 
-     * @param {*} location 
+     * @param {Ext.dataview.List} me 对应的list
+     * @param {Ext.list.Location} location
      */
     onSelRecentMem(me, location) {
+        // debugger;
         this.onShowChatView();
         this.setRightTitle(location.record.data.name);
         this.fireEvent('openCnl', location.record.data.id);

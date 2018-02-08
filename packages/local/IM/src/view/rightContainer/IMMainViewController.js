@@ -262,6 +262,10 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             });
 
             textAreaField.clear();
+
+            var viewModel = me.getView().up('IM').getViewModel(),
+                name = viewModel.get('sendToName');
+            me.fireEvent('listToTop', name);
         }
     },
 
@@ -280,5 +284,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         });
         // debugger;
         return result;
-    }
+    },
+
+    
 });

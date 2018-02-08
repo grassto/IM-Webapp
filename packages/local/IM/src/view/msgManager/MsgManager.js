@@ -29,7 +29,7 @@ Ext.define('IM.view.msgManager.MsgManager', {
                 xtype: 'container',
                 layout: 'vbox',
                 userCls: 'left_msgMgr',
-                minWidth: 200,
+                minWidth: 300,
                 items: [{ // 搜索
                     xtype: 'IM_msgSearch_textfield',
                     itemId: 'msgSearchTxt'

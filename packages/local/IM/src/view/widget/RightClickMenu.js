@@ -1,11 +1,10 @@
 Ext.define('IM.view.widget.RightClickMenu', {
     extend: 'Ext.menu.Menu',
     xtype: 'chatView-right-menu',
-    
     items: [{
-        text: '右击',
+        text: '复制',
         handler: function () {
-            alert('右击成功了');
+            alert('复制成功了');
         }
     }, {
         text: '删除',
@@ -13,9 +12,13 @@ Ext.define('IM.view.widget.RightClickMenu', {
             alert('你点击了删除 ');
         }
     }, {
-        text: '属性',
+        text: '撤销',
         handler: function () {
-            alert('点击了属性项');
+            alert('点击了撤销');
         }
+    }, {
+        text: '引用'
+    }, {
+        text: '评论'
     }]
 });

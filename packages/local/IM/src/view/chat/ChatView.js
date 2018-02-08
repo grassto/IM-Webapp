@@ -61,10 +61,12 @@ Ext.define('IM.view.chat.ChatView', {
     },
 
     itemTpl: '<div style="width:100%;color:#6f6a60;text-align:center;">{updateTime}</div>' +
+        '<tpl if="values.ROL!==\'right\'">' +
         '<div class="evAvatar" style="float:{ROL};">' +
         '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.senderName)]} " style="float:{ROL};{[AvatarMgr.getColorStyle(values.senderName)]}">' +
         '</a>' +
         '</div>' +
+        '</tpl>' +
         '<div style="overflow:hidden;text-align:{ROL};min-height:60px;">' +
         '<tpl if="values.ROL==\'right\'">' +
         '<div class="bubble">' +
@@ -148,7 +150,7 @@ Ext.define('IM.view.chat.ChatView', {
         return me.detailPanel;
     },
 
-    setAvaDetail(p,record) {
+    setAvaDetail(p, record) {
         p.setHtml(this.getDetailHtml(record));
         // p.setHtml(html);
     },

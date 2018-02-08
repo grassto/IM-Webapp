@@ -153,7 +153,13 @@ Ext.define('IM.view.groupSel.GroupSelController', {
      * @param {*} value record
      */
     onDisclosureTap(value) {
-        this.getView().down('#grpSelMem').getStore().remove(value);
+        const view = this.getView(),
+        store = view.down('#grpSelMem').getStore();
+        store.remove(value);
+        // debugger;
+        if(store.data.length == 0) {
+            view.down('#btnDelAll').setHidden(true);
+        }
     },
 
     onBeforeHide() {

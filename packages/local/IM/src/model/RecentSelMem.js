@@ -26,5 +26,8 @@ Ext.define('IM.model.RecentSelMem', {
         }
     ],
 
-    sorters: ['id']
+    sorters: [{
+        property: 'last_post_at',
+        direction: 'DESC'
+    }]
 });

@@ -20,7 +20,8 @@ Ext.define('IM.view.IMController', {
             },
             'im-right-main': {
                 'grpSel': 'onShowGrpSel',
-                antiParse: 'antiParse'
+                antiParse: 'antiParse',
+                listToTop: 'doLeftListToTop'
             }
         }
     },
@@ -88,13 +89,18 @@ Ext.define('IM.view.IMController', {
         if (!record.data.leaf) {
             Ext.Msg.confirm('提示', '确定要发起群聊吗？', function (btn) {
                 if (btn == 'yes') {
-                    me.chgToIMView();
-                    me.getView().lookup('im-main').getController().onOpenChat();
+                    console.log('试试就行了');
+                    // me.chgToIMView();
+                    // me.getView().lookup('im-main').getController().onOpenChat();
                 }
             });
         } else {
             me.chgToIMView();
             me.getView().lookup('im-main').getController().onOpenChat();
+
+            var viewModel = me.getViewModel(),
+                name = viewModel.get('sendToName');
+            me.doLeftListToTop(name);
         }
     },
 
@@ -117,6 +123,41 @@ Ext.define('IM.view.IMController', {
         }
     },
 
+    /**
+     * 最近会话移至最上方
+     */
+    doLeftListToTop(name) {
+        const me = this,
+            list = me.getView().down('#left_members'),
+            listStore = list.getStore(),
+            record = listStore.getAt(listStore.find('name', name));
+        // listItem = list.getItem(record);
+
+        if(record) {
+            record.set('last_post_at', new Date());
+
+            list.setSelection(record); // 设置选中
+            listStore.sort('last_post_at', 'DESC'); // 动态排序
+        }
+
+
+        // // 清除所有的选中样式
+        // var listitems = list.getItems().items;
+        // for (var i = 0; i < listitems.length; i++) {
+        //     if (listitems[i].hasCls('x-selected')) {
+        //         listitems[i].removeCls('x-selected');
+        //         break;
+        //     }
+        // }
+
+        // // 给选中的加上样式
+        // if (!listItem.hasCls('x-selected')) {
+        //     listItem.addCls('x-selected');
+        // }
+
+        // list.insertFirst(listItem);
+    },
+
     /* *************************************连接相关**************************************/
 
     /**
@@ -130,6 +171,7 @@ Ext.define('IM.view.IMController', {
             cid = msg.broadcast.channel_id,
             // text = Utils.htmlEncode(data.message),
             text = data.message,
+            userName = me.getName(data.user_id),
             flag = true;
 
         /* ****************************************** 未读提示 ********************************************************************/
@@ -142,7 +184,7 @@ Ext.define('IM.view.IMController', {
                     me.promptUnRead(cid);
                 }
                 // 给通知
-                me.notify('多人会话：' + me.getName(data.user_id), data.message);
+                me.notify('多人会话：' + userName, data.message);
             }
         }
         else { // 个人用户
@@ -158,8 +200,10 @@ Ext.define('IM.view.IMController', {
                         if (User.crtChannelId !== cid) {
                             me.promptUnRead(cid);
 
-                            if (data.user_id !== User.ownerID) {
-                                me.notify(me.getName(data.user_id), data.message);
+                            me.resetLastPostTime(userName, new Date(data.update_at));
+
+                            if (data.user_id !== User.ownerID) { // 不是自己发的
+                                me.notify(userName, data.message);
                             }
                             break;
                         }
@@ -169,14 +213,14 @@ Ext.define('IM.view.IMController', {
                 if (flag) {
                     User.allChannels.push({ id: cid, name: cName });
                     var channelStore = me.getView().down('#left_members').getStore();
-                    channelStore.add({
+                    channelStore.insert(0, {
                         id: cid,
-                        name: me.getName(data.user_id),
+                        name: userName,
                         isUnRead: true,
                         unReadNum: 1
                     });
 
-                    me.notify(me.getName(data.user_id), data.message);
+                    me.notify(userName, data.message);
                 }
             }
         }
@@ -185,7 +229,7 @@ Ext.define('IM.view.IMController', {
         /* ****************************************** 当前频道，消息展示 ********************************************************************/
         // 若选中的是当前频道，则在聊天区展示数据
         if (User.crtChannelId == data.channel_id) {
-            data.username = me.getName(data.user_id);
+            data.username = userName;
             User.posts.push(data);
             text = window.minEmoji(text);
             text = me.antiParse(text, data.file_ids);
@@ -218,9 +262,12 @@ Ext.define('IM.view.IMController', {
             else {
                 chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
             }
-            // debugger;
+
+            /* ****************************************************** 滚动条 ******************************************************************************************************/
             me.onScroll(chatView);
         }
+        /* ****************************************************** 最近会话重新排序 ******************************************************************************************************/
+        me.reSortRecentList();
     },
 
     /**
@@ -260,7 +307,10 @@ Ext.define('IM.view.IMController', {
         return result;
     },
 
-    // 提示未读
+    /**
+     * 提示未读
+     * @param {string} cid 用户id
+     */
     promptUnRead(cid) {
         var store = this.getView().down('#left_members').getStore(),
             record = store.getById(cid);
@@ -268,7 +318,11 @@ Ext.define('IM.view.IMController', {
         record.set('unReadNum', record.get('unReadNum') + 1);
     },
 
-    // 消息通知
+    /**
+     * 消息通知
+     * @param {string} senderName 发送者姓名
+     * @param {string} sendText 发送的内容
+     */
     notify(senderName, sendText) {
         if (!window.Notification) {
             alert("浏览器不支持通知！");
@@ -319,6 +373,10 @@ Ext.define('IM.view.IMController', {
         return '';
     },
 
+    /**
+     * 滚动条滚到最底部
+     * @param {component} chatView 需要滚动的区域
+     */
     onScroll(chatView) {
         var sc = chatView.getScrollable(),
             scHeight = sc.getScrollElement().dom.scrollHeight,
@@ -326,7 +384,33 @@ Ext.define('IM.view.IMController', {
         sc.scrollTo(0, scHeight - scTop);
     },
 
+    /**
+     * 根据channel名查找相应的record，并修改record的值
+     * @param {string} userName channel名
+     * @param {Date} date 日期时间
+     */
+    resetLastPostTime(userName, date) {
+        var me = this,
+        RStore = me.getView().down('#left_members').getStore(),
+        record = RStore.getAt(RStore.find('name', userName));
+        // 更新record的值
+        record.set('last_post_at', date);
+    },
 
+    /**
+     * 最近会话重新排序
+     */
+    reSortRecentList() {
+        var me = this,
+        list = me.getView().down('#left_members'),
+        listStore = list.getStore();
+
+        listStore.sort('last_post_at', 'DESC');
+    },
+
+    /**
+     * 打开连接
+     */
     mounted() {
         var me = this;
         me.getMe();
@@ -344,7 +428,9 @@ Ext.define('IM.view.IMController', {
         // me.getPreferences();
     },
 
-    // 获取个人信息
+    /**
+     * 获取个人信息
+     */
     getMe() {
         var me = this;
         Utils.ajaxByZY('GET', 'users/me', {
@@ -361,15 +447,17 @@ Ext.define('IM.view.IMController', {
         });
     },
 
-    // 获取所有成员
+    /**
+     * 获取所有成员
+     */
     getMembers() {
         var me = this,
             orgTree = me.getView().down('#left-organization');
         Utils.mask(orgTree);
         Utils.ajaxByZY('GET', 'users', {
             success: function (data) {
-                console.log('所有人员：');
-                console.log(data);
+                console.log('所有人员：', data);
+
                 User.allUsers = data;
                 for (let i = 0; i < data.length; i++) {
                     if (data[i].id !== User.ownerID) {
@@ -379,7 +467,7 @@ Ext.define('IM.view.IMController', {
                 }
 
                 BindHelper.loadOrganization(me.getView().down('#left-organization'));
-                Utils.unMask(orgTree);
+                // Utils.unMask(orgTree);
                 me.getChannels();
 
                 // 定时获取状态 30s
@@ -387,17 +475,22 @@ Ext.define('IM.view.IMController', {
                 // setInterval(() => {
                 //     me.getStatus(data);
                 // }, 60 * 1000);
+            }, callback() {
+                Utils.unMask(orgTree);
             }
         });
 
     },
 
-    // 获取频道，单人对话也是频道
+    /**
+     * 获取频道，单人对话也是频道
+     */
     getChannels() {
         var me = this,
             view = me.getView().down('#left_members');
-        Utils.mask(view);
         // debugger;
+
+        Utils.mask(view);
         Utils.ajaxByZY('get', 'users/me/channels', {
             success: function (data) {
                 console.log('所有频道：');
@@ -418,16 +511,20 @@ Ext.define('IM.view.IMController', {
                     }
                 }
                 BindHelper.loadRecentChat(view);
-                Utils.unMask(view);
 
                 // 设置默认选中第一个
                 // var record = me.getView().down('#left_members').getStore().getAt(0);
                 // me.onSelectChannel('', '', '', record);
+            }, callback() {
+                Utils.unMask(view);
             }
         });
     },
 
-    // 状态信息
+    /**
+     * 状态信息
+     * @param {*} us 
+     */
     getStatus(us) {
         var me = this,
             uArray = [],
@@ -438,8 +535,7 @@ Ext.define('IM.view.IMController', {
         Utils.ajax('POST', 'users/status/ids', {
             params: JSON.stringify(uArray),
             success: function (data) {
-                console.log('所有人员状态：');
-                console.log(data);
+                console.log('所有人员状态：', data);
                 User.allStatus = data;
             }
         });

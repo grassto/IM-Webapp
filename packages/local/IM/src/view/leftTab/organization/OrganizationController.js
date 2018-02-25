@@ -2,6 +2,11 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.left-orgController',
 
+    // init() {
+    //     debugger;
+    //     BindHelper.loadOrganization(this.getView());
+    // },
+
     /**
      * 组织结构树单击事件
      * @param {*} me 

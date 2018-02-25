@@ -13,7 +13,8 @@ Ext.define('IM.view.IM', {
         'Ext.form.FieldSet',
         'Ext.field.Search',
         'Ext.tab.Panel',
-        'Ext.panel.Resizer'
+        'Ext.panel.Resizer',
+        'IM.view.leftTool.leftTool'
     ],
 
     uses: [
@@ -22,7 +23,8 @@ Ext.define('IM.view.IM', {
         'IM.view.rightContainer.BlankPage',
         'IM.view.msgManager.MsgManager',
         'IM.view.groupSel.GroupSel',
-        'IM.view.favorite.Favorite'
+        'IM.view.favorite.Favorite',
+        'IM.view.groupSel2.GroupSel2'
     ],
 
 
@@ -45,8 +47,11 @@ Ext.define('IM.view.IM', {
     //     // });
     // },
 
-    items: [{// 左边
+    items: [{
+        xtype: 'leftTool'
+    }, {// 左边
         xtype: 'panel',
+        itemId: 'middleView',
         resizable: {
             edges: 'east'
         },
@@ -55,7 +60,7 @@ Ext.define('IM.view.IM', {
         cls: 'left_panel',
         ui: 'tab',
 
-        items: [{ // 个人信息
+        items: [/* { // 个人信息
             xtype: 'button',
             itemId: 'btnMe',
             textAlign: 'left',
@@ -66,7 +71,7 @@ Ext.define('IM.view.IM', {
                     '<div>{ownerName}</div>' +
                     '<div>{ownerMail}</div>'
             }
-        }, {
+        },*/ {
             xtype: 'panel',
             layout: 'hbox',
             items: [{
@@ -88,16 +93,21 @@ Ext.define('IM.view.IM', {
                 handler: 'onShowGrpSel'
             }]
         }, {
+            xtype: 'recentChat',
+            itemId: 'recentChat',
+            cls: 'left_tab',
+            flex:1
+        }/* , {
             // tabPanel
             xtype: 'tabpanel',
             flex: 1,
             ui: 'tab',
-            // tabBar: {
-            //     cls: 'light-shadow',
-            //     layout: {
-            //         pack: 'center'
-            //     }
-            // },
+            tabBar: {
+                layout: {
+                    pack: 'center'
+                },
+                docked: 'top'
+            },
             listeners: {
                 activeItemchange: 'onTabChanges'
             },
@@ -141,17 +151,20 @@ Ext.define('IM.view.IM', {
                     text: '关于'
                 }]
             }]
-        }]
+        }*/]
     },
 
     // 右边，聊天区
-    /*{
+    /* {
         flex: 1,
         xtype: 'panel'
     }*/],
 
     grpSel: { // 新建多人会话
         xtype: 'groupSel'
+    },
+    grpSel2: {
+        xtype: 'groupSel2'
     },
 
     fav: { // 收藏

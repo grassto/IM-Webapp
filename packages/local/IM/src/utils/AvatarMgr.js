@@ -87,7 +87,7 @@ Ext.define('IM.utils.AvatarMgr', {
         ].join('');
     },
     getAvatarHtmlByName(name) {
-        return '<a class="avatar link-avatar firstletter " letter="' + AvatarMgr.getFirstLetter(name) + '" style="float:left;' + AvatarMgr.getColorStyle(name) + '" ></a>';
+        return '<a class="avatar link-avatar firstletter " letter="' + AvatarMgr.getFirstLetter(name) + '" style="float:null;margin:auto;' + AvatarMgr.getColorStyle(name) + '" ></a>';
     },
 
     /**

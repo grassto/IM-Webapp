@@ -19,7 +19,7 @@ Ext.define('IM.view.IMController', {
                 doubleTapOrg: 'btnOnChgToIM'
             },
             'im-right-main': {
-                'grpSel': 'onShowGrpSel',
+                'grpSel': 'onShowGrpSel2',
                 antiParse: 'antiParse',
                 listToTop: 'doLeftListToTop'
             }
@@ -49,8 +49,39 @@ Ext.define('IM.view.IMController', {
         // 右侧页面展示
         me.showRightView('pageblank');
 
+        // 左侧list展示
+        // me.showMiddle('recentChat');
+
         // 打开连接
         me.mounted();
+    },
+
+    // 使用子控件的隐藏与展示来切换
+    showMiddle(xtype, oldType) {
+        const me = this,
+            view = me.getView().down('#middleView');
+
+        debugger;
+        oldType = view.down('#' + oldType);
+        if (oldType) {
+            oldType.hide();
+        }
+
+        let middleView = view.down('#' + xtype);
+        if (!middleView) {
+            middleView = view.add({
+                xtype: xtype,
+                reference: xtype,
+                itemId: xtype,
+                flex: 1,
+                cls: 'left_tab'
+            });
+        } else {
+            middleView.show();
+        }
+        // view.setActiveItem(middleView);
+
+        return middleView;
     },
 
     /**
@@ -128,12 +159,12 @@ Ext.define('IM.view.IMController', {
      */
     doLeftListToTop(name) {
         const me = this,
-            list = me.getView().down('#left_members'),
+            list = me.getView().down('#recentChat'),
             listStore = list.getStore(),
             record = listStore.getAt(listStore.find('name', name));
         // listItem = list.getItem(record);
 
-        if(record) {
+        if (record) {
             record.set('last_post_at', new Date());
 
             list.setSelection(record); // 设置选中
@@ -212,7 +243,7 @@ Ext.define('IM.view.IMController', {
                 // 未找到相同的channelid，则添加
                 if (flag) {
                     User.allChannels.push({ id: cid, name: cName });
-                    var channelStore = me.getView().down('#left_members').getStore();
+                    var channelStore = me.getView().down('#recentChat').getStore();
                     channelStore.insert(0, {
                         id: cid,
                         name: userName,
@@ -312,7 +343,7 @@ Ext.define('IM.view.IMController', {
      * @param {string} cid 用户id
      */
     promptUnRead(cid) {
-        var store = this.getView().down('#left_members').getStore(),
+        var store = this.getView().down('#recentChat').getStore(),
             record = store.getById(cid);
         record.set('isUnRead', true);
         record.set('unReadNum', record.get('unReadNum') + 1);
@@ -391,8 +422,8 @@ Ext.define('IM.view.IMController', {
      */
     resetLastPostTime(userName, date) {
         var me = this,
-        RStore = me.getView().down('#left_members').getStore(),
-        record = RStore.getAt(RStore.find('name', userName));
+            RStore = me.getView().down('#recentChat').getStore(),
+            record = RStore.getAt(RStore.find('name', userName));
         // 更新record的值
         record.set('last_post_at', date);
     },
@@ -402,8 +433,8 @@ Ext.define('IM.view.IMController', {
      */
     reSortRecentList() {
         var me = this,
-        list = me.getView().down('#left_members'),
-        listStore = list.getStore();
+            list = me.getView().down('#recentChat'),
+            listStore = list.getStore();
 
         listStore.sort('last_post_at', 'DESC');
     },
@@ -466,7 +497,7 @@ Ext.define('IM.view.IMController', {
                     }
                 }
 
-                BindHelper.loadOrganization(me.getView().down('#left-organization'));
+                // BindHelper.loadOrganization(me.getView().down('#left-organization'));
                 // Utils.unMask(orgTree);
                 me.getChannels();
 
@@ -487,7 +518,7 @@ Ext.define('IM.view.IMController', {
      */
     getChannels() {
         var me = this,
-            view = me.getView().down('#left_members');
+            view = me.getView().down('#recentChat');
         // debugger;
 
         Utils.mask(view);
@@ -513,7 +544,7 @@ Ext.define('IM.view.IMController', {
                 BindHelper.loadRecentChat(view);
 
                 // 设置默认选中第一个
-                // var record = me.getView().down('#left_members').getStore().getAt(0);
+                // var record = me.getView().down('#recentChat').getStore().getAt(0);
                 // me.onSelectChannel('', '', '', record);
             }, callback() {
                 Utils.unMask(view);
@@ -545,8 +576,32 @@ Ext.define('IM.view.IMController', {
 
     /* **************************************** 切换tab ***********************************/
     // 切换tab时调用
-    onTabChanges() {
+    onTabChanges(tabpanel, tab, oldTab) {
+        debugger;
+        var me = this,
+            xtype,
+            oldType;
 
+        // 当前点击的xtype
+        if (tab.iconCls == 'x-fa fa-comment') {
+            xtype = 'recentChat';
+        } else if (tab.iconCls == 'x-fa fa-user') {
+            xtype = 'left-organization';
+        } else if (tab.iconCls == 'x-fa fa-th-large') {
+            xtype = 'setting';
+        }
+
+        // 上次选中的xtype
+        if (oldTab.iconCls == 'x-fa fa-comment') {
+            oldType = 'recentChat';
+        } else if (oldTab.iconCls == 'x-fa fa-user') {
+            oldType = 'left-organization';
+        } else if (oldTab.iconCls == 'x-fa fa-th-large') {
+            oldType = 'setting';
+        }
+
+
+        me.showMiddle(xtype, oldType);
     },
 
 
@@ -567,6 +622,21 @@ Ext.define('IM.view.IMController', {
 
         // debugger;grpSel.down('#grpSelMem');
         grpSel.show();
+    },
+    onShowGrpSel2() {
+        var view = this.getView(),
+            grpSel2 = this.grpSel2;
+
+        if (!grpSel2) {
+            grpSel2 = Ext.apply({
+                ownerCmp: view
+            }, view.grpSel2);
+
+            this.grpSel2 = grpSel2 = Ext.create(grpSel2);
+        }
+
+        // debugger;grpSel.down('#grpSelMem');
+        grpSel2.show();
     },
     // 消息管理器
     onShowMsgManger() {

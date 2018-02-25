@@ -128,7 +128,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     },
 
     setUnReadToRead(crtChannelID) {
-        var memStore = this.getView().up('IM').down('#left_members').getStore();
+        var memStore = this.getView().up('IM').down('#recentChat').getStore();
         memStore.getById(crtChannelID).set('isUnRead', false);
     },
 
@@ -192,7 +192,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 success: function (data) {
                     // debugger;
                     User.allChannels.push(data);
-                    var channelStore = me.getView().up('IM').down('#left_members').getStore();
+                    var channelStore = me.getView().up('IM').down('#recentChat').getStore();
                     channelStore.add({
                         id: data.id,
                         name: nickname

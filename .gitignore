@@ -4,3 +4,4 @@ classic.json*
 modern.json*
 .vscode
 .xlsx
+*.log

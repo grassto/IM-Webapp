@@ -7,6 +7,10 @@ Ext.define('IM.store.IMOrg', {
         {
             name: 'iconCls',
             defaultValue: 'hide-icon'
+        },
+        {
+            name: 'isSel',
+            type: 'bool'
         }
     ]
 

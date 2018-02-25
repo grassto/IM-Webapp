@@ -33,7 +33,7 @@ Ext.define('IM.view.leftTab.organization.Organization', {
         xtype: 'treecolumn',
 
         renderer: function (value, record) {
-            // debugger;
+            debugger;
             return '<div style="line-height:38px;">' +
                 '<a class="avatar link-avatar firstletter " letter="' + AvatarMgr.getFirstLetter(record.data.name) + '" style="float:left;' + AvatarMgr.getColorStyle(record.data.name) + '" ></a>' +
                 value +

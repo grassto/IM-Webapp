@@ -133,7 +133,7 @@ Ext.define('IM.view.groupSel.GroupSelController', {
      * @param {json} data 数据
      */
     addChannelToRecent(data) {
-        const recentChatView = Ext.Viewport.down('IM').down('#left_members'),
+        const recentChatView = Ext.Viewport.down('IM').down('#recentChat'),
             chatStore = recentChatView.getStore();
 
         chatStore.add({

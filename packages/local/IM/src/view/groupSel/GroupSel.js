@@ -87,6 +87,7 @@ Ext.define('IM.view.groupSel.GroupSel', {
                 xtype: 'panel',
                 layout: 'vbox',
                 minWidth: 300,
+                maxHeigth: 500,
                 style: {
                     paddingLeft: '10px'
                 },

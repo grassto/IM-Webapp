@@ -261,8 +261,9 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 }
             });
 
-            textAreaField.clear();
+            textAreaField.clear(); // 清空编辑框
 
+            // 将选中的人移至最上方
             var viewModel = me.getView().up('IM').getViewModel(),
                 name = viewModel.get('sendToName');
             me.fireEvent('listToTop', name);
@@ -286,5 +287,5 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         return result;
     },
 
-    
+
 });

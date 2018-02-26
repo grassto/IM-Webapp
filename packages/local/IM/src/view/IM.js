@@ -24,7 +24,8 @@ Ext.define('IM.view.IM', {
         'IM.view.msgManager.MsgManager',
         'IM.view.groupSel.GroupSel',
         'IM.view.favorite.Favorite',
-        'IM.view.groupSel2.GroupSel2'
+        'IM.view.groupSel2.GroupSel2',
+        'IM.view.leftTab.setting.setting'
     ],
 
 
@@ -72,32 +73,39 @@ Ext.define('IM.view.IM', {
                     '<div>{ownerMail}</div>'
             }
         },*/ {
-            xtype: 'panel',
-            layout: 'hbox',
-            items: [{
-                xtype: 'formpanel', // 搜索框
-                reference: 'searchForm',
-                flex: 1,
+                xtype: 'panel',
+                layout: 'hbox',
                 items: [{
-                    xtype: 'fieldset',
+                    xtype: 'formpanel', // 搜索框
+                    reference: 'searchForm',
+                    flex: 1,
                     items: [{
-                        xtype: 'searchfield',
-                        placeholder: '搜索',
-                        name: 'query',
-                        // ui: 'alt'
+                        xtype: 'fieldset',
+                        items: [{
+                            xtype: 'searchfield',
+                            placeholder: '搜索',
+                            name: 'query',
+                            // ui: 'alt'
+                        }]
                     }]
+                }, {
+                    xtype: 'button',
+                    iconCls: 'x-fa fa-plus',
+                    handler: 'onShowGrpSel'
                 }]
             }, {
-                xtype: 'button',
-                iconCls: 'x-fa fa-plus',
-                handler: 'onShowGrpSel'
-            }]
-        }, {
-            xtype: 'recentChat',
-            itemId: 'recentChat',
-            cls: 'left_tab',
-            flex:1
-        }/* , {
+                xtype: 'recentChat',
+                itemId: 'recentChat',
+                cls: 'left_tab',
+                flex: 1
+            }, {
+                iconCls: 'x-fa fa-user',
+                xtype: 'left-organization',
+                cls: 'left_tab',
+                itemId: 'left-organization',
+                hidden: true,
+                flex: 1
+            }/* , {
             // tabPanel
             xtype: 'tabpanel',
             flex: 1,

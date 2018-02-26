@@ -15,6 +15,7 @@ Ext.define('IM.view.groupSel2.GroupSel2', {
     closable: true,
     closeAction: 'hide',
     resizable: true,
+    layout: 'fit',
 
     buttonAlign: 'right',
     buttons: [{
@@ -33,7 +34,7 @@ Ext.define('IM.view.groupSel2.GroupSel2', {
             padding: 20,
             items: [{
                 layout: 'vbox',
-                minWidth: 300,
+                // minWidth: 300,
                 items: [{
                     xtype: 'textfield',
                     name: 'Subject',
@@ -46,19 +47,26 @@ Ext.define('IM.view.groupSel2.GroupSel2', {
                     flex: 1
                 }]
             }, {
-                xtype: 'list',
-                itemId: 'grpSelList2',
-                minWidth: 300,
-                style: {
-                    paddingLeft: '10px'
-                },
-                store: {
-                    model: 'IM.model.GrpSelMem'
-                },
-                itemTpl: '<div style="line-height:38px;">' +
-                    '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]}" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}" ></a>' +
-                    '{name}' +
-                    '</div>'
+                    xtype: 'panel',
+                    minWidth: 300,
+                    maxHeigth: 500,
+                    layout: 'vbox',
+                    style: {
+                        paddingLeft: '10px'
+                    },
+                    items: [{
+                        xtype: 'list',
+                        itemId: 'grpSelList2',
+                        flex: 1,
+                        store: {
+                            model: 'IM.model.GrpSelMem'
+                        },
+                        itemTpl: '<div style="line-height:38px;">' +
+                            '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]}" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}" ></a>' +
+                            '{name}' +
+                            '</div>'
+                    }]
+                
             }]
         }];
 

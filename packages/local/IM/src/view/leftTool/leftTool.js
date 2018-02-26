@@ -16,9 +16,9 @@ Ext.define('IM.view.leftTool.leftTool', {
         listeners: {
             activeItemchange: 'onTabChanges'
         },
-        // ui: 'leftToolBar-ui',
         tabBar: {
             // cls: 'light-shadow',
+            defaultTabUI: 'leftTool-ui',
             layout: {
                 pack: 'center'
             },
@@ -26,7 +26,8 @@ Ext.define('IM.view.leftTool.leftTool', {
         },
         items:[
             {
-                iconCls: 'x-fa fa-comment'
+                iconCls: 'x-fa fa-comment',
+                badgeText: '3'
             }, {
                 iconCls: 'x-fa fa-user'
             }, {

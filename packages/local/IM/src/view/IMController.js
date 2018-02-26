@@ -61,7 +61,7 @@ Ext.define('IM.view.IMController', {
         const me = this,
             view = me.getView().down('#middleView');
 
-        debugger;
+        // debugger;
         oldType = view.down('#' + oldType);
         if (oldType) {
             oldType.hide();
@@ -412,7 +412,9 @@ Ext.define('IM.view.IMController', {
         var sc = chatView.getScrollable(),
             scHeight = sc.getScrollElement().dom.scrollHeight,
             scTop = sc.getScrollElement().dom.scrollTop;
-        sc.scrollTo(0, scHeight - scTop);
+        // sc.scrollTo(0, scHeight - scTop);
+        sc.scrollTo(0, scHeight);
+
     },
 
     /**
@@ -497,7 +499,7 @@ Ext.define('IM.view.IMController', {
                     }
                 }
 
-                // BindHelper.loadOrganization(me.getView().down('#left-organization'));
+                BindHelper.loadOrganization(me.getView().down('#left-organization'));
                 // Utils.unMask(orgTree);
                 me.getChannels();
 
@@ -577,11 +579,12 @@ Ext.define('IM.view.IMController', {
     /* **************************************** 切换tab ***********************************/
     // 切换tab时调用
     onTabChanges(tabpanel, tab, oldTab) {
-        debugger;
+        // debugger;
         var me = this,
             xtype,
             oldType;
 
+        // 根据iconCls来判断所点击的是哪个tabbar
         // 当前点击的xtype
         if (tab.iconCls == 'x-fa fa-comment') {
             xtype = 'recentChat';

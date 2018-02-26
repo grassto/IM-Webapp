@@ -110,6 +110,13 @@ $left-tab-color: black;
                 background-color: $left-tab-list;
             }
         }
+
+        // grid的hideHeaders无效，在此将其隐藏
+        .x-container.x-component.x-headercontainer.x-headercontainer-.x-dock-item.x-docked-top{
+            .x-header-el{
+                display: none;
+            }
+        }
     }
 
     .left_bar{

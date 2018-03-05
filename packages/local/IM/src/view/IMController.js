@@ -12,14 +12,14 @@ Ext.define('IM.view.IMController', {
     listen: {
         controller: {
             'recentChat': {
-                'showRight': 'showRightView'
+                showRight: 'showRightView'
             },
             'left-orgController': {
-                'showRight': 'showRightView',
+                showRight: 'showRightView',
                 doubleTapOrg: 'btnOnChgToIM'
             },
             'im-right-main': {
-                'grpSel': 'onShowGrpSel2',
+                grpSel: 'onShowGrpSel2',
                 antiParse: 'antiParse',
                 listToTop: 'doLeftListToTop'
             }
@@ -29,6 +29,9 @@ Ext.define('IM.view.IMController', {
     init: function () {
         var me = this;
         me.callParent(arguments);
+
+        // 打开连接
+        me.mounted();
 
         // 设置当前用户头像
         var viewmodel = me.getViewModel();
@@ -51,9 +54,6 @@ Ext.define('IM.view.IMController', {
 
         // 左侧list展示
         // me.showMiddle('recentChat');
-
-        // 打开连接
-        me.mounted();
     },
 
     // 使用子控件的隐藏与展示来切换
@@ -61,7 +61,7 @@ Ext.define('IM.view.IMController', {
         const me = this,
             view = me.getView().down('#middleView');
 
-        // debugger;
+        // // debugger;
         oldType = view.down('#' + oldType);
         if (oldType) {
             oldType.hide();
@@ -90,7 +90,7 @@ Ext.define('IM.view.IMController', {
      * @param {string} oldType 需要删除的xtype
      */
     showRightView(xtype, oldType) {
-        // debugger;
+        // // // debugger;
         const me = this,
             view = me.getView();
 
@@ -117,22 +117,26 @@ Ext.define('IM.view.IMController', {
     btnOnChgToIM() {
         var me = this,
             record = me.getViewModel().get('orgSelRecord');
-        if (!record.data.leaf) {
-            Ext.Msg.confirm('提示', '确定要发起群聊吗？', function (btn) {
-                if (btn == 'yes') {
-                    console.log('试试就行了');
-                    // me.chgToIMView();
-                    // me.getView().lookup('im-main').getController().onOpenChat();
-                }
-            });
-        } else {
-            me.chgToIMView();
-            me.getView().lookup('im-main').getController().onOpenChat();
+        // 选中的不是自己
+        if (User.ownerID !== record.data.id) {
+            if (!record.data.leaf) {
+                Ext.Msg.confirm('提示', '确定要发起群聊吗？', function (btn) {
+                    if (btn == 'yes') {
+                        console.log('试试就行了');
+                        // me.chgToIMView();
+                        // me.getView().lookup('im-main').getController().onOpenChat();
+                    }
+                });
+            } else {
+                me.chgToIMView();
+                me.getView().lookup('im-main').getController().onOpenChat();
 
-            var viewModel = me.getViewModel(),
-                name = viewModel.get('sendToName');
-            me.doLeftListToTop(name);
+                var viewModel = me.getViewModel(),
+                    name = viewModel.get('sendToName');
+                me.doLeftListToTop(name);
+            }
         }
+
     },
 
     /**
@@ -196,10 +200,12 @@ Ext.define('IM.view.IMController', {
      * @param {object} msg 服务器返回的数据
      */
     handleNewPostEvent(msg) {
+        // debugger;
         var me = this,
-            data = JSON.parse(msg.data.post),
-            cName = msg.data.channel_name,
-            cid = msg.broadcast.channel_id,
+            data = JSON.parse(msg.data.message),
+            cName = msg.data.chat_name,
+            cid = msg.broadcast.chat_id,
+            // cid = msg.broadcast.chat_id,
             // text = Utils.htmlEncode(data.message),
             text = data.message,
             userName = me.getName(data.user_id),
@@ -224,7 +230,7 @@ Ext.define('IM.view.IMController', {
                 // 当前缓存中的所有频道中包含该频道
                 for (var i = 0; i < User.allChannels.length; i++) {
                     // 找到了,给未读提示，直接退出
-                    if (User.allChannels[i].id == cid) {
+                    if (User.allChannels[i].chat.chat_id == cid) {
                         flag = false;
 
                         // 选中的不是当前频道
@@ -242,7 +248,30 @@ Ext.define('IM.view.IMController', {
                 }
                 // 未找到相同的channelid，则添加
                 if (flag) {
-                    User.allChannels.push({ id: cid, name: cName });
+                    User.allChannels.push({
+                        chat: {
+                            channelname: userName,
+                            chat_id: cid,
+                            chat_name: cName,
+                            chat_type: 'D'
+
+                            // create_at
+
+                            // creator_id
+
+                            // delete_at
+
+                            // header
+                            // purpose
+
+                            // update_at
+                        },
+                        members: {
+                            chat_id: cid,
+                            user_id: data.user_id
+                        }
+                    });
+                    // User.allChannels.push({ id: cid, name: cName });
                     var channelStore = me.getView().down('#recentChat').getStore();
                     channelStore.insert(0, {
                         id: cid,
@@ -259,7 +288,7 @@ Ext.define('IM.view.IMController', {
 
         /* ****************************************** 当前频道，消息展示 ********************************************************************/
         // 若选中的是当前频道，则在聊天区展示数据
-        if (User.crtChannelId == data.channel_id) {
+        if (User.crtChannelId == data.chat_id) {
             data.username = userName;
             User.posts.push(data);
             text = window.minEmoji(text);
@@ -311,7 +340,7 @@ Ext.define('IM.view.IMController', {
         var result = text.replace(reg, function (str) {
             var out = '',
                 id = str.substring(1, str.length - 1);
-            // debugger;
+            // // // debugger;
             if (fileIds) {
                 for (var i = 0; i < fileIds.length; i++) {
                     if (fileIds[i] == id) {
@@ -397,8 +426,8 @@ Ext.define('IM.view.IMController', {
 
     getName(uid) {
         for (var i = 0; i < User.allUsers.length; i++) {
-            if (User.allUsers[i].id === uid) {
-                return User.allUsers[i].nickname;
+            if (User.allUsers[i].user_id === uid) {
+                return User.allUsers[i].user_name;
             }
         }
         return '';
@@ -468,14 +497,13 @@ Ext.define('IM.view.IMController', {
         var me = this;
         Utils.ajaxByZY('GET', 'users/me', {
             success: function (data) {
-                // debugger;
-                console.log('个人信息：');
-                console.log(data);
+                // // // debugger;
+                console.log('个人信息：', data);
                 User.crtUser = data;
                 var viewmodel = me.getView().getViewModel();
-                viewmodel.set('ownerName', data.nickname);
+                viewmodel.set('ownerName', data.user_name);
                 viewmodel.set('ownerMail', data.email);
-                viewmodel.set('avatar', AvatarMgr.getAvatarHtmlByName(data.nickname));
+                viewmodel.set('avatar', AvatarMgr.getAvatarHtmlByName(data.user_name));
             }
         });
     },
@@ -484,23 +512,27 @@ Ext.define('IM.view.IMController', {
      * 获取所有成员
      */
     getMembers() {
-        var me = this,
+        const me = this,
             orgTree = me.getView().down('#left-organization');
         Utils.mask(orgTree);
-        Utils.ajaxByZY('GET', 'users', {
+        Utils.ajaxByZY('GET', 'users/all', {
             success: function (data) {
-                console.log('所有人员：', data);
+                // // // debugger;
+                var org = data.organizations,
+                    usersInfo = data.users;
 
-                User.allUsers = data;
-                for (let i = 0; i < data.length; i++) {
-                    if (data[i].id !== User.ownerID) {
-                        // debugger;
-                        User.allOthers.push(data[i]);
+                User.allUsers = usersInfo;
+                User.organization = org;
+                for (let i = 0; i < usersInfo.length; i++) {
+                    if (usersInfo[i].user_id !== User.ownerID) {
+                        User.allOthers.push(usersInfo[i]);
                     }
                 }
 
-                BindHelper.loadOrganization(me.getView().down('#left-organization'));
+                BindHelper.loadOrganization(orgTree);
                 // Utils.unMask(orgTree);
+
+
                 me.getChannels();
 
                 // 定时获取状态 30s
@@ -521,24 +553,33 @@ Ext.define('IM.view.IMController', {
     getChannels() {
         var me = this,
             view = me.getView().down('#recentChat');
-        // debugger;
+        // // // debugger;
 
         Utils.mask(view);
-        Utils.ajaxByZY('get', 'users/me/channels', {
+        Utils.ajaxByZY('get', 'users/me/chats', {
             success: function (data) {
-                console.log('所有频道：');
-                console.log(data);
+                console.log('所有频道：', data);
+                // // debugger;
 
                 for (let i = 0; i < data.length; i++) {
-                    if (data[i].type == 'D') {
+                    if (data[i].chat.chat_type == 'D') {
                         for (let j = 0; j < User.allOthers.length; j++) {
-                            if (data[i].name.indexOf(User.allOthers[j].id) > -1) {
-                                data[i].channelname = User.allOthers[j].nickname;
+                            if (data[i].chat.chat_name.indexOf(User.allOthers[j].user_id) > -1) {
+                                data[i].chat.channelname = User.allOthers[j].user_name;
                                 User.allChannels.push(data[i]);
                                 break;
                             }
                         }
                     }
+                    // if (data[i].type == 'D') {
+                    //     for (let j = 0; j < User.allOthers.length; j++) {
+                    //         if (data[i].name.indexOf(User.allOthers[j].id) > -1) {
+                    //             data[i].channelname = User.allOthers[j].nickname;
+                    //             User.allChannels.push(data[i]);
+                    //             break;
+                    //         }
+                    //     }
+                    // }
                     else {
                         User.allChannels.push(data[i]);
                     }
@@ -579,7 +620,7 @@ Ext.define('IM.view.IMController', {
     /* **************************************** 切换tab ***********************************/
     // 切换tab时调用
     onTabChanges(tabpanel, tab, oldTab) {
-        // debugger;
+        // // // debugger;
         var me = this,
             xtype,
             oldType;
@@ -623,7 +664,7 @@ Ext.define('IM.view.IMController', {
             this.grpSel = grpSel = Ext.create(grpSel);
         }
 
-        // debugger;grpSel.down('#grpSelMem');
+        // // // debugger;grpSel.down('#grpSelMem');
         grpSel.show();
     },
     onShowGrpSel2() {
@@ -638,7 +679,7 @@ Ext.define('IM.view.IMController', {
             this.grpSel2 = grpSel2 = Ext.create(grpSel2);
         }
 
-        // debugger;grpSel.down('#grpSelMem');
+        // // // debugger;grpSel.down('#grpSelMem');
         grpSel2.show();
     },
     // 消息管理器
@@ -676,7 +717,12 @@ Ext.define('IM.view.IMController', {
         Ext.destroy(this.fav);
         Ext.destroy(this.msgMgr);
         Ext.destroy(this.grpSel);
+        Ext.destroy(this.grpSel2);
         this.callParent();
+    },
+
+    onShowAbout() {
+        Ext.Msg.alert('版本号', 'IM 2.0.0.100');
     },
 
 

@@ -1,7 +1,8 @@
 // Note: image from https://pixabay.com (Creative Commons CC0)
 $auth-color: white;
 $auth-background-color: #123d40;
-$auth-background-image: url(get-resource-path('images/background.jpg'));
+$auth-background-image: url(get-resource-path('images/bg.png'));
+$auth-form-bgImg: url(get-resource-path('images/formBG.jpg'));
 
 @include panel-ui(
     $ui: 'auth',
@@ -22,6 +23,18 @@ $auth-background-image: url(get-resource-path('images/background.jpg'));
 
     .x-formpanel {
         width: 256px;
+
+        // 给formpanel增加背景图片
+        .x-formpanel-body-el {
+            background-image: $auth-form-bgImg;
+            background-size: cover;
+            background-position: center;
+
+            // 复选框文字：白色
+            label{
+                color: $auth-color;
+            }
+        }
 
         .x-button {
             // Balance button vertical spacing with form fields

@@ -13,12 +13,12 @@ Ext.define('IM.view.leftTool.leftTool', {
         }
     }, {
         xtype: 'tabpanel',
+        itemId: 'leftTool_tab',
         listeners: {
             activeItemchange: 'onTabChanges'
         },
         tabBar: {
-            // cls: 'light-shadow',
-            defaultTabUI: 'leftTool-ui',
+            defaultTabUI: 'leftToolBar-ui',
             layout: {
                 pack: 'center'
             },
@@ -27,11 +27,14 @@ Ext.define('IM.view.leftTool.leftTool', {
         items:[
             {
                 iconCls: 'x-fa fa-comment',
-                badgeText: '3'
+                itemId: 'leastComment'
+                // badgeText: '3'
             }, {
-                iconCls: 'x-fa fa-user'
+                iconCls: 'x-fa fa-user',
+                itemId: 'users'
             }, {
-                iconCls: 'x-fa fa-th-large'
+                iconCls: 'x-fa fa-th-large',
+                itemId: 'settings'
             }
         ]
     }/* , {
@@ -49,7 +52,8 @@ Ext.define('IM.view.leftTool.leftTool', {
             handler: 'onLogout',
             // iconCls: 'x-fa fa-times-rectangle-o'
         }, {
-            text: '关于'
+            text: '关于',
+            // handler: 'onShowAbout'
         }]
     }, {
         xtype: 'button',

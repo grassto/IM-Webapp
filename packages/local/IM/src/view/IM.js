@@ -50,7 +50,7 @@ Ext.define('IM.view.IM', {
 
     items: [{
         xtype: 'leftTool'
-    }, {// 左边
+    }, {// 中部
         xtype: 'panel',
         itemId: 'middleView',
         resizable: {
@@ -99,7 +99,6 @@ Ext.define('IM.view.IM', {
                 cls: 'left_tab',
                 flex: 1
             }, {
-                iconCls: 'x-fa fa-user',
                 xtype: 'left-organization',
                 cls: 'left_tab',
                 itemId: 'left-organization',

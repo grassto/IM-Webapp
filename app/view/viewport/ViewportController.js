@@ -27,12 +27,12 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
             if (USERID && PASSWORD) {
                 Utils.ajaxByZY('post', 'users/login', {
                     params: JSON.stringify({
-                        login_id: USERID,
+                        user_id: USERID,
                         password: PASSWORD
                     }),
                     success(r) {
-                        if (r.username) {
-                            User.ownerID = r.id;
+                        if (r.user_name) {
+                            User.ownerID = r.user_id;
                             me.onLogin();
                         } else {
                             Utils.toastShort('用户名或密码错误，请重新登录');
@@ -67,17 +67,22 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     },
 
     onLogout() {
-        Utils.ajaxByZY('post', 'users/logout', {
-            params: JSON.stringify(User.ownerID),
-            success: function (data) {
-                // debugger;
-
+        WebSocketHelper.close(); // 断开Websocket连接
+        const me = this;
+        Ext.Msg.confirm('注销', '确定要注销吗', function (ok) {
+            if (ok == 'yes') {
+                Utils.ajaxByZY('post', 'users/logout', {
+                    params: JSON.stringify(User.ownerID),
+                    success: function (data) {
+                        // debugger;
+                    }
+                });
+                localStorage.setItem('USERID', '');
+                localStorage.setItem('PASSWORD', '');
+                User.clear();
+                me.showView('authlogin');
             }
         });
-        localStorage.setItem('USERID', '');
-        localStorage.setItem('PASSWORD', '');
-        User.clear();
-        this.showView('authlogin');
     },
 
     /**

@@ -13,6 +13,7 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
      * @param {*} location 
      */
     orgOnSelectMem(me, location) {
+        // debugger;
         this.onShowDetails();
         this.onSetDetails(location.record);
         // this.onOpenChat(record);
@@ -54,27 +55,32 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
      */
     onSetDetails(record) {
         var viewmodel = this.getViewModel();
-        
-        if(record.data.leaf) {
+
+        if (record.data.leaf) {
             viewmodel.set('btnText', '发起聊天');
 
-            viewmodel.set('sendToName', record.data.nickname);
+            viewmodel.set('sendToName', record.data.name);
             // viewmodel.set('phone', );
             // viewmodel.set('mobile', );
             viewmodel.set('eMail', record.data.email);
             // viewmodel.set('department', );
             viewmodel.set('isOrgDetail', false);
 
-        }else {
-            viewmodel.set('btnText', '发起群聊');
+        } else {
+            viewmodel.set({
+                btnText: '发起群聊',
+                org: record.data.name,
+                'isOrgDetail': true
+            });
+
 
             // viewmodel.set('company', );
             // viewmodel.set('org', );
             // viewmodel.set('personNum', );
-            viewmodel.set('isOrgDetail', true);
+            // viewmodel.set('isOrgDetail', true);
         }
     }
 
-    
+
 
 });

@@ -33,10 +33,12 @@ $left-tool-backgroundcolor: rgb(40,109,199);
         display: none;
     }
 
-    @include tabbar-ui(
+    @include tab-ui(
         $ui: 'leftToolBar-ui',
-        $background-color: $left-tool-backgroundcolor
-        // $title-color: #fff,
-        // $color: red
+        $background-color: $left-tool-backgroundcolor,
+        $hovered-background-color: $left-tool-backgroundcolor,
+        $pressed-background-color: $left-tool-backgroundcolor,
+        $hovered-icon-color: #cccfe9,
+        $active-icon-color: #cccfe9
     )
 }

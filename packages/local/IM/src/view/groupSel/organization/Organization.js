@@ -29,6 +29,8 @@ Ext.define('IM.view.groupSel.organization.Organization', {
     // layout: 'fit',
     hideHeaders: true,
 
+    // itemCls: 'aaa',
+
     columns: [{
         xtype: 'treecolumn',
 
@@ -56,6 +58,5 @@ Ext.define('IM.view.groupSel.organization.Organization', {
         text: 'check?',
         width: 100,
         dataIndex: 'check'
-    }*/],
-
+    }*/]
 });

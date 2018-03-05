@@ -34,17 +34,17 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
             // 对params有过封装改动
             Utils.ajaxByZY('post', 'users/login', {
                 params: JSON.stringify({
-                    login_id: values.userId,
+                    user_id: values.userId,
                     password: values.password
                 }),
                 success(r) {
-                    if (r.username) {
+                    if (r.user_name) {
                         // 记住用户名密码
                         if(values.remember == true) {
                             localStorage.setItem('USERID', values.userId);
                             localStorage.setItem('PASSWORD', values.password);
                         }
-                        User.ownerID = r.id;
+                        User.ownerID = r.user_id;
                         me.fireEvent('login');
                     }else {
                         Utils.toastShort('用户名或密码错误，请重新登录');

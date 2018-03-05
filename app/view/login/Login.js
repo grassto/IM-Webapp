@@ -64,6 +64,6 @@ Ext.define('PushIM.Webapp.view.login.Login', {
     }, {
         xtype: 'component',
         cls: 'auth-footer',
-        html: '普实聊天、办公一体化'
+        html: '<div>普实聊天、办公一体化</div><div>V2.0.0.100</div>'
     }]
 });

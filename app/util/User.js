@@ -8,6 +8,7 @@ Ext.define('PushIM.Webapp.util.User', {
     ownerID: '', // 用户自己的ID
 
     allUsers: [], // 所有用户
+    organization: [],
     allStatus: [], // 所有的人员状态
     allOthers: [], // 除去自己外的所有用户
     crtSelUser: {},
@@ -29,6 +30,7 @@ Ext.define('PushIM.Webapp.util.User', {
     clear() {
         User.ownerID = '';
         User.allUsers = [];
+        User.organization = [];
         User.allStatus = [];
         User.allOthers = [];
         User.posts = [];

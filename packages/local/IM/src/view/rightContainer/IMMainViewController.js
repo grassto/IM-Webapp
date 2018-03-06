@@ -61,62 +61,47 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         chatStore.removeAll();
         Utils.ajaxByZY('get', 'chats/' + crtChannelID + '/posts', {
             success: function (data) {
-                // debugger;
                 var order = data.order,
                     posts = data.messages;
                 User.posts = [];
                 for (var i = order.length - 1; i >= 0; i--) {
                     posts[order[i]].username = me.getName(posts[order[i]].user_id);
                     User.posts.push(posts[order[i]]);
-                    // message = me.textToHtml(posts[order[i]].message);
                     message = posts[order[i]].message;
-                    message = window.minEmoji(message);
 
-                    // message = me.fireEvent('antiParse', message, posts[order[i]].file_ids) // 这边的fireEvent返回值为true
-                    message = me.antiParse(message, posts[order[i]].file_ids);
-
-                    // if (posts[order[i]].file_ids) {
-                    //     for (var j = 0; j < posts[order[i]].file_ids.length; j++) {
-                    //         // 若是自己发送的消息，则靠右排列
-                    //         if (posts[order[i]].user_id == User.ownerID) {
-                    //             chatStore.add({ ROL: 'right', senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at), file: Config.httpUrlForGo + '/files/' + posts[order[i]].file_ids[j] + '/thumbnail' });
-                    //         }
-                    //         else {
-                    //             chatStore.add({ senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at), file: Config.httpUrlForGo + '/files/' + posts[order[i]].file_ids[j] + '/thumbnail' });
-                    //         }
-                    //     }
-                    // }
-                    // else {
-                    //     if (posts[order[i]].user_id == User.ownerID) {
-                    //         chatStore.add({ ROL: 'right', senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
-                    //     }
-                    //     else {
-                    //         chatStore.add({ senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
-                    //     }
-                    // }
+                    message = window.minEmoji(message); // emoji解析
+                    // message = me.antiParse(message, posts[order[i]].files); // 图片解析
+                    message = ParseHelper.parsePic(message, posts[order[i]].files); // 图片解析
+                    message = ParseHelper.parseURL(message);
 
                     if (posts[order[i]].user_id == User.ownerID) {
-                        chatStore.add({ ROL: 'right', senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
+                        chatStore.add({ msg_id: posts[order[i]].msg_id, ROL: 'right', senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
                     }
                     else {
-                        chatStore.add({ senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
+                        chatStore.add({ msg_id: posts[order[i]].msg_id, senderName: posts[order[i]].username, sendText: message, updateTime: new Date(posts[order[i]].update_at) });
                     }
                 }
 
-                me.onScroll(chatView);
+                me.onScroll(chatView);// 可视区滚动到最下方
+
+                me.onShowChatTime(chatStore);// 处理时间，一分钟内不显示
             }
         });
     },
+    /**
+     * 消息反解析，利用正则字符串将图片的展示做好
+     * @param {string} text 文本信息
+     * @param {Array} fileIds 图片id
+     */
     antiParse(text, fileIds) {
         var reg = /\[\w+\]/g;
         var result = text.replace(reg, function (str) {
             var out = '',
                 id = str.substring(1, str.length - 1);
-            // // // debugger;
             if (fileIds) {
                 for (var i = 0; i < fileIds.length; i++) {
                     if (fileIds[i] == id) {
-                        out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
+                        out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '">';  // "'/thumbnail">';
                         break;
                     } else {
                         out = str;
@@ -128,6 +113,10 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         return result;
     },
 
+    /**
+     * 将未读消息设为已读
+     * @param {string} crtChannelID 当前选中的chat_id
+     */
     setUnReadToRead(crtChannelID) {
         var memStore = this.getView().up('IM').down('#recentChat').getStore();
         memStore.getById(crtChannelID).set('isUnRead', false);
@@ -156,6 +145,21 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         sc.scrollTo(0, scHeight + 1000);
     },
 
+    /**
+     * 所有数据的是否展示时间
+     * @param {Ext.data.Store} chatStore
+     */
+    onShowChatTime(chatStore) {
+        var data = chatStore.data.items,
+            length = data.length;
+        // 从第二个开始进行排查
+        for (var i = 1; i < length; i++) {
+            if (data[i].data.updateTime == data[i - 1].data.updateTime) {
+                chatStore.getAt(i).set('showTime', false);
+            }
+        }
+    },
+
     // 替换字符串中的回车
     textToHtml(text) {
         return text.replace(/\n/g, '<br/>').replace(/\r/g, '<br/>').replace(/\r\n/g, '<br/>');
@@ -170,7 +174,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
      */
     onOpenChat() {
         var record = this.getViewModel().get('orgSelRecord');
-        // // debugger;
         if (record.data.leaf) {
             var me = this,
                 uid = record.data.id;
@@ -192,20 +195,19 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             Utils.ajaxByZY('post', 'chats/direct', {
                 params: JSON.stringify([User.crtUser.user_id, uid]),
                 success: function (data) {
-                    var users = data.chat_name.split('__'),
-                        userID;
-                    for (var i = 0; i < users.length; i++) {
-                        if (User.ownerID !== users[i]) {
-                            userID = users[i];
-                        }
-                    }
-                    // debugger;
+                    // var users = data.chat_name.split('__'),
+                    //     userID;
+                    // for (var i = 0; i < users.length; i++) {
+                    //     if (User.ownerID !== users[i]) {
+                    //         userID = users[i];
+                    //     }
+                    // }
                     User.allChannels.push({
                         chat: data,
                         members: {
                             chat_id: data.chat_id,
                             last_view_at: 0,
-                            user_id: userID
+                            user_id: User.ownerID
                         }
                     });
                     var channelStore = me.getView().up('IM').down('#recentChat').getStore();
@@ -217,7 +219,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     me.onOpenChannel(data.chat_id);
                 },
                 failure: function (data) {
-                    // // // debugger;
                     console.log(data);
                     alert('创建出错');
                 }
@@ -227,7 +228,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
     // 根据内存缓存的User.allChannels来判断是否存在会话
     getChatID(cid) {
-        // // debugger;
         for (var i = 0; i < User.allChannels.length; i++) {
             if (User.allChannels[i].chat.chat_name.indexOf(cid) > -1) {
                 return User.allChannels[i].chat.chat_id;
@@ -260,7 +260,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         var me = this,
             fileIds = [];
         for (var i = 0; i < User.files.length; i++) {
-            fileIds.push(User.files[i].id);
+            fileIds.push(User.files[i].file_id);
         }
 
         var textAreaField = me.getView().down('richEditor'),
@@ -274,7 +274,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             let message = {
                 chat_id: User.crtChannelId,
                 create_at: 0,
-                file_ids: fileIds,
+                files: fileIds,
                 message: sendText,
                 update_at: new Date().getTime()
             };
@@ -301,7 +301,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
     // 消息解析
     onParseMsg(sendPicHtml) {
-        // // // debugger;
         var reg = /\<img[^\>]*src="([^"]*)"[^\>]*\>/g;
         // var imgs = sendPicHtml.match(reg);
         // for(var i=0;i<imgs.length;i++) {
@@ -312,7 +311,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 id = $(str).attr('id');
             return '[' + id + ']';
         });
-        // // // debugger;
         return result;
     },
 

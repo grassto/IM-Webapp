@@ -40,7 +40,7 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
         var viewmodel = this.getViewModel();
         viewmodel.set('sendToName', name);
         viewmodel.set('isOrgDetail', false);
-    },
+    }
 
     // /**
     //  * 打开会话，获取历史记录进行绑定

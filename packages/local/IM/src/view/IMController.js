@@ -170,9 +170,9 @@ Ext.define('IM.view.IMController', {
 
         if (record) {
             record.set('last_post_at', new Date());
-
             list.setSelection(record); // 设置选中
             listStore.sort('last_post_at', 'DESC'); // 动态排序
+            // listStore.sort();
         }
 
 
@@ -193,7 +193,7 @@ Ext.define('IM.view.IMController', {
         // list.insertFirst(listItem);
     },
 
-    /* *************************************连接相关**************************************/
+    /* *************************************处理Websocket请求**************************************************/
 
     /**
      * websocket接收请求后执行，将数据绑定至页面
@@ -212,7 +212,7 @@ Ext.define('IM.view.IMController', {
             flag = true;
 
         /* ****************************************** 未读提示 ********************************************************************/
-        if (msg.data.channel_display_name == '多人会话') {
+        if (msg.data.chat_type == 'G') {
             // 不是自己发的
             if (data.user_id !== User.ownerID) {
 
@@ -224,7 +224,7 @@ Ext.define('IM.view.IMController', {
                 me.notify('多人会话：' + userName, data.message);
             }
         }
-        else { // 个人用户
+        else if (msg.data.chat_type == 'D') { // 直接频道
             // 先判断是不是发给你的,若是的
             if (cName.indexOf(User.ownerID) > -1) {
                 // 当前缓存中的所有频道中包含该频道
@@ -233,15 +233,16 @@ Ext.define('IM.view.IMController', {
                     if (User.allChannels[i].chat.chat_id == cid) {
                         flag = false;
 
+                        if (data.user_id !== User.ownerID) { // 不是自己发的
+                            me.notify(userName, data.message);
+                        }
+
                         // 选中的不是当前频道
                         if (User.crtChannelId !== cid) {
                             me.promptUnRead(cid);
 
                             me.resetLastPostTime(userName, new Date(data.update_at));
 
-                            if (data.user_id !== User.ownerID) { // 不是自己发的
-                                me.notify(userName, data.message);
-                            }
                             break;
                         }
                     }
@@ -277,7 +278,8 @@ Ext.define('IM.view.IMController', {
                         id: cid,
                         name: userName,
                         isUnRead: true,
-                        unReadNum: 1
+                        unReadNum: 1,
+                        last_post_at: new Date(data.update_at)
                     });
 
                     me.notify(userName, data.message);
@@ -292,39 +294,28 @@ Ext.define('IM.view.IMController', {
             data.username = userName;
             User.posts.push(data);
             text = window.minEmoji(text);
-            text = me.antiParse(text, data.file_ids);
+            text = ParseHelper.parsePic(text, data.files);
 
             // var chatView = Ext.app.Application.instance.viewport.getController().getView().down('main #chatView');
-            var chatView = me.getView().lookup('im-main').down('#chatView');
-            // if (data.file_ids) {
-            //     for (var i = 0; i < data.file_ids.length; i++) {
-            //         if (User.ownerID == data.user_id) {
-            //             chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at), file: Config.httpUrlForGo + '/files/' + data.file_ids[i] + '/thumbnail' });
-            //         }
-            //         else {
-            //             chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at), file: Config.httpUrlForGo + '/files/' + data.file_ids[i] + '/thumbnail' });
-            //         }
-            //     }
-            // }
-            // else {
-            //     if (User.ownerID == data.user_id) {
-            //         chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
-            //     }
-            //     else {
-            //         chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
-            //     }
-            // }
-
+            var chatView = me.getView().lookup('im-main').down('#chatView'),
+            chatStore = chatView.getStore(),
+            record;
 
             if (User.ownerID == data.user_id) {
-                chatView.store.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
+                record = chatStore.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
             }
             else {
-                chatView.store.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
+                record = chatStore.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
             }
 
             /* ****************************************************** 滚动条 ******************************************************************************************************/
             me.onScroll(chatView);
+
+            // 根据store的最后一个时间来判断新的时间是否需要展示
+            var lastUpdateTime = chatStore.data.items[chatStore.data.items.length - 2].data.updateTime;
+            if(record[0].data.updateTime == lastUpdateTime) {
+                record[0].set('showTime', false);
+            }
         }
         /* ****************************************************** 最近会话重新排序 ******************************************************************************************************/
         me.reSortRecentList();
@@ -344,7 +335,7 @@ Ext.define('IM.view.IMController', {
             if (fileIds) {
                 for (var i = 0; i < fileIds.length; i++) {
                     if (fileIds[i] == id) {
-                        out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
+                        out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '">'; //+ '/thumbnail">';
                         break;
                     } else {
                         out = str;
@@ -467,8 +458,13 @@ Ext.define('IM.view.IMController', {
             list = me.getView().down('#recentChat'),
             listStore = list.getStore();
 
-        listStore.sort('last_post_at', 'DESC');
+        // listStore.sort('last_post_at', 'DESC');
+        listStore.sort();
     },
+
+
+
+    /* *************************************连接相关**************************************************/
 
     /**
      * 打开连接

@@ -97,7 +97,6 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     },
 
     constructor(config) {
-        // debugger;
         var me = this;
         config = config || {};
 
@@ -168,7 +167,6 @@ Ext.define('IM.view.chat.editor.RichEditor', {
          * @param {*} outEvent 
          */
         handlePaste(outEvent) {
-            // debugger;
             var me = this,
                 inputMask = me.getInputMask();
 
@@ -341,12 +339,11 @@ Ext.define('IM.view.chat.editor.RichEditor', {
      * @param File类型
      */
     uploadPic(file) {
-        // debugger;
         var me = this,
             formData = new FormData(),
             clientId = new Date().getTime() + '';
         formData.append('files', file);
-        formData.append('channel_id', User.crtChannelId);
+        formData.append('chat_id', User.crtChannelId);
         formData.append('client_ids', clientId);
         $.ajax({
             url: Config.httpUrlForGo + 'files',
@@ -359,11 +356,11 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                 withCredentials: true
             },
             success: function (data) {
-                var text, url, id;
-                for (var i = 0; i < data.file_infos.length; i++) {
-                    User.files.push(data.file_infos[i]);
+                // var text, url, id;
+                for (var i = 0; i < data.files.length; i++) {
+                    User.files.push(data.files[i]);
 
-                    me.bindPicByID(data.file_infos[i].id);
+                    me.bindPicByID(data.files[i].file_id);
                 }
             }
         });
@@ -376,7 +373,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     bindPicByID(infoID) {
         var id = infoID,
             text = '<img id="' + id + '" class="viewPic" style="width:40px;height:40px;background:url(/resources/images/loading.gif) no-repeat center center;"/>' + '&#8203',
-            url = Config.httpUrlForGo + 'files/' + id + '/thumbnail';
+            url = Config.httpUrlForGo + 'files/' + id;// + '/thumbnail'; // 暂时使用原图展示
 
         this.inputElement.dom.focus();
         if (document.queryCommandSupported('insertHTML')) {

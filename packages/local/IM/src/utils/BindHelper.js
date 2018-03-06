@@ -134,7 +134,20 @@ Ext.define('IM.utils.BindHelper', {
         return nodes;
     },
 
-
+    /**
+     * 所有数据的是否展示时间
+     * @param {Ext.data.Store} chatStore
+     */
+    onShowChatTime(chatStore) {
+        var data = chatStore.data.items,
+            length = data.length;
+        // 从第二个开始进行排查
+        for (var i = 1; i < length; i++) {
+            if (data[i].data.updateTime == data[i - 1].data.updateTime) {
+                chatStore.getAt(i).set('showTime', false);
+            }
+        }
+    },
 
     setDetails() {
 

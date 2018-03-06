@@ -27,6 +27,8 @@ Ext.define('PushIM.Webapp.util.User', {
     crtSelUserId: '', // 当前选中的对方用户ID
     statusDesc: '', // 选中的人的状态显示
 
+    rightClickChat: [], // 右击选中的chat_id
+
     clear() {
         User.ownerID = '';
         User.allUsers = [];
@@ -43,6 +45,7 @@ Ext.define('PushIM.Webapp.util.User', {
         User.crtSelUserId = '';
         User.statusDesc = '';
         User.crtSelUser = {};
+        User.rightClickChat = [];
     }
 
 });

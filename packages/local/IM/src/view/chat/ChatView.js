@@ -60,14 +60,16 @@ Ext.define('IM.view.chat.ChatView', {
         e.preventDefault(); // 取消默认事件
     },
 
-    itemTpl: '<div style="width:100%;color:#6f6a60;text-align:center;">{updateTime}</div>' +
+    itemTpl: '<tpl if="values.showTime">' +
+        '<div style="width:100%;color:#6f6a60;text-align:center;">{updateTime}</div>' +
+        '</tpl>' +
         '<tpl if="values.ROL!==\'right\'">' +
         '<div class="evAvatar" style="float:{ROL};">' +
-        '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.senderName)]} " style="float:{ROL};{[AvatarMgr.getColorStyle(values.senderName)]}">' +
+        '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.senderName)]} " style="margin:0;float:{ROL};{[AvatarMgr.getColorStyle(values.senderName)]}">' +
         '</a>' +
         '</div>' +
         '</tpl>' +
-        '<div style="overflow:hidden;text-align:{ROL};min-height:60px;">' +
+        '<div style="overflow:hidden;text-align:{ROL};/*min-height:60px;*/">' +
         '<tpl if="values.ROL==\'right\'">' +
         '<div class="bubble">' +
         '<tpl else>' +
@@ -89,7 +91,8 @@ Ext.define('IM.view.chat.ChatView', {
         if (t.hasCls('viewPic')) {
             var thumbSrc = t.dom.src;
             // 请求原图浏览
-            ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
+            // ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
+            ImgUtil.viewImgs(thumbSrc);
             // me.onPreviewAttach(record);
         }
         if (t.hasCls('avatar')) {
@@ -108,7 +111,6 @@ Ext.define('IM.view.chat.ChatView', {
      * 点击头像展示详细信息
      */
     showMoreAboutHim(field, record) {
-        // debugger;
         const panel = this.getAvatarDetailPanel(record);
         // if (!panel.isHidden()) {
         //     panel.hide();

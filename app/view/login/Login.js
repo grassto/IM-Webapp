@@ -8,6 +8,12 @@ Ext.define('PushIM.Webapp.view.login.Login', {
         'Ext.field.Checkbox'
     ],
 
+    viewModel: {
+        data: {
+            version: 'v2.0.0.101'
+        }
+    },
+
     initialize() {
         var form = this.lookup('form');
         
@@ -16,6 +22,8 @@ Ext.define('PushIM.Webapp.view.login.Login', {
             password:localStorage.getItem('PASSWORD'),
             remember: true
         });
+
+        this.getViewModel().set('version', Config.version);
     },
 
     cls: 'auth-login',
@@ -64,6 +72,8 @@ Ext.define('PushIM.Webapp.view.login.Login', {
     }, {
         xtype: 'component',
         cls: 'auth-footer',
-        html: '<div>普实聊天、办公一体化</div><div>V2.0.0.100</div>'
+        bind: {
+            html: '<div>普实聊天、办公一体化</div><div>{version}</div>'
+        }
     }]
 });

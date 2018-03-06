@@ -29,6 +29,12 @@ Ext.define('IM.model.Chat', {
         },
         'isMine',
         'file',
-        'ROL' // right or left
+        'ROL', // right or left
+        { // 显示时间？
+            name: 'showTime',
+            type: 'bool',
+            defaultValue: true
+        },
+        'msg_id' // 消息id
     ]
 });

@@ -29,6 +29,9 @@ Ext.define('PushIM.Webapp.util.User', {
 
     rightClickChat: [], // 右击选中的chat_id
 
+    crtChatMembers: [], // 当前频道中的成员，当发起多人会话时使用
+    isPlus: true, // 点击的是否为+弹出的发起多人会话的框
+
     clear() {
         User.ownerID = '';
         User.allUsers = [];
@@ -46,6 +49,8 @@ Ext.define('PushIM.Webapp.util.User', {
         User.statusDesc = '';
         User.crtSelUser = {};
         User.rightClickChat = [];
+        User.crtChatMembers = [];
+        User.isPlus = true;
     }
 
 });

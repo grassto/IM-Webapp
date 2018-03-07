@@ -14,8 +14,8 @@ Ext.define('IM.view.groupSel2.organization2.Organization2', {
     },
 
     height: 300,
-    width: 300,
-    // layout: 'fit',
+    width: 350,
+    layout: 'fit',
     hideHeaders: true,
 
     columns: [{

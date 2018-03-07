@@ -19,7 +19,7 @@ Ext.define('IM.view.IMController', {
                 doubleTapOrg: 'btnOnChgToIM'
             },
             'im-right-main': {
-                grpSel: 'onShowGrpSel2',
+                grpSel: 'onShowGrpSel',
                 antiParse: 'antiParse',
                 listToTop: 'doLeftListToTop'
             }
@@ -298,8 +298,8 @@ Ext.define('IM.view.IMController', {
 
             // var chatView = Ext.app.Application.instance.viewport.getController().getView().down('main #chatView');
             var chatView = me.getView().lookup('im-main').down('#chatView'),
-            chatStore = chatView.getStore(),
-            record;
+                chatStore = chatView.getStore(),
+                record;
 
             if (User.ownerID == data.user_id) {
                 record = chatStore.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
@@ -313,7 +313,7 @@ Ext.define('IM.view.IMController', {
 
             // 根据store的最后一个时间来判断新的时间是否需要展示
             var lastUpdateTime = chatStore.data.items[chatStore.data.items.length - 2].data.updateTime;
-            if(record[0].data.updateTime == lastUpdateTime) {
+            if (record[0].data.updateTime == lastUpdateTime) {
                 record[0].set('showTime', false);
             }
         }
@@ -376,14 +376,14 @@ Ext.define('IM.view.IMController', {
      */
     notify(senderName, sendText) {
         if (!window.Notification) {
-            alert("浏览器不支持通知！");
+            alert('浏览器不支持通知！');
         }
         console.log(window.Notification.permission);
         if (window.Notification.permission != 'granted') {
             Notification.requestPermission(function (status) {
-                //status是授权状态，如果用户允许显示桌面通知，则status为'granted'
+                // status是授权状态，如果用户允许显示桌面通知，则status为'granted'
                 console.log('status: ' + status);
-                //permission只读属性:
+                //  permission只读属性:
                 //  default 用户没有接收或拒绝授权 不能显示通知
                 //  granted 用户接受授权 允许显示通知
                 //  denied  用户拒绝授权 不允许显示通知
@@ -399,19 +399,21 @@ Ext.define('IM.view.IMController', {
                 }
             );
             n.onshow = function () {
-                console.log("显示通知");
-                setTimeout(function () { n.close() }, 8000);
+                console.log('显示通知');
+                setTimeout(function () {
+                    n.close();
+                }, 8000);
             };
             n.onclick = function () {
                 window.focus();
                 n.close();
             };
             n.onclose = function () {
-                console.log("通知关闭");
+                console.log('通知关闭');
             };
             n.onerror = function () {
                 console.log('产生错误');
-            }
+            };
         }
     },
 
@@ -648,6 +650,11 @@ Ext.define('IM.view.IMController', {
 
     /* **************************************** 弹出的dialog ***********************************/
     // 群聊选人
+    showGrpSel() {
+        User.isPlus = true; // 判断是哪个按钮
+        
+        this.onShowGrpSel();
+    },
     onShowGrpSel() {
         var view = this.getView(),
             grpSel = this.grpSel;
@@ -726,5 +733,14 @@ Ext.define('IM.view.IMController', {
 
     onLogout() {
         this.fireEvent('logout');
+    },
+
+    /* **************************************** 测试连接 ***********************************/
+    onTestConnect() {
+        Utils.ajaxByZY('get', 'chats/jjet7ssro7gmxgyanb3bq7ohxa/members', {
+            success: function(data) {
+                debugger;
+            }
+        });
     }
 });

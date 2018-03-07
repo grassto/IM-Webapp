@@ -63,7 +63,8 @@ Ext.define('PushIM.Webapp.view.login.Login', {
             iconAlign: 'right',
             iconCls: 'x-fa fa-angle-right',
             handler: 'onLoginTap',
-            ui: 'action'
+            ui: 'action',
+            // disabled: true
         }, {
             xtype: 'checkbox',
             boxLabel: '记住密码',

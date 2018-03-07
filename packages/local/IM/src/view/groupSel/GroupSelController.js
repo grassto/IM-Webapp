@@ -2,14 +2,27 @@ Ext.define('IM.view.groupSel.GroupSelController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.groupSel',
 
+    /**
+     * show之前组织组织结构树信息,主要是选中当前频道下的所有人，并且不能再编辑
+     */
+    onBeforeShow() {
+        var orgView = this.getView().down('#grpSel-org'),
+            grpStore = orgView.getStore();
+        // orgView.expandAll(); // 不展开会找不到
+        // orgView.collapseAll(); // 全部收起 在这全部收起也找不到
+
+        GroupSelHelper.handleChatMem();
+        debugger;
+        GroupSelHelper.setDefaultSel(grpStore);
+    },
 
     onSearch() {
         console.log('搜索');
     },
 
     init() {
-        // debugger;
         var grp = this.getView().down('#grpSel-org');
+
         BindHelper.loadOrganization(grp);
     },
 
@@ -143,9 +156,11 @@ Ext.define('IM.view.groupSel.GroupSelController', {
         });
     },
 
+    /**
+     * 关闭GroupSel弹出层
+     */
     onCancle() {
         this.getView().hide();
-        // this.onHide();
     },
 
     /**
@@ -154,17 +169,44 @@ Ext.define('IM.view.groupSel.GroupSelController', {
      */
     onDisclosureTap(value) {
         const view = this.getView(),
-        store = view.down('#grpSelMem').getStore();
+            store = view.down('#grpSelMem').getStore();
         store.remove(value);
         // debugger;
-        if(store.data.length == 0) {
+
+        // 组织结构树设置未选中
+        var uid = value.data.id,
+            orgStore = view.down('#grpSel-org').getStore(),
+            orgSelRecord = orgStore.getNodeById(uid);
+        // orgSelIndex = orgStore.find('id', uid),
+        // orgSelRecord = orgStore.getAt(orgSelIndex);
+        if (orgSelRecord) {
+            orgSelRecord.set('isSel', false);
+        }
+
+        // 设置删除所有隐藏
+        if (store.data.length == 0) {
             view.down('#btnDelAll').setHidden(true);
         }
     },
 
+    /**
+     * 隐藏前将所有状态都设为初始状态
+     */
     onBeforeHide() {
         var view = this.getView();
-        view.down('#grpSelMem').getStore().removeAll();
-        view.down('#btnDelAll').setHidden(true);
+        view.down('#grpSelMem').getStore().removeAll(); // list清空
+        view.down('#btnDelAll').setHidden(true); // 删除所有按钮隐藏
+
+        this.orgHideBefore();
+    },
+
+    orgHideBefore() {
+        var orgView = this.getView().down('#grpSel-org'),
+            orgStore = orgView.getStore();
+        orgView.expandAll(); // 不展开会找不到
+
+        // 明天再做
+
+        orgView.collapseAll();
     }
 });

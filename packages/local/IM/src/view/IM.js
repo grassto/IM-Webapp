@@ -91,7 +91,7 @@ Ext.define('IM.view.IM', {
                 }, {
                     xtype: 'button',
                     iconCls: 'x-fa fa-plus',
-                    handler: 'onShowGrpSel'
+                    handler: 'showGrpSel'
                 }]
             }, {
                 xtype: 'recentChat',

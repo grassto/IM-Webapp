@@ -67,7 +67,6 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     },
 
     onLogout() {
-        WebSocketHelper.close(); // 断开Websocket连接
         const me = this;
         Ext.Msg.confirm('注销', '确定要注销吗', function (ok) {
             if (ok == 'yes') {
@@ -77,6 +76,9 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
                         // debugger;
                     }
                 });
+
+                WebSocketHelper.close(); // 断开Websocket连接
+
                 localStorage.setItem('USERID', '');
                 localStorage.setItem('PASSWORD', '');
                 User.clear();

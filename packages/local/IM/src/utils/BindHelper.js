@@ -40,7 +40,7 @@ Ext.define('IM.utils.BindHelper', {
 
 
     // 加载组织结构树信息(之后还需处理)
-    loadOrganization(orgTree) {
+    loadOrganization(orgTree, defaultSelMems) {
         var me = this,
             treeStore = orgTree.getStore(),
             target = orgTree.getSelections()[0] || treeStore.getRoot(),
@@ -68,22 +68,49 @@ Ext.define('IM.utils.BindHelper', {
         nodes = me.getNodes(target, nodes);
         // debugger;
 
+        // 判断是否默认选中, 不用
+        var isdefUsr = false;
+
+
         // 将user添加到树上
         for (var j = 0; j < nodes.length; j++) {
             for (var k = 0; k < users.length; k++) {
                 // org_ids要注意
                 if (users[k].org_ids == nodes[j].data.id) {
+
+                    if(defaultSelMems) { // 多人会话框组织数据
+                        isdefUsr = me.getIsDef(users[k].user_id, defaultSelMems);
+                    }
+
                     nodes[j].appendChild({
                         id: users[k].user_id,
                         name: users[k].user_name,
                         def_role_name: users[k].def_role_name,
-                        leaf: true
+                        leaf: true,
+                        isSel: isdefUsr
                     });
                 }
             }
         }
     },
 
+    /**
+     * 发起多人会话时默认选中的用户
+     * @param {string} uid 比较的人的id
+     * @param {Array} defaultSelMems 默认选中的人
+     */
+    getIsDef(uid, defaultSelMems) {
+        var flag = false;
+        for(var i = 0; i < defaultSelMems.length; i++) {
+            if(defaultSelMems[i] == uid) {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    },
+
+    // 创建子节点
     createNodes(root, orgs) {
         var me = this,
             // result = {},
@@ -123,6 +150,7 @@ Ext.define('IM.utils.BindHelper', {
         // return result;
     },
 
+    // 获取所有的子节点
     getNodes(node, nodes) {
         var me = this;
         for (var i = 0; i < node.childNodes.length; i++) {

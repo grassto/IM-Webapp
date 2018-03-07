@@ -373,8 +373,9 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     bindPicByID(infoID) {
         var id = infoID,
             text = '<img id="' + id + '" class="viewPic" style="width:40px;height:40px;background:url(/resources/images/loading.gif) no-repeat center center;"/>' + '&#8203',
-            url = Config.httpUrlForGo + 'files/' + id;// + '/thumbnail'; // 暂时使用原图展示
+            // url = Config.httpUrlForGo + 'files/' + id;// + '/thumbnail'; // 暂时使用原图展示
 
+            url = Config.httpUrlForGo + 'files/' + id + '/thumbnail';
         this.inputElement.dom.focus();
         if (document.queryCommandSupported('insertHTML')) {
             document.execCommand('insertHTML', false, text);

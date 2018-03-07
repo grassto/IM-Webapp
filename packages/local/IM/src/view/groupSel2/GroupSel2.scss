@@ -1,0 +1,17 @@
+.IM_groupSel2{
+    .IM_grpSel2{
+        .IM_grpSel2_left{
+            padding-right: 10px;
+            border-right: 1px solid lightgrey;
+            
+            .x-treecell .x-icon-el .hide-icon {
+                display: none;
+            }
+        }
+        
+    }
+
+    .x-tool-type-disclosure:before {
+        content: '\F00D'
+    }
+}

@@ -67,5 +67,10 @@ Ext.define('IM.view.leftTool.leftTool', {
         iconCls: 'x-fa fa-star',
         docked: 'bottom',
         handler: 'onShowFav'
+    }, {
+        xtype: 'button',
+        text: '测试',
+        docked: 'bottom',
+        handler: 'onTestConnect'
     }]
 });

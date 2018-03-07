@@ -61,7 +61,7 @@ Ext.define('IM.view.chat.ChatView', {
     },
 
     itemTpl: '<tpl if="values.showTime">' +
-        '<div style="width:100%;color:#6f6a60;text-align:center;">{updateTime}</div>' +
+        '<div style="width:100%;color:#6f6a60;text-align:center;margin-bottom:10px;">{updateTime}</div>' +
         '</tpl>' +
         '<tpl if="values.ROL!==\'right\'">' +
         '<div class="evAvatar" style="float:{ROL};">' +

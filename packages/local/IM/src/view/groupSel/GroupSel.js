@@ -123,7 +123,8 @@ Ext.define('IM.view.groupSel.GroupSel', {
 
 
     listeners: {
-        beforehide: 'onBeforeHide'
+        beforehide: 'onBeforeHide',
+        beforeshow: 'onBeforeShow'
     }
 
 });

@@ -117,23 +117,25 @@ Ext.define('IM.view.IMController', {
     btnOnChgToIM() {
         var me = this,
             record = me.getViewModel().get('orgSelRecord');
+            // debugger;
         // 选中的不是自己
         if (User.ownerID !== record.data.id) {
             if (!record.data.leaf) {
                 Ext.Msg.confirm('提示', '确定要发起群聊吗？', function (btn) {
                     if (btn == 'yes') {
-                        console.log('试试就行了');
-                        // me.chgToIMView();
-                        // me.getView().lookup('im-main').getController().onOpenChat();
+                        var memsID = [];
+                        memsID = BindHelper.getLeafDataFromTree(record, memsID);
+                        debugger;
+                        BindHelper.createGroup(memsID);
                     }
                 });
             } else {
                 me.chgToIMView();
                 me.getView().lookup('im-main').getController().onOpenChat();
 
-                var viewModel = me.getViewModel(),
-                    name = viewModel.get('sendToName');
-                me.doLeftListToTop(name);
+                // var viewModel = me.getViewModel(),
+                //     name = viewModel.get('sendToName');
+                // me.doLeftListToTop(name);
             }
         }
 
@@ -161,11 +163,11 @@ Ext.define('IM.view.IMController', {
     /**
      * 最近会话移至最上方
      */
-    doLeftListToTop(name) {
+    doLeftListToTop(id) {
         const me = this,
             list = me.getView().down('#recentChat'),
             listStore = list.getStore(),
-            record = listStore.getAt(listStore.find('name', name));
+            record = listStore.getById(id);
         // listItem = list.getItem(record);
 
         if (record) {
@@ -174,24 +176,8 @@ Ext.define('IM.view.IMController', {
             listStore.sort('last_post_at', 'DESC'); // 动态排序
             // listStore.sort();
         }
-
-
-        // // 清除所有的选中样式
-        // var listitems = list.getItems().items;
-        // for (var i = 0; i < listitems.length; i++) {
-        //     if (listitems[i].hasCls('x-selected')) {
-        //         listitems[i].removeCls('x-selected');
-        //         break;
-        //     }
-        // }
-
-        // // 给选中的加上样式
-        // if (!listItem.hasCls('x-selected')) {
-        //     listItem.addCls('x-selected');
-        // }
-
-        // list.insertFirst(listItem);
     },
+
 
     /* *************************************处理Websocket请求**************************************************/
 
@@ -200,33 +186,72 @@ Ext.define('IM.view.IMController', {
      * @param {object} msg 服务器返回的数据
      */
     handleNewPostEvent(msg) {
-        // debugger;
         var me = this,
             data = JSON.parse(msg.data.message),
             cName = msg.data.chat_name,
             cid = msg.broadcast.chat_id,
-            // cid = msg.broadcast.chat_id,
-            // text = Utils.htmlEncode(data.message),
             text = data.message,
             userName = me.getName(data.user_id),
-            flag = true;
+            flag = true; // 缓存中是否需要新增频道,是true，否false
 
+        // debugger;
         /* ****************************************** 未读提示 ********************************************************************/
         if (msg.data.chat_type == 'G') {
-            // 不是自己发的
-            if (data.user_id !== User.ownerID) {
 
-                // 选中的不是当前频道，给未读通知
-                if (User.crtChannelId !== cid) {
-                    me.promptUnRead(cid);
+            // 当前页面是否有该频道
+            for (var i = 0; i < User.allChannels.length; i++) {
+                if (User.allChannels[i].chat.chat_id == cid) {
+                    flag = false;
+
+                    if (data.user_id !== User.ownerID) { // 不是自己发的
+                        me.notify('多人会话：' + userName, data.message);
+                    }
+
+                    break;
                 }
-                // 给通知
+            }
+
+            if (flag) {
+                User.allChannels.push({
+                    chat: {
+                        channelname: userName,
+                        chat_id: cid,
+                        chat_name: cName,
+                        chat_type: msg.data.chat_type
+                    },
+                    members: {
+                        chat_id: cid,
+                        user_id: data.user_id
+                    }
+                });
+                // User.allChannels.push({ id: cid, name: cName });
+                var channelStore = me.getView().down('#recentChat').getStore(),
+                    chatName;
+                if (msg.data.chat_name.length > 8) {
+                    chatName = msg.data.chat_name.substr(0, 8) + '...';
+                }
+                channelStore.insert(0, {
+                    id: cid,
+                    name: chatName,
+                    isUnRead: true,
+                    unReadNum: 0,
+                    last_post_at: new Date(data.update_at)
+                });
+
                 me.notify('多人会话：' + userName, data.message);
             }
+
+            // 选中的不是当前频道，给未读通知
+            if (User.crtChannelId !== cid) {
+                me.promptUnRead(cid);
+            }
+
+
         }
         else if (msg.data.chat_type == 'D') { // 直接频道
-            // 先判断是不是发给你的,若是的
-            if (cName.indexOf(User.ownerID) > -1) {
+            // if(data.user_id !== User.ownerID) {// 是不是自己发送的
+
+            if (cName.indexOf(User.ownerID) > -1) { // 
                 // 当前缓存中的所有频道中包含该频道
                 for (var i = 0; i < User.allChannels.length; i++) {
                     // 找到了,给未读提示，直接退出
@@ -236,15 +261,7 @@ Ext.define('IM.view.IMController', {
                         if (data.user_id !== User.ownerID) { // 不是自己发的
                             me.notify(userName, data.message);
                         }
-
-                        // 选中的不是当前频道
-                        if (User.crtChannelId !== cid) {
-                            me.promptUnRead(cid);
-
-                            me.resetLastPostTime(userName, new Date(data.update_at));
-
-                            break;
-                        }
+                        break;
                     }
                 }
                 // 未找到相同的channelid，则添加
@@ -254,7 +271,7 @@ Ext.define('IM.view.IMController', {
                             channelname: userName,
                             chat_id: cid,
                             chat_name: cName,
-                            chat_type: 'D'
+                            chat_type: msg.data.chat_type
 
                             // create_at
 
@@ -278,11 +295,20 @@ Ext.define('IM.view.IMController', {
                         id: cid,
                         name: userName,
                         isUnRead: true,
-                        unReadNum: 1,
+                        unReadNum: 0,
                         last_post_at: new Date(data.update_at)
                     });
 
                     me.notify(userName, data.message);
+                }
+
+
+                // 选中的不是当前频道
+                if (User.crtChannelId !== cid) {
+                    me.promptUnRead(cid);
+
+                    // me.resetLastPostTime(userName, new Date(data.update_at));
+
                 }
             }
         }
@@ -312,9 +338,18 @@ Ext.define('IM.view.IMController', {
             me.onScroll(chatView);
 
             // 根据store的最后一个时间来判断新的时间是否需要展示
-            var lastUpdateTime = chatStore.data.items[chatStore.data.items.length - 2].data.updateTime;
-            if (record[0].data.updateTime == lastUpdateTime) {
-                record[0].set('showTime', false);
+            if (chatStore.data.items.length > 1) {
+                var lastUpdateTime = chatStore.data.items[chatStore.data.items.length - 2].data.updateTime;
+                if (record[0].data.updateTime == lastUpdateTime) {
+                    record[0].set('showTime', false);
+                }
+            } else {
+                if (chatStore.data.items.length == 1) {
+                    var lastUpdateTime = chatStore.data.items[0].data.updateTime;
+                    if (record[0].data.updateTime == lastUpdateTime) {
+                        record[0].set('showTime', false);
+                    }
+                }
             }
         }
         /* ****************************************************** 最近会话重新排序 ******************************************************************************************************/
@@ -560,7 +595,8 @@ Ext.define('IM.view.IMController', {
                 // // debugger;
 
                 for (let i = 0; i < data.length; i++) {
-                    if (data[i].chat.chat_type == 'D') {
+                    if (data[i].chat.chat_type == 'D') { // 单人会话
+                        // chat_name为C1034__C1064这种，将其拼凑为姓名
                         for (let j = 0; j < User.allOthers.length; j++) {
                             if (data[i].chat.chat_name.indexOf(User.allOthers[j].user_id) > -1) {
                                 data[i].chat.channelname = User.allOthers[j].user_name;
@@ -569,16 +605,8 @@ Ext.define('IM.view.IMController', {
                             }
                         }
                     }
-                    // if (data[i].type == 'D') {
-                    //     for (let j = 0; j < User.allOthers.length; j++) {
-                    //         if (data[i].name.indexOf(User.allOthers[j].id) > -1) {
-                    //             data[i].channelname = User.allOthers[j].nickname;
-                    //             User.allChannels.push(data[i]);
-                    //             break;
-                    //         }
-                    //     }
-                    // }
                     else {
+                        data[i].chat.channelname = data[i].chat.chat_name;
                         User.allChannels.push(data[i]);
                     }
                 }
@@ -652,7 +680,7 @@ Ext.define('IM.view.IMController', {
     // 群聊选人
     showGrpSel() {
         User.isPlus = true; // 判断是哪个按钮
-        
+
         this.onShowGrpSel();
     },
     onShowGrpSel() {
@@ -738,7 +766,7 @@ Ext.define('IM.view.IMController', {
     /* **************************************** 测试连接 ***********************************/
     onTestConnect() {
         Utils.ajaxByZY('get', 'chats/jjet7ssro7gmxgyanb3bq7ohxa/members', {
-            success: function(data) {
+            success: function (data) {
                 debugger;
             }
         });

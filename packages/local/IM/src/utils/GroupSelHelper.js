@@ -13,7 +13,7 @@ Ext.define('IM.utils.GroupSelHelper', {
             Utils.ajaxByZY('get', 'chats/' + User.crtChannelId + '/members', {
                 async: false,
                 success: function (data) {
-                    debugger;
+                    // debugger;
                     for (var i = 0; i < data.length; i++) {
                         User.crtChatMembers.push(data[i].user_id);
                     }

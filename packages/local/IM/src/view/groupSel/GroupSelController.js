@@ -12,7 +12,7 @@ Ext.define('IM.view.groupSel.GroupSelController', {
         // orgView.collapseAll(); // 全部收起 在这全部收起也找不到
 
         GroupSelHelper.handleChatMem();
-        debugger;
+        // debugger;
         GroupSelHelper.setDefaultSel(grpStore);
     },
 
@@ -71,24 +71,27 @@ Ext.define('IM.view.groupSel.GroupSelController', {
             listData = listStore.data.items;
 
 
-        if (listData.length > 0) {
+        if (User.isPlus) { // 由加号发起的多人会话
+            if (User.crtChatMembers.length > 0 && listData.length > 0) {
+                me.showChatView(); // 显示聊天页面
+                if (listData.length == 1 && User.crtChatMembers.length == 1) {
+                    me.onOpenDirectChat(listData); // 个人
+                }
+                else {
+                    me.onOpenGroupChat(listData); // 群聊
+                }
 
-            me.showChatView(); // 显示聊天页面
-
-            if (listData.length == 1) {
-                me.onOpenDirectChat(listData); // 个人
             }
-            else {
-                me.onOpenGroupChat(listData); // 群聊
+        } else {
+            if(listData.length > 0) {
+                BindHelper.onAddMemToGroup(listData);
             }
-
         }
 
         view.hide();
-
-
     },
 
+    // 展示聊天页面
     showChatView() {
         Ext.Viewport.down('IM').getController().showRightView('im-main', 'pageblank');
         Ext.Viewport.down('IM').getController().showRightView('im-main', 'details');
@@ -97,46 +100,87 @@ Ext.define('IM.view.groupSel.GroupSelController', {
     onOpenDirectChat(listData) {
         var imView = Ext.Viewport.down('IM'),
             mainView = imView.lookup('im-main');
-        mainView.getController().openChat(listData[0].data.id, listData[0].data.nickname);
+        // debugger;
+        mainView.getController().openChat(listData[0].data.id, listData[0].data.name);
         imView.getViewModel().set({
-            'sendToName': listData[0].data.nickname,
+            'sendToName': listData[0].data.name,
             'isOrgDetail': false
         });
     },
 
+    /**
+     * 选中多人发起会话
+     * @param {*} listData 
+     */
     onOpenGroupChat(listData) {
         var me = this,
             members = [];
-        members.push(User.ownerID);
+        for (var i = 0; i < User.crtChatMembers.length; i++) {
+            members.push(User.crtChatMembers[i]);
+        }
+        // debugger;
         for (var i = 0; i < listData.length; i++) {
             members.push(listData[i].data.id);
         }
 
+        me.createGroupChat(members);
+
+    },
+
+    /**
+     * 创建多人会话，并进行展示，User.crtChannelId
+     * @param {Array} members 参与的成员
+     */
+    createGroupChat(members) {
+        var me = this;
         Utils.mask(Ext.Viewport);
-        Utils.ajaxByZY('post', 'channels/group', {
+        Utils.ajaxByZY('post', 'chats/group', {
+            // async: false,
             params: JSON.stringify(members),
             success: function (data) {
                 console.log('创建多人会话成功', data);
                 // debugger;
-                User.allChannels.push(data);
-                User.crtChannelId = data.id;
+
+                User.crtChannelId = data.chat_id;
+                me.handleUserCache(data);
 
                 me.addChannelToRecent(data);
 
-                if (data.display_name.length > 8) {
-                    data.display_name = data.display_name.substr(0, 8) + '...';
+                if (data.chat_name.length > 8) {
+                    data.chat_name = data.chat_name.substr(0, 8) + '...';
                 }
                 Ext.Viewport.down('IM').getViewModel().set({
-                    'sendToName': data.display_name,
+                    'sendToName': data.chat_name,
                     'isOrgDetail': false
                 });
-                Ext.Viewport.down('IM').lookup('im-main').down('#chatView').getStore().removeAll();
+                if(Ext.Viewport.down('IM').lookup('im-main')) {
+                    Ext.Viewport.down('IM').lookup('im-main').down('#chatView').getStore().removeAll();
+                }
             },
             failure: function (data) {
                 console.log('创建多人会话失败', data);
             },
             callback() {
                 Utils.unMask(Ext.Viewport);
+            }
+        });
+
+    },
+
+    /**
+     * 通过请求将members放入缓存
+     * @param {object} handleUserCache 需要放入缓存的数据
+     */
+    handleUserCache(data) {
+        var mems = [];
+
+        Utils.ajaxByZY('get', 'chats/' + data.chat_id + '/members', {
+            success: function (result) {
+                mems = result;
+                User.allChannels.push({
+                    chat: data,
+                    members: mems
+                });
             }
         });
     },
@@ -149,11 +193,15 @@ Ext.define('IM.view.groupSel.GroupSelController', {
         const recentChatView = Ext.Viewport.down('IM').down('#recentChat'),
             chatStore = recentChatView.getStore();
 
-        chatStore.add({
-            id: data.id,
-            name: data.display_name,
-            type: data.type
+        var record = chatStore.add({
+            id: data.chat_id,
+            name: data.chat_name,
+            type: data.chat_type,
+            last_post_at: new Date(data.update_at)
         });
+
+        recentChatView.setSelection(record);
+        chatStore.sort();
     },
 
     /**
@@ -197,15 +245,21 @@ Ext.define('IM.view.groupSel.GroupSelController', {
         view.down('#grpSelMem').getStore().removeAll(); // list清空
         view.down('#btnDelAll').setHidden(true); // 删除所有按钮隐藏
 
-        this.orgHideBefore();
+        this.orgHideDefault();
     },
 
-    orgHideBefore() {
+    /**
+     * 组织结构树设置为初始状态
+     */
+    orgHideDefault() {
         var orgView = this.getView().down('#grpSel-org'),
             orgStore = orgView.getStore();
         orgView.expandAll(); // 不展开会找不到
 
-        // 明天再做
+        var items = orgStore.getData().items;
+        for (var i = 0; i < items.length; i++) {
+            items[i].set('isSel', false);
+        }
 
         orgView.collapseAll();
     }

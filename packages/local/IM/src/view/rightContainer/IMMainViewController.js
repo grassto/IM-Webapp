@@ -172,23 +172,20 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     openChat(uid, nickname) {
         var me = this,
             channelId = me.getChatID(uid);
+            var channelView = me.getView().up('IM').down('#recentChat'),
+                    channelStore = channelView.getStore();
         if (channelId !== '') {
             // 获取历史消息
             console.log('存在,获取历史消息');
+            channelView.setSelection(channelStore.getById(channelId));
             me.onOpenChannel(channelId);
+
         } else {
             console.log('不存在，创建会话');
             // 创建会话
             Utils.ajaxByZY('post', 'chats/direct', {
-                params: JSON.stringify([User.crtUser.user_id, uid]),
+                params: JSON.stringify([User.ownerID, uid]),
                 success: function (data) {
-                    // var users = data.chat_name.split('__'),
-                    //     userID;
-                    // for (var i = 0; i < users.length; i++) {
-                    //     if (User.ownerID !== users[i]) {
-                    //         userID = users[i];
-                    //     }
-                    // }
                     User.allChannels.push({
                         chat: data,
                         members: {
@@ -197,12 +194,15 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                             user_id: User.ownerID
                         }
                     });
-                    var channelStore = me.getView().up('IM').down('#recentChat').getStore();
-                    channelStore.add({
+                    
+                    var newRecord = channelStore.add({
                         id: data.chat_id,
                         name: nickname,
-                        type: data.chat_type
+                        type: data.chat_type,
+                        last_view_at: new Date(data.update_at)
                     });
+                    channelView.setSelection(newRecord);
+                    channelStore.sort();
                     me.onOpenChannel(data.chat_id);
                 },
                 failure: function (data) {
@@ -270,6 +270,8 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             Utils.ajaxByZY('post', 'posts', {
                 params: JSON.stringify(message),
                 success: function (data) {
+                    // 将选中的人移至最上方
+                    me.fireEvent('listToTop', data.user_id);
                     console.log('发送成功', data);
                     User.files = [];
                 }
@@ -277,10 +279,9 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
             textAreaField.clear(); // 清空编辑框
 
-            // 将选中的人移至最上方
-            var viewModel = me.getView().up('IM').getViewModel(),
-                name = viewModel.get('sendToName');
-            me.fireEvent('listToTop', name);
+            // // 将选中的人移至最上方
+            // var viewModel = me.getView().up('IM').getViewModel(),
+            //     name = viewModel.get('sendToName');
         } else {// 可以在此给提示信息
             // btn.setTooltip('不能输入空内容');
         }

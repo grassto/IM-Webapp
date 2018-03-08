@@ -11,23 +11,8 @@ Ext.define('IM.utils.BindHelper', {
 
     // 最近会话
     loadRecentChat(leftMembers) {
-        // debugger;
         var store = leftMembers.getStore();
         for (let i = 0; i < User.allChannels.length; i++) {
-            // if (User.allChannels[i].type == 'D') {
-            //     store.add({
-            //         id: User.allChannels[i].id,
-            //         name: User.allChannels[i].channelname,
-            //         type: 'D'
-            //     });
-            // }
-            // else {
-            //     store.add({
-            //         id: User.allChannels[i].id,
-            //         name: User.allChannels[i].display_name,
-            //         type: 'G'
-            //     });
-            // }
 
             store.add({
                 id: User.allChannels[i].chat.chat_id,
@@ -45,7 +30,7 @@ Ext.define('IM.utils.BindHelper', {
             treeStore = orgTree.getStore(),
             target = orgTree.getSelections()[0] || treeStore.getRoot(),
             nodes = [],
-            orgs = User.organization.concat(),
+            orgs = User.organization.concat(), // 数组的深拷贝，不会修改原数组的值
             users = User.allUsers;
         // otherUsers = User.allOthers;
 
@@ -78,7 +63,7 @@ Ext.define('IM.utils.BindHelper', {
                 // org_ids要注意
                 if (users[k].org_ids == nodes[j].data.id) {
 
-                    if(defaultSelMems) { // 多人会话框组织数据
+                    if (defaultSelMems) { // 多人会话框组织数据
                         isdefUsr = me.getIsDef(users[k].user_id, defaultSelMems);
                     }
 
@@ -101,8 +86,8 @@ Ext.define('IM.utils.BindHelper', {
      */
     getIsDef(uid, defaultSelMems) {
         var flag = false;
-        for(var i = 0; i < defaultSelMems.length; i++) {
-            if(defaultSelMems[i] == uid) {
+        for (var i = 0; i < defaultSelMems.length; i++) {
+            if (defaultSelMems[i] == uid) {
                 flag = true;
                 break;
             }
@@ -177,8 +162,190 @@ Ext.define('IM.utils.BindHelper', {
         }
     },
 
-    setDetails() {
 
+    /**
+     * 新建多人会话
+     * @param {Array} members 用户id
+     */
+    createGroup(members) {
+        const me = this;
+        Utils.ajaxByZY('post', 'chats/group', {
+            async: false,
+            params: JSON.stringify(members),
+            success: function (data) {
+                console.log('创建多人会话成功', data);
+                // debugger;
+
+                User.crtChannelId = data.chat_id;
+                me.handleUserCache(data);
+
+                me.addChannelToRecent(data);
+
+                if (data.chat_name.length > 8) {
+                    data.chat_name = data.chat_name.substr(0, 8) + '...';
+                }
+                Ext.Viewport.down('IM').getViewModel().set({
+                    'sendToName': data.chat_name,
+                    'isOrgDetail': false
+                });
+
+                var mainView = Ext.Viewport.down('IM').lookup('im-main');
+                if (mainView) {
+                    mainView.down('#chatView').getStore().removeAll();
+                }
+            },
+            failure: function (data) {
+                console.log('创建多人会话失败', data);
+            }
+        });
+    },
+
+
+    /**
+     * 通过请求将members放入缓存
+     * @param {object} handleUserCache 需要放入缓存的数据
+     */
+    handleUserCache(data) {
+        var mems = [];
+
+        Utils.ajaxByZY('get', 'chats/' + data.chat_id + '/members', {
+            success: function (result) {
+                mems = result;
+                User.allChannels.push({
+                    chat: data,
+                    members: mems
+                });
+            }
+        });
+    },
+
+    /**
+     * 添加数据至最近会话
+     * @param {json} data 数据
+     */
+    addChannelToRecent(data) {
+        const recentChatView = Ext.Viewport.down('IM').down('#recentChat'),
+            chatStore = recentChatView.getStore();
+
+        var record = chatStore.add({
+            id: data.chat_id,
+            name: data.chat_name,
+            type: data.chat_type,
+            last_post_at: new Date(data.update_at)
+        });
+
+        recentChatView.setSelection(record);
+        chatStore.sort();
+    },
+
+
+    getLeafDataFromTree(record, memsID) {
+        const me = this;
+
+        if (!record.data.leaf) {// 不是叶子节点leaf
+            for (var i = 0; i < record.childNodes.length; i++) {
+                me.getLeafDataFromTree(record.childNodes[i], memsID);
+            }
+        } else {
+            memsID.push(record.data.id);
+        }
+
+        return memsID;
+    },
+
+
+    onAddMemToGroup(listData) {
+        var memsID = [];
+        for (var i = 0; i < listData.length; i++) {
+            memsID.push(listData[i].data.id);
+        }
+        // for (var i = 0; i < User.crtChatMembers.length; i++) {
+        //     memsID.push(User.crtChatMembers[i]);
+        // }
+
+        this.addMemToGroup(memsID);
+    },
+
+    addMemToGroup(memsID) {
+        if(User.crtChatMembers.length == 2) {
+            memsID.push(User.crtChatMembers[0]);
+            memsID.push(User.crtChatMembers[1]);
+        }
+        Utils.ajaxByZY('post', 'chats/' + User.crtChannelId + '/members', {
+            params: JSON.stringify(memsID),
+            success: function (data) {
+                var IMView = Ext.Viewport.down('IM'),
+                    recentChat = IMView.down('#recentChat'),
+                    chatStore = recentChat.getStore(),
+                    record;
+                if (User.crtChatMembers.length == 2) {// 从单人会话过来的，则增加一个新频道，在页面进行展示
+                    record = chatStore.insert(0, {
+                        id: data.chat_id,
+                        name: data.chat_name,
+                        type: data.chat_type
+                    });
+                    recentChat.setSelection(record); // 设置选中
+                    User.crtChannelId = data.chat_id; // 当前选中的频道
+                    if (data.chat_name.length > 8) {
+                        data.chat_name = data.chat_name.substr(0, 8) + '...';
+                    }
+                    IMView.getViewModel().set({
+                        'sendToName': data.chat_name,
+                        'isOrgDetail': false
+                    });
+                    if (IMView.lookup('im-main')) {
+                        IMView.lookup('im-main').down('#chatView').getStore().removeAll();
+                    }
+
+
+                    User.allChannels.push({
+                        chat: {
+                            channelname: data.chat_name,
+                            chat_id: data.chat_id,
+                            chat_name: data.chat_name,
+                            chat_type: data.chat_type
+                        },
+                        members: {
+                            chat_id: data.chat_id,
+                            user_id: User.ownerID
+                        }
+                    });
+
+                } else if (User.crtChatMembers.length > 2) {
+                    // 修改store的数据
+                }
+            }
+        });
+    },
+
+
+    addChatToList(listView, data) {
+
+        User.allChannels.push({
+            chat: {
+                channelname: data.chat_name,
+                chat_id: data.chat_id,
+                chat_name: data.chat_name,
+                chat_type: data.chat_type
+            },
+            members: {
+                chat_id: data.chat_id,
+                user_id: User.ownerID
+            }
+        });
+        // User.allChannels.push({ id: cid, name: cName });
+        var channelStore = listView.getStore(),
+            chatName;
+        if (data.chat_name.length > 8) {
+            chatName = data.chat_name.substr(0, 8) + '...';
+        }
+        channelStore.insert(0, {
+            id: data.chat_id,
+            name: chatName,
+            isUnRead: false,
+            unReadNum: 0,
+            last_post_at: new Date(data.update_at)
+        });
     }
 
 });

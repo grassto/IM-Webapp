@@ -104,6 +104,7 @@ Ext.define('IM.view.groupSel.organization.Organization', {
         else { // 选中的是父节点，则递归选中子节点
             if (record.childNodes.length > 0) {
                 for (var i = 0; i < record.childNodes.length; i++) {
+                    // record.childNodes[i].set('isSel', true);
                     me.fireMemToList(listStore, checked, record.childNodes[i]);
                 }
             }

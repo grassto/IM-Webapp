@@ -29,11 +29,14 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
 
 
     itemTpl: [
-        '<div chat_id="{id}" class="itemRight" style="line-height:38px;">',
+        '<div toTop="{toTop}" chat_id="{id}" class="itemRight" style="line-height:38px;">',
         '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]} " style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
         '</a>',
         '<a class="RecentUnRead" unRead="{unReadNum}" style="display:{[values.isUnRead?"block":"none"]}"></a>',
         '{name}',
+        '<div style="float:right;display:{[values.type=="D"?"block":"none"]};">',
+        '{status}',
+        '</div>',
         '</div>'
     ].join(''),
 
@@ -48,23 +51,31 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
 
         // 这个样式只是为了判断其是否为item的右击
         if (t.hasCls('itemRight')) {
-
+            // 根据节点上的数据进行数据绑定，方便操作
             var chatId = el.getAttribute('chat_id'),
-                isTopText = me.onTopParse(el);
+                toTop = el.getAttribute('toTop'),
+                isTopText = me.onTopParse(el, toTop);
 
             var menu = Ext.create('Ext.menu.Menu', {
                 items: [{
                     text: isTopText,
                     handler: function (btn) {
-                        // debugger;
-                        var date = new Date();
-                        if (btn.getText() == '取消置顶') {
-                            date = null;
-                        }
-                        var store = me.getStore(),
+                        
+
+                        var topIndex,
+                            store = me.getStore(),
                             record = store.getById(chatId);
-                        record.set('toTop', date);
-                        store.sort();
+
+                        if (btn.getText() == '取消置顶') {
+                            PreferenceHelper.setRecentTop(chatId, -1);
+                            topIndex = null;
+                        } else {
+                            topIndex = PreferenceHelper.toTopAddOne();
+                            PreferenceHelper.setRecentTop(chatId, topIndex);
+                        }
+                        record.set('toTop', topIndex);
+
+                        store.sort('toTop', 'DESC');
                     }
                 }/*, {
                     text: '消息不提醒'
@@ -81,16 +92,13 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
     },
 
     // 有关置顶消息的内存数据操作
-    onTopParse(el, chatId) {
+    onTopParse(el, toTop) {
         // 将chat_id记录在内存中
         var isTopText = '置顶';
 
         // 先判断是否置顶
-        if (chatId == User.rightClickChat) {
+        if (toTop > 0) {
             isTopText = '取消置顶';
-        } else {
-            // User.rightClickChat.push(chatId);
-            User.rightClickCha = chatId;
         }
 
         return isTopText;

@@ -5,7 +5,7 @@ Ext.define('IM.model.viewModel.IMMainBind', {
     data: {
         company: 'PushSoft',
         org: '技术部',
-        personNum: '23',
+        personNum: '',
 
         mobile: '13777777777',
         phone: '12345677',
@@ -17,7 +17,8 @@ Ext.define('IM.model.viewModel.IMMainBind', {
         ownerMail: 'zhanglong@163.com',
         sendToName: '赵虎',
         avatar: '',
-        status: '',
+        status: '在线',
+        showStatus: 'inline',
 
         isOrgDetail: true,
         orgSelRecord: {}

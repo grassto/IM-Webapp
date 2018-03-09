@@ -28,6 +28,12 @@ Ext.define('IM.view.chat.ChatView', {
 
     selectable: false,
 
+    // items: [{
+    //     xtype: 'button',
+    //     scrollDock: 'start',
+    //     text: 'Load More...'
+    // }],
+
     // itemContentCls: 'fullwidth',
 
     initialize() {

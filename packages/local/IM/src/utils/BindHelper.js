@@ -11,17 +11,27 @@ Ext.define('IM.utils.BindHelper', {
 
     // 最近会话
     loadRecentChat(leftMembers) {
-        var store = leftMembers.getStore();
+        var me = this,
+            store = leftMembers.getStore(),
+            status;
         for (let i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_type == 'D') {
+                status = StatusHelper.getStatus(StatusHelper.getUserIDByChatName(User.allChannels[i].chat.chat_name));
+            } else {
+                status = '不显示';
+            }
 
             store.add({
                 id: User.allChannels[i].chat.chat_id,
                 name: User.allChannels[i].chat.channelname,
-                type: User.allChannels[i].chat.chat_type
+                type: User.allChannels[i].chat.chat_type,
+                status: status,
+                chat_name: User.allChannels[i].chat.chat_name
             });
-
         }
     },
+
+    
 
 
     // 加载组织结构树信息(之后还需处理)
@@ -169,35 +179,45 @@ Ext.define('IM.utils.BindHelper', {
      */
     createGroup(members) {
         const me = this;
-        Utils.ajaxByZY('post', 'chats/group', {
-            async: false,
-            params: JSON.stringify(members),
-            success: function (data) {
-                console.log('创建多人会话成功', data);
-                // debugger;
-
-                User.crtChannelId = data.chat_id;
-                me.handleUserCache(data);
-
-                me.addChannelToRecent(data);
-
-                if (data.chat_name.length > 8) {
-                    data.chat_name = data.chat_name.substr(0, 8) + '...';
+        if (members.length == 1) { // 从细节页面发起的，组织下只有一个人
+            var userName = '';
+            for (var i = 0; i < User.allUsers.length; i++) {
+                if (User.allUsers[i].user_id == members[0]) {
+                    userName = User.allUsers[i].user_name;
                 }
-                Ext.Viewport.down('IM').getViewModel().set({
-                    'sendToName': data.chat_name,
-                    'isOrgDetail': false
-                });
-
-                var mainView = Ext.Viewport.down('IM').lookup('im-main');
-                if (mainView) {
-                    mainView.down('#chatView').getStore().removeAll();
-                }
-            },
-            failure: function (data) {
-                console.log('创建多人会话失败', data);
             }
-        });
+            Ext.Viewport.down('IM').lookup('im-main').getController().openChat(members[0], userName);
+        } else {
+            Utils.ajaxByZY('post', 'chats/group', {
+                async: false,
+                params: JSON.stringify(members),
+                success: function (data) {
+                    console.log('创建多人会话成功', data);
+                    // debugger;
+
+                    User.crtChannelId = data.chat_id;
+                    me.handleUserCache(data);
+
+                    me.addChannelToRecent(data);
+
+                    if (data.chat_name.length > 8) {
+                        data.chat_name = data.chat_name.substr(0, 8) + '...';
+                    }
+                    Ext.Viewport.down('IM').getViewModel().set({
+                        'sendToName': data.chat_name,
+                        'isOrgDetail': false
+                    });
+
+                    var mainView = Ext.Viewport.down('IM').lookup('im-main');
+                    if (mainView) {
+                        mainView.down('#chatView').getStore().removeAll();
+                    }
+                },
+                failure: function (data) {
+                    console.log('创建多人会话失败', data);
+                }
+            });
+        }
     },
 
 
@@ -267,7 +287,7 @@ Ext.define('IM.utils.BindHelper', {
     },
 
     addMemToGroup(memsID) {
-        if(User.crtChatMembers.length == 2) {
+        if (User.crtChatMembers.length == 2) {
             memsID.push(User.crtChatMembers[0]);
             memsID.push(User.crtChatMembers[1]);
         }
@@ -346,6 +366,23 @@ Ext.define('IM.utils.BindHelper', {
             unReadNum: 0,
             last_post_at: new Date(data.update_at)
         });
+    },
+
+
+    /**
+     * 根据chat_id查询出频道中的人员
+     * @param {string} chatID 频道ID
+     */
+    getMemsByChatId(chatID) {
+        var mems = [];
+        Utils.ajaxByZY('get', 'chats/' + chatID + '/members', {
+            async: false,
+            success: function (data) {
+                mems = data;
+            }
+        });
+
+        return mems;
     }
 
 });

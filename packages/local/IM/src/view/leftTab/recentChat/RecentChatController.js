@@ -7,11 +7,18 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
      * @param {Ext.dataview.List} me 对应的list
      * @param {Ext.list.Location} location
      */
-    onSelRecentMem(me, location) {
+    onSelRecentMem(view, location) {
+        var me = this;
         // debugger;
-        this.onShowChatView();
-        this.setRightTitle(location.record.data.name);
-        this.fireEvent('openCnl', location.record.data.id);
+        me.onShowChatView();
+        me.setRightTitle(location.record.data.name);
+        me.fireEvent('openCnl', location.record.data.id);
+
+        me.onShowGrpMem(location.record.data, view);
+
+        me.setTitleStatus(location.record.data);
+        // me.onShowStatus(location.record.data);
+
     },
 
     /**
@@ -40,6 +47,49 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
         var viewmodel = this.getViewModel();
         viewmodel.set('sendToName', name);
         viewmodel.set('isOrgDetail', false);
+    },
+
+    /**
+     * 展示频道中的成员
+     * @param {json} data 选中的频道数据
+     */
+    onShowGrpMem(data, view) {
+        var me = this,
+            groupMemsView = view.up('IM').lookup('im-main').down('#groupList'),
+            memStore = groupMemsView.getStore();
+        if (data.type == 'D') {
+
+            groupMemsView.hide();
+
+        } else if (data.type == 'G') {
+            groupMemsView.show();
+            memStore.removeAll();
+            var mems = BindHelper.getMemsByChatId(data.id);
+
+            mems = me.handleStatus(mems);
+
+            memStore.add(mems);
+        }
+
+    },
+
+    handleStatus(mems) {
+        for (var i = 0; i < mems.length; i++) {
+            mems[i].status = StatusHelper.getStatus(mems[i].user_id);
+        }
+        return mems;
+    },
+
+    setTitleStatus(data) {
+        var viewModel = Ext.Viewport.down('IM').getViewModel();
+        if (data.type == 'D') {
+            viewModel.set({
+                'showStatus': 'inline',
+                'status': data.status
+            });
+        } else if (data.type == 'G') {
+            viewModel.set('showStatus', 'none');
+        }
     }
 
     // /**

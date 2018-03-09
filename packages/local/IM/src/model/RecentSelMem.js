@@ -2,7 +2,24 @@ Ext.define('IM.model.RecentSelMem', {
     extend: 'Ext.data.Model',
     idProperty: 'id',
     fields: [
-        'id', 'notify', 'userID', 'type', 'isUnRead',
+        'id',
+        'chat_name',
+        'notify',
+        'userID',
+        'type',
+        'isUnRead',
+        {
+            name: 'status',
+            type: 'int',
+            convert: function(value) {
+                if(value == 0) {
+                    return '在线';
+                } else if(value == -1) {
+                    return '离线';
+                }
+                return '';
+            }
+        },
         {
             name: 'name',
             type: 'string',
@@ -33,7 +50,7 @@ Ext.define('IM.model.RecentSelMem', {
     sorters: [{
         property: 'toTop',
         direction: 'DESC'
-    }, { // 先按时间降序排序
+    }, { // 按时间降序排序
         property: 'last_post_at',
         direction: 'DESC'
     }]

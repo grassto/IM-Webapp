@@ -117,15 +117,16 @@ Ext.define('IM.view.IMController', {
     btnOnChgToIM() {
         var me = this,
             record = me.getViewModel().get('orgSelRecord');
-            // debugger;
+        // debugger;
         // 选中的不是自己
         if (User.ownerID !== record.data.id) {
             if (!record.data.leaf) {
                 Ext.Msg.confirm('提示', '确定要发起群聊吗？', function (btn) {
                     if (btn == 'yes') {
+                        me.chgToIMView();
                         var memsID = [];
                         memsID = BindHelper.getLeafDataFromTree(record, memsID);
-                        debugger;
+                        // debugger;
                         BindHelper.createGroup(memsID);
                     }
                 });
@@ -566,13 +567,20 @@ Ext.define('IM.view.IMController', {
                 // Utils.unMask(orgTree);
 
 
-                me.getChannels();
+                // me.getChannels();
 
-                // 定时获取状态 30s
-                // me.getStatus(data);
-                // setInterval(() => {
-                //     me.getStatus(data);
-                // }, 60 * 1000);
+                var ids = [];
+                for (var i = 0; i < usersInfo.length; i++) {
+                    ids.push(usersInfo[i].user_id);
+                }
+                // 定时获取状态 60s
+                me.getStatus(ids);
+                setInterval(() => {
+                    me.getStatus(ids);
+                }, 60 * 1000);
+
+
+                me.getChannels();
             }, callback() {
                 Utils.unMask(orgTree);
             }
@@ -612,6 +620,7 @@ Ext.define('IM.view.IMController', {
                 }
                 BindHelper.loadRecentChat(view);
 
+
                 // 设置默认选中第一个
                 // var record = me.getView().down('#recentChat').getStore().getAt(0);
                 // me.onSelectChannel('', '', '', record);
@@ -623,22 +632,19 @@ Ext.define('IM.view.IMController', {
 
     /**
      * 状态信息
-     * @param {*} us 
+     * @param {*Array} uArray 所有用户的id
      */
-    getStatus(us) {
-        var me = this,
-            uArray = [],
-            tmp = (User.allUsers != null && User.allUsers.length > 0) ? User.allUsers : us;
-        for (let i = 0; i < tmp.length; i++) {
-            uArray.push(tmp[i].id);
-        }
-        Utils.ajax('POST', 'users/status/ids', {
+    getStatus(uArray) {
+        Utils.ajaxByZY('POST', 'status/ids', {
+            async: false,
             params: JSON.stringify(uArray),
             success: function (data) {
                 console.log('所有人员状态：', data);
                 User.allStatus = data;
             }
         });
+        // 处理最近会话列表数据
+        StatusHelper.handleRecentList();
     },
 
 
@@ -765,7 +771,7 @@ Ext.define('IM.view.IMController', {
 
     /* **************************************** 测试连接 ***********************************/
     onTestConnect() {
-        Utils.ajaxByZY('get', 'chats/jjet7ssro7gmxgyanb3bq7ohxa/members', {
+        Utils.ajaxByZY('get', 'users/C1064/status', {
             success: function (data) {
                 debugger;
             }

@@ -4,9 +4,8 @@ Ext.define('IM.view.groupSel.GroupSel', {
 
     requires: [
         'IM.view.groupSel.organization.Organization',
-        'IM.model.GrpSelMem',
-        'IM.view.groupSel.GroupSelController',
-        // 'Ext.panel.Resizer'
+        'IM.model.GroupMembers',
+        'IM.view.groupSel.GroupSelController'
     ],
 
     controller: 'groupSel',
@@ -17,8 +16,6 @@ Ext.define('IM.view.groupSel.GroupSel', {
     closable: true,
     closeAction: 'hide',
     resizable: true,
-    // height: '90vh',
-    // maxWidth: '90vw',
 
     layout: 'fit',
 
@@ -43,10 +40,6 @@ Ext.define('IM.view.groupSel.GroupSel', {
             cls: 'IM-grp',
             items: [{
                 xtype: 'panel',
-                // resizable: {
-                //     edges: 'east'
-                // },
-                // flex: 1,
                 cls: 'IM-grp-left',
                 layout: 'vbox',
                 items: [{
@@ -66,23 +59,10 @@ Ext.define('IM.view.groupSel.GroupSel', {
                         action: 'onSearch'
                     }
                 }, {
-                    // xtype: 'component',
-                    // minHeight: 300,
-                    // items: [{
-                        xtype: 'groupSel-organization',
-                        itemId: 'grpSel-org',
-                    // }],
+                    xtype: 'groupSel-organization',
+                    itemId: 'grpSel-org',
                     flex: 1
-                }/* , {
-                    xtype: 'textfield',
-                    label: '群名称',
-                    style: {
-                        textAlign: 'left'
-                    }
-                }, {
-                    xtype: 'textfield',
-                    label: '群类型'
-                }*/]
+                }]
             }, {
                 xtype: 'panel',
                 layout: 'vbox',
@@ -96,14 +76,14 @@ Ext.define('IM.view.groupSel.GroupSel', {
                     itemId: 'grpSelMem',
                     flex: 1,
                     store: {
-                        model: 'IM.model.GrpSelMem'
+                        model: 'IM.model.GroupMembers'
                     },
                     itemTpl: '<div style="line-height:38px;">' +
                         '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]}" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}" ></a>' +
                         '{name}' +
                         '</div>',
                     onItemDisclosure: 'onDisclosureTap'
-                }, {
+                }/* , {
                     xtype: 'button',
                     itemId: 'btnDelAll',
                     text: '删除所有',
@@ -111,8 +91,8 @@ Ext.define('IM.view.groupSel.GroupSel', {
                     hidden: true,
                     ui: 'flat',
                     handler: 'onDelAll'
-                }]
-                
+                }*/ ]
+
             }]
         }];
 

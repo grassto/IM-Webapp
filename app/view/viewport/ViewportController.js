@@ -24,7 +24,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
             // 验证是否有用户名与密码
             var USERID = localStorage.getItem('USERID'),
                 PASSWORD = localStorage.getItem('PASSWORD');
-            if (USERID && PASSWORD) {
+            if (USERID && PASSWORD) { // 如果它们都有值
                 Utils.ajaxByZY('post', 'users/login', {
                     params: JSON.stringify({
                         user_id: USERID,
@@ -40,7 +40,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
                         }
                     },
                     failure(msg) {
-                        Utils.toastShort('用户名或密码错误，请重新登录');
+                        Utils.toastShort(msg);
                         me.onNeedLogin();
                     },
                     callback() {
@@ -66,27 +66,6 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
         this.showView('authlogin');
     },
 
-    onLogout() {
-        const me = this;
-        Ext.Msg.confirm('注销', '确定要注销吗', function (ok) {
-            if (ok == 'yes') {
-                Utils.ajaxByZY('post', 'users/logout', {
-                    params: JSON.stringify(User.ownerID),
-                    success: function (data) {
-                        // debugger;
-                    }
-                });
-
-                WebSocketHelper.close(); // 断开Websocket连接
-
-                localStorage.setItem('USERID', '');
-                localStorage.setItem('PASSWORD', '');
-                User.clear();
-                me.showView('authlogin');
-            }
-        });
-    },
-
     /**
      * 寻找已经存在的 xtype 的 view 实例
      * @param {String} xtype
@@ -97,7 +76,6 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
         return view;
     },
     showView(xtype) {
-        // debugger;
         const me = this,
             viewport = me.getView();
 
@@ -113,5 +91,28 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
         viewport.setActiveItem(view);
 
         return view;
+    },
+
+    /* *************************** 注销 ********************************************/
+    onLogout() {
+        const me = this;
+        Ext.Msg.confirm('注销', '确定要注销吗', function (ok) {
+            if (ok === 'yes') {
+                Utils.ajaxByZY('post', 'users/logout', {
+                    params: JSON.stringify(User.ownerID),
+                    success: function (data) {
+                        // debugger;
+                    }
+                });
+
+                // 这一块应该写在success里面
+                WebSocketHelper.close(); // 断开Websocket连接
+
+                localStorage.setItem('USERID', '');
+                localStorage.setItem('PASSWORD', '');
+                User.clear();
+                me.onNeedLogin();
+            }
+        });
     }
 });

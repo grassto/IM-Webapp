@@ -15,12 +15,27 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
             target: form.element,
             key: 13, // or Ext.event.Event.ENTER
             handler() {
-                me.onLoginTap();
+                me.onEnterLogin();
             },
             scope: me
         });
     },
 
+    /**
+     * 添加一层，看登录按钮是否可用，若可用，则可验证登录
+     */
+    onEnterLogin() {
+        const me = this,
+            btnLogin = this.lookup('btnLogin'),
+            disabled = btnLogin.getDisabled();
+        if (!disabled) {
+            me.onLoginTap();
+        }
+    },
+
+    /**
+     * 验证登录
+     */
     onLoginTap() {
         var me = this,
             btnLogin = me.lookup('btnLogin'),

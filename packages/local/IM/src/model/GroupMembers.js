@@ -1,10 +1,10 @@
 Ext.define('IM.model.GroupMembers', {
     extend: 'Ext.data.Model',
 
-    idProperty: 'user_id',
+    idProperty: 'id',
     fields: [
-        'user_id',
-        'user_name',
+        'id',
+        'name',
         'mobile',
         'email',
         {

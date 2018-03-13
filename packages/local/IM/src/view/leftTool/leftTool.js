@@ -37,9 +37,7 @@ Ext.define('IM.view.leftTool.leftTool', {
                 itemId: 'settings'
             }
         ]
-    }/* , {
-        flex: 1
-    }*/, {
+    }, {
         xtype: 'button',
         ui: 'leftTool-ui',
         iconCls: 'x-fa fa-list',

@@ -48,11 +48,13 @@ Ext.define('PushIM.Webapp.view.login.Login', {
 
         items: [{
             xtype: 'textfield',
+            reference: 'userId',
             name: 'userId',
             placeholder: '用户名',
             required: true
         }, {
             xtype: 'passwordfield',
+            reference: 'password',
             name: 'password',
             placeholder: '密码',
             required: true
@@ -64,7 +66,9 @@ Ext.define('PushIM.Webapp.view.login.Login', {
             iconCls: 'x-fa fa-angle-right',
             handler: 'onLoginTap',
             ui: 'action',
-            // disabled: true
+            bind: {
+                disabled: '{!password.value||!userId.value}'
+            }
         }, {
             xtype: 'checkbox',
             boxLabel: '记住密码',

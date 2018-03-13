@@ -31,7 +31,7 @@ Ext.define('IM.view.groupSel.GroupSelController', {
             list = me.getView().down('#grpSelMem'),
             data = info.record.data;
         me.addMemToList(data, list);
-        me.getView().down('#btnDelAll').setHidden(false);
+        // me.getView().down('#btnDelAll').setHidden(false);
     },
 
     /**
@@ -232,9 +232,9 @@ Ext.define('IM.view.groupSel.GroupSelController', {
         }
 
         // 设置删除所有隐藏
-        if (store.data.length == 0) {
-            view.down('#btnDelAll').setHidden(true);
-        }
+        // if (store.data.length == 0) {
+        //     view.down('#btnDelAll').setHidden(true);
+        // }
     },
 
     /**
@@ -243,7 +243,7 @@ Ext.define('IM.view.groupSel.GroupSelController', {
     onBeforeHide() {
         var view = this.getView();
         view.down('#grpSelMem').getStore().removeAll(); // list清空
-        view.down('#btnDelAll').setHidden(true); // 删除所有按钮隐藏
+        // view.down('#btnDelAll').setHidden(true); // 删除所有按钮隐藏
 
         this.orgHideDefault();
     },

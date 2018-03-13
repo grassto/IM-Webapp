@@ -12,27 +12,12 @@ Ext.define('IM.view.groupSel.organization.Organization', {
         type: 'IMOrg'
     },
 
-    defaultListenerScope: true,
+    defaultListenerScope: true, // 作用域为当前
 
-    // requires: [
-    //     'IM.model.Organization'
-    // ],
-
-    // viewModel: {
-    //     type: 'organization'
-    // },
-
-    // bind: {
-    //     store: '{navItems}'
-    // },
-    // height: 'auto',
     height: 300,
     width: 350,
-    // layout: 'fit',
     hideHeaders: true,
     expanded: true,
-
-    // itemCls: 'aaa',
 
     columns: [{
         xtype: 'treecolumn',
@@ -46,21 +31,12 @@ Ext.define('IM.view.groupSel.organization.Organization', {
         },
 
         dataIndex: 'name',
-        flex: 1,
-        // cell: {
-        //     tools: {
-        //         plus: {
-        //             zone: 'end',
-        //             handler: 'onAddMem'
-        //         }
-        //     }
-        // }
+        flex: 1
     }, {
         xtype: 'checkcolumn',
         headerCheckbox: true,
         dataIndex: 'isSel',
         width: 15,
-        // disabled: true,
         listeners: {
             checkchange: 'onCheckchange',
             beforecheckchange: 'onBeforecheckchange'

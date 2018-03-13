@@ -20,7 +20,7 @@ Ext.define('IM.model.viewModel.IMMainBind', {
         status: '在线',
         showStatus: 'inline',
 
-        isOrgDetail: true,
+        isOrgDetail: true, // 详细界面的展示信息
         orgSelRecord: {}
     },
 

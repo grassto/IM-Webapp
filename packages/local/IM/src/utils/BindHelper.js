@@ -158,7 +158,7 @@ Ext.define('IM.utils.BindHelper', {
     },
 
     /**
-     * 所有数据的是否展示时间
+     * 所有数据的是否展示时间(chatView)
      * @param {Ext.data.Store} chatStore
      */
     onShowChatTime(chatStore) {

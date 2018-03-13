@@ -3,7 +3,7 @@ Ext.define('IM.view.groupSel2.GroupSel2', {
     xtype: 'groupSel2',
 
     requires: [
-        'IM.model.GrpSelMem',
+        // 'IM.model.GrpSelMem',
     ],
 
     userCls: 'IM_groupSel2',
@@ -66,7 +66,7 @@ Ext.define('IM.view.groupSel2.GroupSel2', {
                         itemId: 'grpSelList2',
                         flex: 1,
                         store: {
-                            model: 'IM.model.GrpSelMem'
+                            // model: 'IM.model.GrpSelMem'
                         },
                         itemTpl: '<div style="line-height:38px;">' +
                             '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]}" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}" ></a>' +

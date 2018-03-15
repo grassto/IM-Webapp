@@ -19,15 +19,15 @@ Ext.define('IM.utils.ChatHelper', {
                         memsID = BindHelper.getLeafIDFromTree(record, memsID);
 
                         // 不判断，都是新增多人会话
-                        // me.onOpenGroupChat(memsID);
-
-                        BindHelper.createGroup(memsID);
+                        me.createGroupChat(memsID);
                     }
                 });
             } else {
                 me.chgToIMView();
                 me.onOpenDirectChat(record.data.id, record.data.name);
             }
+        } else {
+            Utils.toastLong('之后再处理');
         }
 
     },
@@ -103,7 +103,7 @@ Ext.define('IM.utils.ChatHelper', {
             userIds = chatName.split('__'); // 拆分字符串
             if (userIds.length === 2) {
                 for (var j = 0; j < 2; j++) {
-                    if (userIds[i] === uid) {
+                    if (userIds[j] === uid) {
                         return User.allChannels[i].chat.chat_id;
                     }
                 }
@@ -168,12 +168,60 @@ Ext.define('IM.utils.ChatHelper', {
      * @param {string} cid chat_id
      */
     openDirectChat(cid) {
+        User.crtChannelId = cid;
         const me = this,
             chatView = Ext.Viewport.lookup('IM').down('#recentChat'),
-            chatStore = chatView.getStore();
-        chatView.setSelection(chatStore.getById(cid)); // 设置选中
+            chatStore = chatView.getStore(),
+            record = chatStore.getById(cid);
+        chatView.setSelection(record); // 设置选中
 
-        me.getHistory(cid);
+        me.setUnReadToRead(record); // 取消未读
+
+        BindHelper.setRightTitle(record.data.name); // 设置标题头
+
+        StatusHelper.setRightStatus(record.data.status, 'inline');// 设置状态
+
+        me.getHistory(cid); // 获取历史记录
+
+        me.showGrpMem(cid, 'D'); // 右侧的人员列表页面是否显示
+    },
+
+    openGroupChat(cid) {
+        this.openDirectChat(cid);
+        // 与打开单人频道的差别
+        StatusHelper.setRightStatus('', 'none');// 设置状态
+
+        this.showGrpMem(cid, 'G'); // 右侧的人员列表页面展示
+    },
+
+    /**
+     * 是否展示频道中的成员
+     */
+    showGrpMem(cid, type) {
+        var me = this,
+            groupMemsView = Ext.Viewport.lookup('IM').lookup('im-main').down('#groupList'),
+            memStore = groupMemsView.getStore();
+        if (type == 'D') {
+
+            groupMemsView.hide();
+
+        } else if (type == 'G') {
+            groupMemsView.show();
+            memStore.removeAll();
+            var mems = BindHelper.getMemsByChatId(cid);
+
+            mems = me.handleMemListStatus(mems);
+
+            memStore.add(mems);
+        }
+
+    },
+
+    handleMemListStatus(mems) {
+        for (var i = 0; i < mems.length; i++) {
+            mems[i].status = StatusHelper.getStatus(mems[i].user_id);
+        }
+        return mems;
     },
 
     /**
@@ -185,7 +233,6 @@ Ext.define('IM.utils.ChatHelper', {
             chatView = Ext.Viewport.lookup('IM').down('#chatView'),
             chatStore = chatView.getStore();
 
-        me.setUnReadToRead(cid); // 取消未读
 
         chatStore.removeAll(); // 清空聊天数据
 
@@ -212,9 +259,9 @@ Ext.define('IM.utils.ChatHelper', {
 
                 me.handleChatCache(data); // 内存中加入chat的信息
 
-                BindHelper.addChannelToRecent(data, nickname);
+                BindHelper.addChannelToRecent(data, uid, nickname);
 
-                me.getHistory(data.chat_id);
+                me.openDirectChat(data); // 打开频道
             },
             failure: function (data) {
                 console.log(data);
@@ -223,9 +270,53 @@ Ext.define('IM.utils.ChatHelper', {
         });
     },
 
+    createGroupChat(memsID) {
+        const me = this;
+        if (memsID.length == 1) { // 只有一个人,则为单人会话
+            var userName = me.getName(memsID[0]);
+            me.onOpenDirectChat(memsID[0], userName);
+        } else {
+            Utils.ajaxByZY('post', 'chats/group', {
+                // async: false,
+                params: JSON.stringify(memsID),
+                success: function (data) {
+                    console.log('创建多人会话成功', data);
 
+                    // User.crtChannelId = data.chat_id;
+                    me.handleChatCache(data);
 
+                    BindHelper.addChannelToRecent(data, '', data.header);
 
+                    me.openGroupChat(data.chat_id);
+
+                },
+                failure: function (data) {
+                    console.log('创建多人会话失败', data);
+                }
+            });
+        }
+    },
+
+    /**
+     * 多人会话添加用户
+     * @param {Array} memsID 选中用户的id
+     */
+    addMemToGroup(memsID) {
+        Utils.ajaxByZY('post', 'chats/' + User.crtChannelId + '/members', {
+            params: JSON.stringify(memsID),
+            success: function (data) {
+                debugger;
+                var IMView = Ext.Viewport.down('IM'),
+                    recentChat = IMView.down('#recentChat'),
+                    chatStore = recentChat.getStore(),
+                    record;
+                 if (User.crtChatMembers.length > 2) {
+                    // 修改store的数据
+                }
+            }
+        });
+
+    },
 
     /* *************************************  **********************************************/
 
@@ -233,9 +324,12 @@ Ext.define('IM.utils.ChatHelper', {
      * 将未读消息设为已读
      * @param {string} crtChannelID 当前选中的chat_id
      */
-    setUnReadToRead(crtChannelID) {
-        var memStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore();
-        memStore.getById(crtChannelID).set('isUnRead', false);
+    setUnReadToRead(record) {
+        // var memStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore();
+        // memStore.getById(crtChannelID).set('isUnRead', false);
+        if(record) {
+            record.set('isUnRead', false);
+        }
     },
 
     /**

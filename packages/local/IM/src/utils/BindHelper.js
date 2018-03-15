@@ -157,108 +157,40 @@ Ext.define('IM.utils.BindHelper', {
         return nodes;
     },
 
-    /**
-     * 所有数据的是否展示时间(chatView)
-     * @param {Ext.data.Store} chatStore
-     */
-    onShowChatTime(chatStore) {
-        var data = chatStore.data.items,
-            length = data.length;
-        // 从第二个开始进行排查
-        for (var i = 1; i < length; i++) {
-            if (data[i].data.updateTime == data[i - 1].data.updateTime) {
-                chatStore.getAt(i).set('showTime', false);
-            }
-        }
-    },
-
-
-    /**
-     * 新建多人会话
-     * @param {Array} members 用户id
-     */
-    createGroup(members) {
-        const me = this;
-        if (members.length == 1) { // 从细节页面发起的，组织下只有一个人
-            var userName = '';
-            for (var i = 0; i < User.allUsers.length; i++) {
-                if (User.allUsers[i].user_id == members[0]) {
-                    userName = User.allUsers[i].user_name;
-                }
-            }
-            Ext.Viewport.down('IM').lookup('im-main').getController().openChat(members[0], userName);
-        } else {
-            Utils.ajaxByZY('post', 'chats/group', {
-                async: false,
-                params: JSON.stringify(members),
-                success: function (data) {
-                    console.log('创建多人会话成功', data);
-                    // debugger;
-
-                    User.crtChannelId = data.chat_id;
-                    me.handleUserCache(data);
-
-                    me.addChannelToRecent(data);
-
-                    if (data.chat_name.length > 8) {
-                        data.chat_name = data.chat_name.substr(0, 8) + '...';
-                    }
-                    Ext.Viewport.down('IM').getViewModel().set({
-                        'sendToName': data.chat_name,
-                        'isOrgDetail': false
-                    });
-
-                    var mainView = Ext.Viewport.down('IM').lookup('im-main');
-                    if (mainView) {
-                        mainView.down('#chatView').getStore().removeAll();
-                    }
-                },
-                failure: function (data) {
-                    console.log('创建多人会话失败', data);
-                }
-            });
-        }
-    },
-
-
-    /**
-     * 通过请求将members放入缓存
-     * @param {object} handleUserCache 需要放入缓存的数据
-     */
-    handleUserCache(data) {
-        var mems = [];
-
-        Utils.ajaxByZY('get', 'chats/' + data.chat_id + '/members', {
-            success: function (result) {
-                mems = result;
-                User.allChannels.push({
-                    chat: data,
-                    members: mems
-                });
-            }
-        });
-    },
 
     /**
      * 添加数据至最近会话
      * @param {json} data 数据
+     * @param {string} uid 根据userid是否存在来判断是否展示status
+     * @param {json} data 数据
      */
-    addChannelToRecent(data, nickname) {
+    addChannelToRecent(data, uid, nickname) {
         const recentChatView = Ext.Viewport.down('IM').down('#recentChat'),
             chatStore = recentChatView.getStore();
+
+        var status = ''; // 为空则不展示，多人会话时
+        // 区分单人和多人
+        if (uid) {
+            status = StatusHelper.getStatus(uid);
+        }
 
         var record = chatStore.add({
             id: data.chat_id,
             name: nickname,
             type: data.chat_type,
-            last_post_at: new Date(data.update_at)
+            last_post_at: new Date(data.update_at),
+            status: status
         });
 
         recentChatView.setSelection(record);
         chatStore.sort();
     },
 
-
+    /**
+     * 递归添加leaf节点id
+     * @param {*} record 组织结构树节点信息
+     * @param {*} memsID 需要添加的id
+     */
     getLeafIDFromTree(record, memsID) {
         const me = this;
 
@@ -377,15 +309,13 @@ Ext.define('IM.utils.BindHelper', {
      * @param {string} chatID 频道ID
      */
     getMemsByChatId(chatID) {
-        var mems = [];
-        Utils.ajaxByZY('get', 'chats/' + chatID + '/members', {
-            async: false,
-            success: function (data) {
-                mems = data;
+        var length = User.allChannels.length;
+        for (var i = 0; i < length; i++) {
+            if (User.allChannels[i].chat.chat_id === chatID) {
+                return User.allChannels[i].members;
             }
-        });
-
-        return mems;
+        }
+        return '';
     },
 
 
@@ -395,37 +325,44 @@ Ext.define('IM.utils.BindHelper', {
      * @param {*} chatStore 需要绑定数据的store
      */
     bindMsg(data, chatStore) {
-        var order = data.order,
-            posts = data.messages,
-            message;
-        User.posts = [];
-        for (var i = order.length - 1; i >= 0; i--) {
-            posts[order[i]].username = ChatHelper.getName(posts[order[i]].user_id);
-            User.posts.push(posts[order[i]]);
-            message = posts[order[i]].message;
+        if (data) {
+            var order = data.order,
+                posts = data.messages,
+                message,
+                ROL = '';
+            User.posts = [];
+            for (var i = order.length - 1; i >= 0; i--) {
+                posts[order[i]].username = ChatHelper.getName(posts[order[i]].user_id);
+                User.posts.push(posts[order[i]]);
+                message = posts[order[i]].message;
 
-            message = window.minEmoji(message); // emoji解析
-            message = ParseHelper.parsePic(message, posts[order[i]].files); // 图片解析
-            message = ParseHelper.parseURL(message); // URL解析
+                message = window.minEmoji(message); // emoji解析
+                message = ParseHelper.parsePic(message, posts[order[i]].files); // 图片解析
+                message = ParseHelper.parseURL(message); // URL解析
 
-            if (posts[order[i]].user_id == User.ownerID) {
-                chatStore.add({
-                    msg_id: posts[order[i]].msg_id,
-                    ROL: 'right',
-                    senderName: posts[order[i]].username,
-                    sendText: message,
-                    updateTime: new Date(posts[order[i]].update_at)
-                });
-            }
-            else {
+                if (posts[order[i]].user_id == User.ownerID) {
+                    ROL = 'right';
+                }
                 chatStore.add({
                     msg_id: posts[order[i]].msg_id,
                     senderName: posts[order[i]].username,
                     sendText: message,
+                    ROL: ROL,
                     updateTime: new Date(posts[order[i]].update_at)
                 });
             }
         }
+    },
+
+
+    setRightTitle(name) {
+        // 长度超过8时，截取
+        if (name.length > 8) {
+            name = name.substr(0, 8) + '...';
+        }
+        Ext.Viewport.lookup('IM').getViewModel().set({
+            'sendToName': name
+        });
     }
 
 });

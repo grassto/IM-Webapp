@@ -9,14 +9,20 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
      */
     onSelRecentMem(view, location) {
         var me = this;
+        ChatHelper.chgToIMView();
+        if(location.record.data.type === 'D') {
+            ChatHelper.openDirectChat(location.record.data.id);
+        } else if(location.record.data.type === 'G') {
+            ChatHelper.openGroupChat(location.record.data.id);
+        }
         // debugger;
-        me.onShowChatView();
-        me.setRightTitle(location.record.data.name);
-        me.fireEvent('openCnl', location.record.data.id);
+        // me.onShowChatView();
+        // me.setRightTitle(location.record.data.name);
+        // me.fireEvent('openCnl', location.record.data.id);
 
-        me.onShowGrpMem(location.record.data, view);
+        // me.onShowGrpMem(location.record.data, view);
 
-        me.setTitleStatus(location.record.data);
+        // me.setTitleStatus(location.record.data);
         // me.onShowStatus(location.record.data);
 
     },

@@ -25,13 +25,26 @@ Ext.define('IM.utils.StatusHelper', {
         }
     },
 
-    getStatus(id) {
+    getStatus(userId) {
         for (var i = 0; i < User.allStatus.length; i++) {
-            if (User.allStatus[i].user_id == id) {
+            if (User.allStatus[i].user_id == userId) {
                 return User.allStatus[i].user_status;
             }
         }
-        return '没找到';
+        return '';
+    },
+
+    /**
+     * 右侧标题头的状态设置，单人显示，多人隐藏
+     * @param {int} statusStr 在线，离线
+     * @param {string} isShowStr inline：展示，none：隐藏
+     */
+    setRightStatus(statusStr, isShowStr) {
+        var viewModel = Ext.Viewport.lookup('IM').getViewModel();
+        viewModel.set({
+            showStatus: isShowStr,
+            status: statusStr
+        });
     }
 
 

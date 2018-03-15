@@ -20,6 +20,9 @@ Ext.define('IM.view.groupSel.GroupSelController', {
         console.log('搜索');
     },
 
+    /**
+     * 初始化时绑定树形结构
+     */
     init() {
         var grp = this.getView().down('#grpSel-org');
 
@@ -71,31 +74,44 @@ Ext.define('IM.view.groupSel.GroupSelController', {
             listData = listStore.data.items;
 
 
-        if (User.isPlus) { // 由加号发起的多人会话
-            if (listData.length > 0) {
-                me.showChatView(); // 显示聊天页面
-                if (listData.length == 1) {
-                    me.onOpenDirectChat(listData); // 个人
-                }
-                else {
-                    me.onOpenGroupChat(listData); // 群聊
+        if (listData.length > 0) {
+            var memsID = me.onAddMemsID(listData);// 添加选中用户的id进入数组
+
+            if (User.isPlus) { // 由加号发起的多人会话
+                ChatHelper.chgToIMView();// 显示聊天页面
+
+                ChatHelper.createGroupChat(memsID);// 根据用户id创建多人会话
+
+            } else {
+                // 根据当前频道的人数来判断是添加用户还是新建频道，只有两人的时候是新建频道
+                if(User.crtChatMembers.length == 2) {
+                    memsID.push(User.crtChatMembers[0]);
+                    memsID.push(User.crtChatMembers[1]);
+                    ChatHelper.createGroupChat(memsID);
+                } else if(User.crtChatMembers.length > 2) {
+                    ChatHelper.addMemToGroup(memsID);
                 }
 
-            }
-        } else {
-            if(listData.length > 0) {
-                BindHelper.onAddMemToGroup(listData);
             }
         }
 
         view.hide();
     },
 
-    // 展示聊天页面
-    showChatView() {
-        Ext.Viewport.down('IM').getController().showRightView('im-main', 'pageblank');
-        Ext.Viewport.down('IM').getController().showRightView('im-main', 'details');
+    // 返回选中用户id的数组
+    onAddMemsID(listData) {
+        var memsID = [];
+        for (var i = 0; i < listData.length; i++) {
+            memsID.push(listData[i].data.id);
+        }
+        return memsID;
     },
+
+
+
+
+
+
 
     onOpenDirectChat(listData) {
         var imView = Ext.Viewport.down('IM'),
@@ -155,7 +171,7 @@ Ext.define('IM.view.groupSel.GroupSelController', {
                     'sendToName': data.chat_name,
                     'isOrgDetail': false
                 });
-                if(Ext.Viewport.down('IM').lookup('im-main')) {
+                if (Ext.Viewport.down('IM').lookup('im-main')) {
                     Ext.Viewport.down('IM').lookup('im-main').down('#chatView').getStore().removeAll();
                 }
             },
@@ -206,6 +222,12 @@ Ext.define('IM.view.groupSel.GroupSelController', {
         chatStore.sort();
     },
 
+
+
+
+
+
+
     /**
      * 关闭GroupSel弹出层
      */
@@ -245,9 +267,10 @@ Ext.define('IM.view.groupSel.GroupSelController', {
     onBeforeHide() {
         var view = this.getView();
         view.down('#grpSelMem').getStore().removeAll(); // list清空
-        // view.down('#btnDelAll').setHidden(true); // 删除所有按钮隐藏
 
-        this.orgHideDefault();
+        this.orgHideDefault(); // 组织结构树恢复默认状态
+
+        // view.down('#btnDelAll').setHidden(true); // 删除所有按钮隐藏
     },
 
     /**

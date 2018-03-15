@@ -124,7 +124,7 @@ Ext.define('IM.view.IMController', {
                         var memsID = [];
                         memsID = BindHelper.getLeafDataFromTree(record, memsID);
                         // debugger;
-                        BindHelper.createGroup(memsID);
+                        ChatHelper.createGroupChat(memsID);
                     }
                 });
             } else {
@@ -508,7 +508,7 @@ Ext.define('IM.view.IMController', {
         var me = this,
             view = me.getView(),
             viewModel = view.getViewModel();
-        ConnectHelper.getMe(viewModel);
+
         WebSocketHelper.initialize(Config.wsDevGoUrl);
         WebSocketHelper.setEventCallback((msg) => {
             switch (msg.event) {
@@ -519,6 +519,7 @@ Ext.define('IM.view.IMController', {
                     break;
             }
         });
+        ConnectHelper.getMe(viewModel);
         ConnectHelper.getMembers(view);
     },
 
@@ -699,10 +700,9 @@ Ext.define('IM.view.IMController', {
             this.grpSel = grpSel = Ext.create(grpSel);
         }
 
-        // // // debugger;grpSel.down('#grpSelMem');
         grpSel.show();
     },
-    
+
     // 消息管理器
     onShowMsgManger() {
         var me = this,

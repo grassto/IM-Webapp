@@ -12,14 +12,7 @@ Ext.define('IM.view.rightContainer.Details', {
         align: 'center'
     },
 
-    // viewModel: {
-    //     data: {
-    //         company: 'PushSoft',
-    //         org: '技术部'
-    //     }
-    // },
-
-    // defaultListenerScope: true,
+    defaultListenerScope: true,
 
     userCls: 'details',
 
@@ -37,5 +30,9 @@ Ext.define('IM.view.rightContainer.Details', {
         userCls: 'detailBtn',
         handler: 'btnOnChgToIM',
         width: '300px'
-    }]
+    }],
+
+    btnOnChgToIM() {
+        ChatHelper.doubleToIMView();
+    }
 });

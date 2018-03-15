@@ -72,9 +72,9 @@ Ext.define('IM.view.groupSel.GroupSelController', {
 
 
         if (User.isPlus) { // 由加号发起的多人会话
-            if (User.crtChatMembers.length > 0 && listData.length > 0) {
+            if (listData.length > 0) {
                 me.showChatView(); // 显示聊天页面
-                if (listData.length == 1 && User.crtChatMembers.length == 1) {
+                if (listData.length == 1) {
                     me.onOpenDirectChat(listData); // 个人
                 }
                 else {
@@ -110,14 +110,16 @@ Ext.define('IM.view.groupSel.GroupSelController', {
 
     /**
      * 选中多人发起会话
-     * @param {*} listData 
+     * @param {Array} listData list选中的人
      */
     onOpenGroupChat(listData) {
         var me = this,
             members = [];
-        for (var i = 0; i < User.crtChatMembers.length; i++) {
-            members.push(User.crtChatMembers[i]);
-        }
+        // 由加号发起的，只包含自己
+        // for (var i = 0; i < User.crtChatMembers.length; i++) {
+        //     members.push(User.crtChatMembers[i]);
+        // }
+        members.push(User.ownerID);
         // debugger;
         for (var i = 0; i < listData.length; i++) {
             members.push(listData[i].data.id);
@@ -129,7 +131,7 @@ Ext.define('IM.view.groupSel.GroupSelController', {
 
     /**
      * 创建多人会话，并进行展示，User.crtChannelId
-     * @param {Array} members 参与的成员
+     * @param {Array} members 参与的成员id
      */
     createGroupChat(members) {
         var me = this;

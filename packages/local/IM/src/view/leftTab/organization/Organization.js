@@ -15,13 +15,6 @@ Ext.define('IM.view.leftTab.organization.Organization', {
         type: 'IMOrg'
     },
 
-    // viewModel: {
-    //     type: 'organization'
-    // },
-    // bind: {
-    //     store: '{navItems}'
-    // },
-
     listeners: {
         childTap: 'orgOnSelectMem',
         childdoubletap: 'orgOnDblSelMem'
@@ -41,6 +34,6 @@ Ext.define('IM.view.leftTab.organization.Organization', {
 
         dataIndex: 'name',
         flex: 1
-    }],
+    }]
 
 });

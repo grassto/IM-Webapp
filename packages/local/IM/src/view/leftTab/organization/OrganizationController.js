@@ -2,10 +2,13 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.left-orgController',
 
-    // init() {
-    //     debugger;
-    //     BindHelper.loadOrganization(this.getView());
-    // },
+    /**
+     * 将当前选中的节点的数据存入缓存
+     * @param {*} record
+     */
+    saveReordToCache(record) {
+        User.detailByOrg = record;
+    },
 
     /**
      * 组织结构树单击事件
@@ -13,11 +16,11 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
      * @param {*} location 
      */
     orgOnSelectMem(me, location) {
-        // debugger;
         this.onShowDetails();
         this.onSetDetails(location.record);
-        // this.onOpenChat(record);
-        this.getViewModel().set('orgSelRecord', location.record);
+        // this.getViewModel().set('orgSelRecord', location.record); // 将数据存入viewModel
+        // 这边还不如将数据存入内存
+        this.saveReordToCache(location.record);
     },
 
     /**
@@ -26,8 +29,10 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
      * @param {*} location 
      */
     orgOnDblSelMem(me, location) {
-        this.getViewModel().set('orgSelRecord', location.record);
-        this.fireEvent('doubleTapOrg');
+        this.saveReordToCache(location.record);
+        // this.getViewModel().set('orgSelRecord', location.record);
+        // this.fireEvent('doubleTapOrg');
+        ChatHelper.doubleToIMView();
     },
 
 
@@ -57,14 +62,19 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
         var viewmodel = this.getViewModel();
 
         if (record.data.leaf) {
-            viewmodel.set('btnText', '发起聊天');
+            viewmodel.set({
+                'btnText': '发起聊天',
+                'sendToName': record.data.name,
+                'eMail': record.data.email,
+                'isOrgDetail': false
+            });
 
-            viewmodel.set('sendToName', record.data.name);
+            // viewmodel.set('sendToName', record.data.name);
             // viewmodel.set('phone', );
             // viewmodel.set('mobile', );
-            viewmodel.set('eMail', record.data.email);
+            // viewmodel.set('eMail', record.data.email);
             // viewmodel.set('department', );
-            viewmodel.set('isOrgDetail', false);
+            // viewmodel.set('isOrgDetail', false);
 
         } else {
             viewmodel.set({

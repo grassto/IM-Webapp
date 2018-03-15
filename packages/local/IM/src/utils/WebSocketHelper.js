@@ -47,7 +47,7 @@ Ext.define('IM.utils.WebSocketHelper', {
         this.firstConnectCallback();
       }
       this.connectFailCount = 0;
-    }
+    };
 
     this.conn.onclose = () => {
       this.conn = null;
@@ -65,7 +65,7 @@ Ext.define('IM.utils.WebSocketHelper', {
       let retryTime = this.MIN_WEBSOCKET_RETRY_TIME;
 
       if (this.connectFailCount > this.MAX_WEBSOCKET_FAILS) {
-        retryTime = this.MIN_WEBSOCKET_RETRY_TIME * this.connectFailCount * this.connectFailCount
+        retryTime = this.MIN_WEBSOCKET_RETRY_TIME * this.connectFailCount * this.connectFailCount;
         if (retryTime > this.MAX_WEBSOCKET_RETRY_TIME) {
           retryTime = this.MAX_WEBSOCKET_RETRY_TIME;
         }
@@ -74,7 +74,7 @@ Ext.define('IM.utils.WebSocketHelper', {
       setTimeout(() => {
         this.initialize(connectionUrl, token);
       }, retryTime);
-    }
+    };
 
     this.conn.onerror = (evt) => {
       if (this.connectFailCount <= 1) {
@@ -85,7 +85,7 @@ Ext.define('IM.utils.WebSocketHelper', {
       if (this.errorCallback) {
         this.errorCallback(evt);
       }
-    }
+    };
 
     this.conn.onmessage = (evt) => {
       const msg = JSON.parse(evt.data);
@@ -97,45 +97,45 @@ Ext.define('IM.utils.WebSocketHelper', {
         }
 
         if (this.responseCallbacks[msg.seq_reply]) {
-          this.responseCallbacks[msg.seq_reply](msg)
-          Reflect.deleteProperty(this.reconnectCallback, msg.seq_reply) // ???????
+          this.responseCallbacks[msg.seq_reply](msg);
+          Reflect.deleteProperty(this.reconnectCallback, msg.seq_reply); // ???????
         }
       } else if (this.eventCallback) {
         if (msg.seq !== this.eventSequence && this.missedEventCallback) {
-          console.log('missed websocket event, act_seq=' + msg.seq + ' exp_seq=' + this.eventSequence)
-          this.missedEventCallback()
+          console.log('missed websocket event, act_seq=' + msg.seq + ' exp_seq=' + this.eventSequence);
+          this.missedEventCallback();
         }
-        this.eventSequence = msg.seq + 1
-        this.eventCallback(msg)
+        this.eventSequence = msg.seq + 1;
+        this.eventCallback(msg);
       }
-    }
+    };
   },
   setEventCallback(callback) {
-    this.eventCallback = callback
+    this.eventCallback = callback;
   },
   setFirstConnectCallback(callback) {
-    this.firstConnectCallback = callback
+    this.firstConnectCallback = callback;
   },
   setReconnectCallback(callback) {
-    this.reconnectCallback = callback
+    this.reconnectCallback = callback;
   },
   setMissedEventCallback(callback) {
-    this.missedEventCallback = callback
+    this.missedEventCallback = callback;
   },
   setErrorCallback(callback) {
-    this.errorCallback = callback
+    this.errorCallback = callback;
   },
   setCloseCallback(callback) {
-    this.closeCallback = callback
+    this.closeCallback = callback;
   },
   close() {
-    this.connectFailCount = 0
-    this.sequence = 1
+    this.connectFailCount = 0;
+    this.sequence = 1;
     if (this.conn && this.conn.readyState === WebSocket.OPEN) {
-      this.conn.onclose = () => { }
-      this.conn.close()
-      this.conn = null
-      console.log('websocket 关闭')
+      this.conn.onclose = () => { };
+      this.conn.close();
+      this.conn = null;
+      console.log('websocket 关闭');
     }
   },
   sendMessage(action, data, responseCallback) {
@@ -143,17 +143,17 @@ Ext.define('IM.utils.WebSocketHelper', {
       action,
       seq: this.sequence++,
       data
-    }
+    };
 
     if (responseCallback) {
-      this.responseCallbacks[msg.seq] = responseCallback
+      this.responseCallbacks[msg.seq] = responseCallback;
     }
 
     if (this.conn && this.conn.readyState === WebSocket.OPEN) {
-      this.conn.send(JSON.stringify(msg))
+      this.conn.send(JSON.stringify(msg));
     } else if (!this.conn || this.conn.readyState === WebSocket.CLOSED) {
-      this.conn = null
-      this.initialize()
+      this.conn = null;
+      this.initialize();
     }
   }
 });

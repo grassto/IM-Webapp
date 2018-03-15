@@ -51,9 +51,6 @@ Ext.define('IM.view.IMController', {
 
         // 右侧页面展示
         me.showRightView('pageblank');
-
-        // 左侧list展示
-        // me.showMiddle('recentChat');
     },
 
     // 使用子控件的隐藏与展示来切换
@@ -508,8 +505,10 @@ Ext.define('IM.view.IMController', {
      * 打开连接
      */
     mounted() {
-        var me = this;
-        me.getMe();
+        var me = this,
+            view = me.getView(),
+            viewModel = view.getViewModel();
+        ConnectHelper.getMe(viewModel);
         WebSocketHelper.initialize(Config.wsDevGoUrl);
         WebSocketHelper.setEventCallback((msg) => {
             switch (msg.event) {
@@ -520,8 +519,7 @@ Ext.define('IM.view.IMController', {
                     break;
             }
         });
-        me.getMembers();
-        // me.getPreferences();
+        ConnectHelper.getMembers(view);
     },
 
     /**
@@ -704,21 +702,7 @@ Ext.define('IM.view.IMController', {
         // // // debugger;grpSel.down('#grpSelMem');
         grpSel.show();
     },
-    onShowGrpSel2() {
-        var view = this.getView(),
-            grpSel2 = this.grpSel2;
-
-        if (!grpSel2) {
-            grpSel2 = Ext.apply({
-                ownerCmp: view
-            }, view.grpSel2);
-
-            this.grpSel2 = grpSel2 = Ext.create(grpSel2);
-        }
-
-        // // // debugger;grpSel.down('#grpSelMem');
-        grpSel2.show();
-    },
+    
     // 消息管理器
     onShowMsgManger() {
         var me = this,

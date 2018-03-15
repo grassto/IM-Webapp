@@ -84,9 +84,9 @@ Ext.define('IM.view.IM', {
     grpSel: { // 新建多人会话
         xtype: 'groupSel'
     },
-    grpSel2: {
-        xtype: 'groupSel2'
-    },
+    // grpSel2: {
+    //     xtype: 'groupSel2'
+    // },
 
     fav: { // 收藏
         xtype: 'favorite'

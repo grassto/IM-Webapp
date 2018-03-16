@@ -34,6 +34,8 @@ Ext.define('PushIM.Webapp.util.User', {
 
     detailByOrg: {}, // 从详细界面跳转到聊天页面所需要的数据
 
+    isViewed: false, // 用来处理未读消息相关事项
+
     clear() {
         User.ownerID = '';
         User.allUsers = [];
@@ -54,6 +56,7 @@ Ext.define('PushIM.Webapp.util.User', {
         User.crtChatMembers = [];
         User.isPlus = true;
         User.detailByOrg = {};
+        User.isViewed = false;
     }
 
 });

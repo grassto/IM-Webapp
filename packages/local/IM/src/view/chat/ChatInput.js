@@ -53,33 +53,39 @@ Ext.define('IM.view.chat.ChatInput', {
             xtype: 'button',
             ui: 'flat',
             iconCls: 'x-fa fa-smile-o',
-            handler: 'showEmjPanel'
+            handler: 'showEmjPanel',
+            tooltip: '表情'
         }, {
             xtype: 'button',
             ui: 'flat',
             itemId: 'btnBrowse',
             iconCls: 'x-fa fa-file-image-o',
-            preventDefaultAction: false
+            preventDefaultAction: false,
+            tooltip: '图片'
         }, {
             xtype: 'button',
             ui: 'flat',
             itemId: 'btnFile',
             iconCls: 'x-fa fa-folder',
-            preventDefaultAction: false
+            preventDefaultAction: false,
+            tooltip: '文件'
         }, {
             xtype: 'button',
             ui: 'flat',
             iconCls: 'x-fa fa-check',
-            handler: 'onReply'
+            handler: 'onReply',
+            tooltip: '回执消息'
         }, {
             xtype: 'button',
             ui: 'flat',
-            iconCls: 'x-fa fa-cut'
+            iconCls: 'x-fa fa-cut',
+            tooltip: '剪切'
         }, {
             xtype: 'button',
             ui: 'flat',
             iconCls: 'x-fa fa-star-o',
-            handler: 'onShowFav'
+            handler: 'onShowFav',
+            tooltip: '收藏'
         }, {
             xtype: 'component',
             flex: 1
@@ -310,5 +316,5 @@ Ext.define('IM.view.chat.ChatInput', {
         //         }
         //     });
         // }
-    },
+    }
 });

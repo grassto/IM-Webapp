@@ -21,17 +21,32 @@ Ext.define('IM.utils.BindHelper', {
                 status = '不显示';
             }
 
+            var isUnRead = false,
+            unReadNum = 0;
+            for (var j = 0; j < User.allChannels[i].members.length; j++) {
+                // debugger;
+                if (User.allChannels[i].members[j].user_id == User.ownerID) { // 自己的未读
+                    unReadNum += User.allChannels[i].members[j].unread_count;
+                    break;
+                }
+            }
+            if(unReadNum > 0) {
+                isUnRead = true;
+            }
+
             store.add({
                 id: User.allChannels[i].chat.chat_id,
                 name: User.allChannels[i].chat.channelname,
                 type: User.allChannels[i].chat.chat_type,
                 status: status,
-                chat_name: User.allChannels[i].chat.chat_name
+                chat_name: User.allChannels[i].chat.chat_name,
+                isUnRead: isUnRead,
+                unReadNum: unReadNum
             });
         }
     },
 
-
+    
 
 
     // 加载组织结构树信息(之后还需处理)
@@ -329,6 +344,7 @@ Ext.define('IM.utils.BindHelper', {
             var order = data.order,
                 posts = data.messages,
                 message,
+                fileIDs = [],
                 ROL = '';
             User.posts = [];
             for (var i = order.length - 1; i >= 0; i--) {
@@ -336,8 +352,14 @@ Ext.define('IM.utils.BindHelper', {
                 User.posts.push(posts[order[i]]);
                 message = posts[order[i]].message;
 
+                if (posts[order[i]].msg_type == 'I') {
+                    fileIDs = [];
+                    message = '[' + posts[order[i]].attach_id + ']';
+                    fileIDs.push(posts[order[i]].attach_id);
+                }
+
                 message = window.minEmoji(message); // emoji解析
-                message = ParseHelper.parsePic(message, posts[order[i]].files); // 图片解析
+                message = ParseHelper.parsePic(message, fileIDs); // 图片解析
                 message = ParseHelper.parseURL(message); // URL解析
 
                 if (posts[order[i]].user_id == User.ownerID) {

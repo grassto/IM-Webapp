@@ -189,8 +189,10 @@ Ext.define('IM.view.IMController', {
             cName = msg.data.chat_name,
             cid = msg.broadcast.chat_id,
             text = data.message,
+            fileIDs = [], // 要改
             userName = me.getName(data.user_id),
             flag = true; // 缓存中是否需要新增频道,是true，否false
+
 
         // debugger;
         /* ****************************************** 未读提示 ********************************************************************/
@@ -240,9 +242,12 @@ Ext.define('IM.view.IMController', {
             }
 
             // 选中的不是当前频道，给未读通知
-            if (User.crtChannelId !== cid) {
+            // if (User.crtChannelId !== cid) {
+            if (User.ownerID != data.user_id) {
                 me.promptUnRead(cid);
             }
+
+            // }
 
 
         }
@@ -302,23 +307,28 @@ Ext.define('IM.view.IMController', {
 
 
                 // 选中的不是当前频道
-                if (User.crtChannelId !== cid) {
+                // if (User.crtChannelId !== cid) {
+                if (User.ownerID != data.user_id) {
                     me.promptUnRead(cid);
-
-                    // me.resetLastPostTime(userName, new Date(data.update_at));
-
                 }
+                // me.resetLastPostTime(userName, new Date(data.update_at));
+
+                // }
             }
         }
 
 
         /* ****************************************** 当前频道，消息展示 ********************************************************************/
+        if (data.msg_type == 'I') {
+            text = '[' + data.attach_id + ']';
+            fileIDs.push(data.attach_id);
+        }
         // 若选中的是当前频道，则在聊天区展示数据
         if (User.crtChannelId == data.chat_id) {
             data.username = userName;
             User.posts.push(data);
             text = window.minEmoji(text);
-            text = ParseHelper.parsePic(text, data.files);
+            text = ParseHelper.parsePic(text, fileIDs);
 
             // var chatView = Ext.app.Application.instance.viewport.getController().getView().down('main #chatView');
             var chatView = me.getView().lookup('im-main').down('#chatView'),
@@ -467,8 +477,8 @@ Ext.define('IM.view.IMController', {
         var sc = chatView.getScrollable(),
             scHeight = sc.getScrollElement().dom.scrollHeight,
             scTop = sc.getScrollElement().dom.scrollTop;
-        // sc.scrollTo(0, scHeight - scTop);
-        sc.scrollTo(0, scHeight);
+        sc.scrollTo(0, scHeight - scTop);
+        // sc.scrollTo(0, scHeight);
 
     },
 
@@ -521,129 +531,6 @@ Ext.define('IM.view.IMController', {
         });
         ConnectHelper.getMe(viewModel);
         ConnectHelper.getMembers(view);
-    },
-
-    /**
-     * 获取个人信息
-     */
-    getMe() {
-        var me = this;
-        Utils.ajaxByZY('GET', 'users/me', {
-            success: function (data) {
-                // // // debugger;
-                console.log('个人信息：', data);
-                User.crtUser = data;
-                var viewmodel = me.getView().getViewModel();
-                viewmodel.set('ownerName', data.user_name);
-                viewmodel.set('ownerMail', data.email);
-                viewmodel.set('avatar', AvatarMgr.getAvatarHtmlByName(data.user_name));
-            }
-        });
-    },
-
-    /**
-     * 获取所有成员
-     */
-    getMembers() {
-        const me = this,
-            orgTree = me.getView().down('#left-organization');
-        Utils.mask(orgTree);
-        Utils.ajaxByZY('GET', 'users/all', {
-            success: function (data) {
-                // // // debugger;
-                var org = data.organizations,
-                    usersInfo = data.users;
-
-                User.allUsers = usersInfo;
-                User.organization = org;
-                for (let i = 0; i < usersInfo.length; i++) {
-                    if (usersInfo[i].user_id !== User.ownerID) {
-                        User.allOthers.push(usersInfo[i]);
-                    }
-                }
-
-                BindHelper.loadOrganization(orgTree);
-                // Utils.unMask(orgTree);
-
-
-                // me.getChannels();
-
-                var ids = [];
-                for (var i = 0; i < usersInfo.length; i++) {
-                    ids.push(usersInfo[i].user_id);
-                }
-                // 定时获取状态 60s
-                me.getStatus(ids);
-                setInterval(() => {
-                    me.getStatus(ids);
-                }, 60 * 1000);
-
-
-                me.getChannels();
-            }, callback() {
-                Utils.unMask(orgTree);
-            }
-        });
-
-    },
-
-    /**
-     * 获取频道，单人对话也是频道
-     */
-    getChannels() {
-        var me = this,
-            view = me.getView().down('#recentChat');
-        // // // debugger;
-
-        Utils.mask(view);
-        Utils.ajaxByZY('get', 'users/me/chats', {
-            success: function (data) {
-                console.log('所有频道：', data);
-                // // debugger;
-
-                for (let i = 0; i < data.length; i++) {
-                    if (data[i].chat.chat_type == 'D') { // 单人会话
-                        // chat_name为C1034__C1064这种，将其拼凑为姓名
-                        for (let j = 0; j < User.allOthers.length; j++) {
-                            if (data[i].chat.chat_name.indexOf(User.allOthers[j].user_id) > -1) {
-                                data[i].chat.channelname = User.allOthers[j].user_name;
-                                User.allChannels.push(data[i]);
-                                break;
-                            }
-                        }
-                    }
-                    else {
-                        data[i].chat.channelname = data[i].chat.chat_name;
-                        User.allChannels.push(data[i]);
-                    }
-                }
-                BindHelper.loadRecentChat(view);
-
-
-                // 设置默认选中第一个
-                // var record = me.getView().down('#recentChat').getStore().getAt(0);
-                // me.onSelectChannel('', '', '', record);
-            }, callback() {
-                Utils.unMask(view);
-            }
-        });
-    },
-
-    /**
-     * 状态信息
-     * @param {*Array} uArray 所有用户的id
-     */
-    getStatus(uArray) {
-        Utils.ajaxByZY('POST', 'status/ids', {
-            async: false,
-            params: JSON.stringify(uArray),
-            success: function (data) {
-                console.log('所有人员状态：', data);
-                User.allStatus = data;
-            }
-        });
-        // 处理最近会话列表数据
-        StatusHelper.handleRecentList();
     },
 
 

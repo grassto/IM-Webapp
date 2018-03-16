@@ -100,10 +100,10 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         var me = this;
         config = config || {};
 
-        var atStore = Ext.getStore('global-mention-store');
+        var atStore = Ext.getStore('IM-global-mention-store');
         if (!atStore) {
             atStore = Ext.factory({
-                storeId: 'global-mention-store',
+                storeId: 'IM-global-mention-store',
                 model: 'IM.model.Mention'
             }, Ext.data.Store);
         }

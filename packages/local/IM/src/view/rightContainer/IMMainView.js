@@ -99,4 +99,8 @@ Ext.define('IM.view.rightContainer.IMMainView', {
             ]
         }
     ]
+    
+    // destroy() {
+    //     alert('en');
+    // }
 });

@@ -97,8 +97,8 @@ Ext.define('IM.view.chat.ChatView', {
         if (t.hasCls('viewPic')) {
             var thumbSrc = t.dom.src;
             // 请求原图浏览
-            // ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
-            ImgUtil.viewImgs(thumbSrc);
+            ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
+            // ImgUtil.viewImgs(thumbSrc);
             // me.onPreviewAttach(record);
         }
         if (t.hasCls('avatar')) {

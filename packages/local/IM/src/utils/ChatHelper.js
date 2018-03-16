@@ -126,7 +126,7 @@ Ext.define('IM.utils.ChatHelper', {
     },
 
     /**
-     * 组织chat，members
+     * 组织User.allChannels为：{chat:..., members:...}
      * @param {json} data 只有chat数据
      */
     handleChatCache(data) {
@@ -173,17 +173,22 @@ Ext.define('IM.utils.ChatHelper', {
             chatView = Ext.Viewport.lookup('IM').down('#recentChat'),
             chatStore = chatView.getStore(),
             record = chatStore.getById(cid);
-        chatView.setSelection(record); // 设置选中
+        // debugger;
+        if (record) { // 讲道理，这里肯定有这个record
+            chatView.setSelection(record); // 设置选中
 
-        me.setUnReadToRead(record); // 取消未读
+            if (record.data.unReadNum !== 0) { // 若选中的频道有未读信息
+                me.setUnReadToRead(record); // 取消未读
+            }
 
-        BindHelper.setRightTitle(record.data.name); // 设置标题头
+            BindHelper.setRightTitle(record.data.name); // 设置标题头
 
-        StatusHelper.setRightStatus(record.data.status, 'inline');// 设置状态
+            StatusHelper.setRightStatus(record.data.status, 'inline');// 设置状态
 
-        me.getHistory(cid); // 获取历史记录
+            me.getHistory(cid); // 获取历史记录
 
-        me.showGrpMem(cid, 'D'); // 右侧的人员列表页面是否显示
+            me.showGrpMem(cid, 'D'); // 右侧的人员列表页面是否显示
+        }
     },
 
     openGroupChat(cid) {
@@ -261,7 +266,7 @@ Ext.define('IM.utils.ChatHelper', {
 
                 BindHelper.addChannelToRecent(data, uid, nickname);
 
-                me.openDirectChat(data); // 打开频道
+                me.openDirectChat(data.chat_id); // 打开频道
             },
             failure: function (data) {
                 console.log(data);
@@ -305,14 +310,14 @@ Ext.define('IM.utils.ChatHelper', {
         Utils.ajaxByZY('post', 'chats/' + User.crtChannelId + '/members', {
             params: JSON.stringify(memsID),
             success: function (data) {
-                debugger;
-                var IMView = Ext.Viewport.down('IM'),
-                    recentChat = IMView.down('#recentChat'),
-                    chatStore = recentChat.getStore(),
-                    record;
-                 if (User.crtChatMembers.length > 2) {
-                    // 修改store的数据
-                }
+                // debugger;
+                // var IMView = Ext.Viewport.down('IM'),
+                //     recentChat = IMView.down('#recentChat'),
+                //     chatStore = recentChat.getStore(),
+                //     record;
+                //  if (User.crtChatMembers.length > 2) {
+                //     // 修改store的数据
+                // }
             }
         });
 
@@ -322,14 +327,20 @@ Ext.define('IM.utils.ChatHelper', {
 
     /**
      * 将未读消息设为已读
-     * @param {string} crtChannelID 当前选中的chat_id
+     * @param {Ext.data.Model} record 当前选中的chat_id的store的数据
      */
     setUnReadToRead(record) {
-        // var memStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore();
-        // memStore.getById(crtChannelID).set('isUnRead', false);
-        if(record) {
-            record.set('isUnRead', false);
-        }
+
+        Utils.ajaxByZY('post', 'chats/members/' + User.ownerID + '/view', {
+            params: JSON.stringify({ chat_id: User.crtChannelId }),
+            success: function (data) {
+                if (data.Status == 'OK') {
+                    record.set('isUnRead', false);
+                    record.set('unReadNum', 0);
+                }
+            }
+        });
+
     },
 
     /**

@@ -12,6 +12,29 @@ Ext.define('IM.utils.ParseHelper', {
         return result;
     },
 
+    /**
+     * 发送消息时进行解析
+     * @param {string} sendPicHtml 带img的文本
+     */
+    onParseMsg(sendPicHtml) {
+        var reg = /\<img[^\>]*src="([^"]*)"[^\>]*\>/g;
+        // var imgs = sendPicHtml.match(reg);
+        // for(var i=0;i<imgs.length;i++) {
+        //     $(imgs[i]).attr('id');
+        // }
+        var result = sendPicHtml.replace(reg, function (str) {
+            var out = '',
+                id = $(str).attr('id');
+            return '[' + id + ']';
+        });
+        return result;
+    },
+
+    /**
+     * 将文本消息转为图片
+     * @param {string} message 纯文本消息
+     * @param {Array} fileIds 文件id
+     */
     parsePic(message, fileIds) {
         // file_id为26位的guid号
         var reg = /\[\w{26}\]/ig;

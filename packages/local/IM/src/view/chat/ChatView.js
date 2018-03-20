@@ -75,7 +75,7 @@ Ext.define('IM.view.chat.ChatView', {
         '</a>' +
         '</div>' +
         '</tpl>' +
-        '<div style="overflow:hidden;text-align:{ROL};/*min-height:60px;*/">' +
+        '<div style="text-align:{ROL};/*min-height:60px;overflow:hidden;*/">' +
         '<tpl if="values.ROL==\'right\'">' +
         '<div class="bubble">' +
         '<tpl else>' +

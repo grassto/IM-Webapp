@@ -253,6 +253,36 @@ Ext.define('IM.utils.ChatHelper', {
         });
     },
 
+    /**
+     * 根据chatID组织数据到recentChat
+     */
+    addChatToRecent(cid) {
+        const me = this;
+        Utils.ajaxByZY('get', 'users/' + User.ownerID + '/chats/' + cid, {
+            async: false,
+            success: function (data) {
+                User.allChannels.push(data); // 处理内存
+                var uid = '',
+                    nickname = '';
+                if (data.chat.chat_type == 'D') {
+                    var ids = data.chat.chat_name.split('__');
+                    for (var i = 0; i < ids.length; i++) {
+                        if (ids[i] !== User.ownerID) {
+                            uid = ids[i];
+                            nickname = me.getName(ids[i]);
+                            break;
+                        }
+                    }
+                } else if (data.chat.chat_type == 'G') {
+                    if (data.chat.header.length > 8) {
+                        nickname = data.chat.header.substr(0, 8) + '...';
+                    }
+                }
+                BindHelper.addChannelToRecent(data.chat, uid, nickname);
+            }
+        });
+    },
+
 
     /* ******************************* 新建 ***************************************/
 
@@ -351,8 +381,8 @@ Ext.define('IM.utils.ChatHelper', {
         var sc = chatView.getScrollable(),
             scHeight = sc.getScrollElement().dom.scrollHeight,
             scTop = sc.getScrollElement().dom.scrollTop;
-        sc.scrollTo(0, scHeight - scTop);
-        // sc.scrollTo(0, scHeight);
+        // sc.scrollTo(0, scHeight - scTop);
+        sc.scrollTo(0, scHeight);
 
     },
 

@@ -1,6 +1,6 @@
 Ext.define('IM.model.RecentSelMem', {
     extend: 'Ext.data.Model',
-    idProperty: 'id',
+    idProperty: 'id', // 组织结构
     fields: [
         'id',
         'chat_name',

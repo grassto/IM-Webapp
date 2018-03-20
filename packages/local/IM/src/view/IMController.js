@@ -212,39 +212,20 @@ Ext.define('IM.view.IMController', {
             }
 
             if (flag) {
-                User.allChannels.push({
-                    chat: {
-                        channelname: userName,
-                        chat_id: cid,
-                        chat_name: cName,
-                        chat_type: msg.data.chat_type
-                    },
-                    members: {
-                        chat_id: cid,
-                        user_id: data.user_id
-                    }
-                });
-                // User.allChannels.push({ id: cid, name: cName });
-                var channelStore = me.getView().down('#recentChat').getStore(),
-                    chatName;
-                if (msg.data.chat_name.length > 8) {
-                    chatName = msg.data.chat_name.substr(0, 8) + '...';
-                }
-                channelStore.insert(0, {
-                    id: cid,
-                    name: chatName,
-                    isUnRead: true,
-                    unReadNum: 0,
-                    last_post_at: new Date(data.update_at)
-                });
+                ChatHelper.addChatToRecent(data.chat_id);
 
                 me.notify('多人会话：' + userName, data.message);
             }
 
             // 选中的不是当前频道，给未读通知
             // if (User.crtChannelId !== cid) {
-            if (User.ownerID != data.user_id) {
-                me.promptUnRead(cid);
+            if (User.ownerID != data.user_id) { // 不是自己发的
+                if (User.crtChannelId !== cid) {
+                    me.promptUnRead(cid);
+                } else { // 在当前频道，有未读数量，但是不展示
+                    me.promptFakeRead(cid);
+                }
+
             }
 
             // }
@@ -269,38 +250,8 @@ Ext.define('IM.view.IMController', {
                 }
                 // 未找到相同的channelid，则添加
                 if (flag) {
-                    User.allChannels.push({
-                        chat: {
-                            channelname: userName,
-                            chat_id: cid,
-                            chat_name: cName,
-                            chat_type: msg.data.chat_type
 
-                            // create_at
-
-                            // creator_id
-
-                            // delete_at
-
-                            // header
-                            // purpose
-
-                            // update_at
-                        },
-                        members: {
-                            chat_id: cid,
-                            user_id: data.user_id
-                        }
-                    });
-                    // User.allChannels.push({ id: cid, name: cName });
-                    var channelStore = me.getView().down('#recentChat').getStore();
-                    channelStore.insert(0, {
-                        id: cid,
-                        name: userName,
-                        isUnRead: true,
-                        unReadNum: 0,
-                        last_post_at: new Date(data.update_at)
-                    });
+                    ChatHelper.addChatToRecent(data.chat_id);
 
                     me.notify(userName, data.message);
                 }
@@ -309,7 +260,11 @@ Ext.define('IM.view.IMController', {
                 // 选中的不是当前频道
                 // if (User.crtChannelId !== cid) {
                 if (User.ownerID != data.user_id) {
-                    me.promptUnRead(cid);
+                    if (User.crtChannelId !== cid) {
+                        me.promptUnRead(cid);
+                    } else { // 在当前频道，有未读数量，但是不展示
+                        me.promptFakeRead(cid);
+                    }
                 }
                 // me.resetLastPostTime(userName, new Date(data.update_at));
 
@@ -343,7 +298,7 @@ Ext.define('IM.view.IMController', {
             }
 
             /* ****************************************************** 滚动条 ******************************************************************************************************/
-            me.onScroll(chatView);
+            ChatHelper.onScroll(chatView);
 
             // 根据store的最后一个时间来判断新的时间是否需要展示
             if (chatStore.data.items.length > 1) {
@@ -358,6 +313,13 @@ Ext.define('IM.view.IMController', {
                         record[0].set('showTime', false);
                     }
                 }
+            }
+
+            if (data.msg_type == 'I') {
+
+                var url = Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail';
+                // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
+                window.imagess(url, data.attach_id);
             }
         }
         /* ****************************************************** 最近会话重新排序 ******************************************************************************************************/
@@ -409,6 +371,14 @@ Ext.define('IM.view.IMController', {
         var store = this.getView().down('#recentChat').getStore(),
             record = store.getById(cid);
         record.set('isUnRead', true);
+        record.set('unReadNum', record.get('unReadNum') + 1);
+    },
+
+    // 在当前频道，有未读数量，但是不展示
+    promptFakeRead(cid) {
+        var store = this.getView().down('#recentChat').getStore(),
+            record = store.getById(cid);
+        record.set('isUnRead', false);
         record.set('unReadNum', record.get('unReadNum') + 1);
     },
 
@@ -470,19 +440,6 @@ Ext.define('IM.view.IMController', {
     },
 
     /**
-     * 滚动条滚到最底部
-     * @param {component} chatView 需要滚动的区域
-     */
-    onScroll(chatView) {
-        var sc = chatView.getScrollable(),
-            scHeight = sc.getScrollElement().dom.scrollHeight,
-            scTop = sc.getScrollElement().dom.scrollTop;
-        sc.scrollTo(0, scHeight - scTop);
-        // sc.scrollTo(0, scHeight);
-
-    },
-
-    /**
      * 根据channel名查找相应的record，并修改record的值
      * @param {string} userName channel名
      * @param {Date} date 日期时间
@@ -529,8 +486,6 @@ Ext.define('IM.view.IMController', {
                     break;
             }
         });
-        ConnectHelper.getMe(viewModel);
-        ConnectHelper.getMembers(view);
     },
 
 

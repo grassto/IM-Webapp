@@ -364,6 +364,8 @@ Ext.define('IM.utils.BindHelper', {
 
                 if (posts[order[i]].user_id == User.ownerID) {
                     ROL = 'right';
+                } else {
+                    ROL = '';
                 }
                 chatStore.add({
                     msg_id: posts[order[i]].msg_id,
@@ -372,6 +374,13 @@ Ext.define('IM.utils.BindHelper', {
                     ROL: ROL,
                     updateTime: new Date(posts[order[i]].update_at)
                 });
+
+                if(posts[order[i]].msg_type == 'I') {
+                    
+                    var url = Config.httpUrlForGo + 'files/' + posts[order[i]].attach_id + '/thumbnail';
+                        // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
+                        window.imagess(url, posts[order[i]].attach_id);
+                }
             }
         }
     },

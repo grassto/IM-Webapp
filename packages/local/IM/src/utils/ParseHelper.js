@@ -45,8 +45,8 @@ Ext.define('IM.utils.ParseHelper', {
             if (fileIds && fileIds.length > 0) {
                 for (var i = 0; i < fileIds.length; i++) {
                     if (fileIds[i] == id) {
-                        // out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '">';  // "'/thumbnail">';
-                        out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
+                        // out = '<img style="height:60px;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '">';  // "'/thumbnail">';
+                        out = '<img id="' + id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
                         break;
                     } else {
                         out = str;
@@ -55,6 +55,15 @@ Ext.define('IM.utils.ParseHelper', {
             }
             return out;
         });
+        return result;
+    },
+
+
+    htmlToText(html) {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        const result = div.innerText;
+
         return result;
     }
 });

@@ -33,6 +33,10 @@ Ext.define('IM.utils.WebSocketHelper', {
     this.connectionUrl = connectionUrl;
 
     this.conn.onopen = () => {
+      // 数据获取时机更改
+      ConnectHelper.getMe(Ext.Viewport.lookup('IM').getViewModel());
+      ConnectHelper.getMembers(Ext.Viewport.lookup('IM'));
+
       this.eventSequence = 0;
       if (token) {
         // 还不知道token有啥用

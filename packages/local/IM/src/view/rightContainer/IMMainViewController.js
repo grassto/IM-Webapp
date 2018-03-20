@@ -30,9 +30,14 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         var view = this.getView().up('IM'),
         recentChat = view.down('#recentChat'),
         lastSel = recentChat.getSelectable().getLastSelected();
+        var data = '';
         if(lastSel) { // 是否点击过
-            if(lastSel.data.unReadNum > 0) {
-                var record = recentChat.getStore().getById(lastSel.data.id);
+            data = lastSel.data;
+            if(lastSel.length) {
+                data = lastSel[0].data;
+            }
+            if(data.unReadNum > 0) {
+                var record = recentChat.getStore().getById(data.id);
                 ChatHelper.setUnReadToRead(record);
             }
         }
@@ -274,7 +279,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         var textAreaField = me.getView().down('richEditor'),
             sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
             sendHtml = ParseHelper.onParseMsg(sendPicHtml), // img标签解析
-            sendText = Utils.htmlToText(sendHtml);// 内容
+            sendText = ParseHelper.htmlToText(sendHtml);// 内容
         // 判断是否有内容或文件
         if (fileIds.length > 0 || sendText) {
             let message = {

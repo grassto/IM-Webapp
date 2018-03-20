@@ -15,6 +15,8 @@
                 if (img.readyState == "complete" || img.readyState == "loaded") {
                     // callback(img, imgid);
                     checkimg(img, imgid);
+                // debugger;
+                    ChatHelper.onScroll(Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'));
                 }
             }
         } else if (Browser.Moz) {
@@ -22,6 +24,8 @@
                 if (img.complete == true) {
                     // callback(img, imgid);
                     checkimg(img, imgid);
+                    // debugger;
+                    ChatHelper.onScroll(Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'));
                 }
             }
         }

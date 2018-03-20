@@ -44,8 +44,9 @@ Ext.define('IM.utils.ConnectHelper', {
                 for (let i = 0; i < usersInfo.length; i++) {
                     if (usersInfo[i].user_id !== User.ownerID) {
                         User.allOthers.push(usersInfo[i]); // 记录所有其他成员信息，用来匹配频道的展示名
-                        ids.push(usersInfo[i].user_id);
+                        
                     }
+                    ids.push(usersInfo[i].user_id);
                 }
 
                 BindHelper.loadOrganization(orgTree);

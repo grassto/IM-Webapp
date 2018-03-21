@@ -14,7 +14,7 @@ Ext.define('IM.utils.ChatHelper', {
             if (!record.data.leaf) {
                 Ext.Msg.confirm('提示', '确定要发起群聊吗？', function (btn) {
                     if (btn == 'yes') {
-                        me.chgToIMView();
+                        // me.chgToIMView();
                         var memsID = [];
                         memsID = BindHelper.getLeafIDFromTree(record, memsID);
 
@@ -23,7 +23,7 @@ Ext.define('IM.utils.ChatHelper', {
                     }
                 });
             } else {
-                me.chgToIMView();
+                // me.chgToIMView();
                 me.onOpenDirectChat(record.data.id, record.data.name);
             }
         } else {
@@ -117,12 +117,17 @@ Ext.define('IM.utils.ChatHelper', {
      * @param {string} uid 用户id
      */
     getName(uid) {
+        var name = '';
         for (var i = 0; i < User.allUsers.length; i++) {
             if (User.allUsers[i].user_id === uid) {
-                return User.allUsers[i].user_name;
+                name = User.allUsers[i].user_name;
             }
         }
-        return '';
+        if (name == '') {// 请求数据库查找
+            // name = xxx;
+            // User.allUsers.push(); // 加入缓存
+        }
+        return name;
     },
 
     /**
@@ -143,7 +148,14 @@ Ext.define('IM.utils.ChatHelper', {
         });
     },
 
-
+    handleHeaderCache(chatID, header) {
+        for(var i = 0; i < User.allChannels.length; i++) {
+            if(User.allChannels[i].chat.chat_id == chatID) {
+                User.allChannels[i].chat.channelname = header;
+                User.allChannels[i].chat.header = header;
+            }
+        }
+    },
 
 
     /* *************************************** 获取 **********************************************/
@@ -169,20 +181,22 @@ Ext.define('IM.utils.ChatHelper', {
      * @param {string} cid chat_id
      */
     openDirectChat(cid) {
+        this.chgToIMView(); // 先跳转
+
         User.crtChannelId = cid;
         const me = this,
             chatView = Ext.Viewport.lookup('IM').down('#recentChat'),
             chatStore = chatView.getStore(),
             record = chatStore.getById(cid);
-        // debugger;
+        
         if (record) { // 讲道理，这里肯定有这个record
-            chatView.setSelection(record); // 设置选中
+            // chatView.setSelection(record); // 设置选中
 
             if (record.data.unReadNum !== 0) { // 若选中的频道有未读信息
                 me.setUnReadToRead(record); // 取消未读
             }
 
-            BindHelper.setRightTitle(record.data.name); // 设置标题头
+            BindHelper.setRightTitle(record.data.name, record.data.type); // 设置标题头
 
             StatusHelper.setRightStatus(record.data.status, 'inline');// 设置状态
 
@@ -242,6 +256,8 @@ Ext.define('IM.utils.ChatHelper', {
 
 
         chatStore.removeAll(); // 清空聊天数据
+
+        BindHelper.bindGrpMsg(cid, chatStore); // 绑定群聊提示信息
 
         Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
             success: function (data) {
@@ -344,7 +360,7 @@ Ext.define('IM.utils.ChatHelper', {
         Utils.ajaxByZY('post', 'chats/' + User.crtChannelId + '/members', {
             params: JSON.stringify(memsID),
             success: function (data) {
-                if(data.status == 'OK') {
+                if(data) {
                     console.log('添加成功');
                 }
                 // 添加成员，移除成员，都在websocket中处理

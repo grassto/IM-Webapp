@@ -24,7 +24,6 @@ Ext.define('IM.utils.SocketEventHelper', {
 
         const IMView = Ext.Viewport.lookup('IM');
 
-        // debugger;
         /* ****************************************** 未读提示 ********************************************************************/
         if (msg.data.chat_type == 'G') {
 
@@ -221,12 +220,10 @@ Ext.define('IM.utils.SocketEventHelper', {
             if (record[0].data.updateTime == lastUpdateTime) {
                 record[0].set('showTime', false);
             }
-        } else {
-            if (chatStore.data.items.length == 1) {
-                var lastUpdateTime = chatStore.data.items[0].data.updateTime;
-                if (record[0].data.updateTime == lastUpdateTime) {
-                    record[0].set('showTime', false);
-                }
+        } else if (chatStore.data.items.length == 1) {
+            var lastUpdateTime = chatStore.data.items[0].data.updateTime;
+            if (record[0].data.updateTime == lastUpdateTime) {
+                record[0].set('showTime', false);
             }
         }
     },
@@ -234,52 +231,41 @@ Ext.define('IM.utils.SocketEventHelper', {
 
     /* ******************************** group_added *********************************************/
 
-    // 还得判断是否在当前频道
     handleGrpAddEvent(msg) {
         const me = this,
             data = msg.data;
 
-        var grpAddMsg = [],
-        GrpChangeMsg = '';
+        var GrpChangeMsg = '';
 
         // 首先判断创建者是否是自己
         if (data.creator_id == User.ownerID) { // 是自己，所有的操作都及时更新到页面上
-            const chatView = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'),
-                chatStore = chatView.getStore();
+
             GrpChangeMsg = this.createOwnWelcomeMsg(data.creator_id, data.user_ids);
-
-            var record = chatStore.add({
-                updateTime: new Date(),
-                GrpChangeMsg: GrpChangeMsg,
-                showGrpChange: true
-            });
-
-            ChatHelper.onScroll(chatView);
-
-            me.isShowTime(chatStore, record);
 
         } else { // 不是自己创建的，先判断页面上是否有此频道
             GrpChangeMsg = me.createOtherWelcomeMsg(data.creator_id, data.user_ids);
 
-            if (me.hasChat(data.chat_id)) { // 有此频道，只有跟自己相关的信息才会展示
+            // if (me.hasChat(data.chat_id)) { // 有此频道，只有跟自己相关的信息才会展示
 
-            } else { // 没有此频道，则组织缓存的数据，在接收到posted的时候，一并将缓存数据组织上去
-                // User.grpAddedInfo.push({
-                //     chatId: data.chat_id,
-                //     grpChangeMsg: GrpChangeMsg
-                // });
-            }
+            // } else { // 没有此频道，则组织缓存的数据，在接收到posted的时候，一并将缓存数据组织上去
+            //     // User.grpAddedInfo.push({
+            //     //     chatId: data.chat_id,
+            //     //     grpChangeMsg: GrpChangeMsg
+            //     // });
+            // }
 
         }
 
-        // grpAddMsg.push(GrpChangeMsg);
+        // 在当前频道，添加信息进入chat
+        if (User.crtChannelId == data.chat_id) {
+            me.showgrpMsgInChat(GrpChangeMsg, new Date());
+        }
+
         // 不管你有没有显示都加入缓存
-        User.grpChgInfo.push({
-            chatId: data.chat_id,
-            grpAddMsg: GrpChangeMsg
-        });
+        me.addInfoToCache(data.chat_id, GrpChangeMsg);
     },
 
+    // 缓存中是否有此chat
     hasChat(chatID) {
         for (var i = 0; i < User.allChannels.length; i++) {
             if (User.allChannels[i].chat.chat_id == chatID) {
@@ -289,24 +275,20 @@ Ext.define('IM.utils.SocketEventHelper', {
         return false;
     },
 
-    // 创建者拼凑信息
+    // 创建者拼凑信息，组织成：你邀请xxx、xxx、xxx加入群聊
     createOwnWelcomeMsg(creatorID, memIDs) {
         var result = '',
             memNames = '',
             memName = '';
 
         for (var i = 0; i < memIDs.length; i++) {
-            if(User.ownerID != memIDs[i]) {
+            if (User.ownerID != memIDs[i]) {
                 memName = ChatHelper.getName(memIDs[i]);
 
-                if (memName !== '') { // 缓存中找到了，直接添加
-                    if (i == 0) {
-                        memNames = memName;
-                    } else {
-                        memNames = memNames + '、' + memName;
-                    }
-                } else { // 请求服务端去数据库中查找，然后加入数据进缓存
-    
+                if (i == 0) {
+                    memNames = memName;
+                } else {
+                    memNames = memNames + '、' + memName;
                 }
             }
         }
@@ -331,14 +313,10 @@ Ext.define('IM.utils.SocketEventHelper', {
             if (User.ownerID != memIDs[i] && creatorID != memIDs[i]) { // 创建者不加，自己不加，直接显示为你
                 memName = ChatHelper.getName(memIDs[i]);
 
-                if (memName !== '') { // 缓存中找到了，直接添加
-                    if (i == 0) {
-                        memNames = memName;
-                    } else {
-                        memNames = memNames + '、' + memName;
-                    }
-                } else { // 请求服务端去数据库中查找，然后加入数据进缓存
-
+                if (i == 0) {
+                    memNames = memName;
+                } else {
+                    memNames = memNames + '、' + memName;
                 }
             }
         }
@@ -348,7 +326,57 @@ Ext.define('IM.utils.SocketEventHelper', {
     },
 
 
-/* ******************************** member_removed *********************************************/
+
+    // 提示信息加入缓存
+    addInfoToCache(chatID, GrpChangeMsg) {
+        var flag = true;
+        if (User.grpChgInfo.length !== 0) { // 不是第一次
+            // 有缓存后，要查询是否是这个chat的信息
+            for (var i = 0; i < User.grpChgInfo.length; i++) {
+                if (User.grpChgInfo[i].chatId == chatID) {
+                    flag = false;
+                    User.grpChgInfo[i].grpMsg.push({
+                        msg: GrpChangeMsg,
+                        updateAt: new Date()
+                    });
+                    break;
+                }
+            }
+        }
+
+        if (flag) {
+            this.addNewChatIDTogrpInfo(chatID, GrpChangeMsg);
+        }
+    },
+    addNewChatIDTogrpInfo(chatID, GrpChangeMsg) {
+        var grpMsg = [];
+        grpMsg.push({
+            msg: GrpChangeMsg,
+            updateAt: new Date()
+        });
+        User.grpChgInfo.push({
+            chatId: chatID,
+            grpMsg: grpMsg
+        });
+    },
+
+    // 添加多人会话信息进入chatView
+    showgrpMsgInChat(grpChangeMsg, date) {
+        const chatView = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'),
+            chatStore = chatView.getStore();
+
+        var record = chatStore.add({
+            updateTime: date,
+            GrpChangeMsg: grpChangeMsg,
+            showGrpChange: true
+        });
+
+        ChatHelper.onScroll(chatView);
+
+        this.isShowTime(chatStore, record);
+    },
+
+    /* ******************************** member_removed *********************************************/
 
     handleMemRemoveEvent(msg) {
         const me = this,
@@ -356,25 +384,170 @@ Ext.define('IM.utils.SocketEventHelper', {
 
         var removeMemMsg = '';
         // 分三种情况，移除者，被移除者，其余人
-        if(data.remover_id == User.ownerID) { // 移除者
+        if (data.remover_id == User.ownerID) { // 移除者
             removeMemMsg = me.createMeRemoveSBMsg(data.remover_id, data.user_id);
-        } else if(data.user_id == User.ownerID) { // 被移除者
+
+            if (User.crtChannelId == data.chat_id) { // 在当前频道,展示
+                me.showgrpMsgInChat(removeMemMsg, new Date());
+                me.removeChatMem(data.user_id);
+            }
+
+            me.addInfoToCache(data.chat_id, removeMemMsg);
+
+        } else if (data.user_id == User.ownerID) { // 被移除者
             removeMemMsg = me.createSBRemoveMeMsg(data.remover_id, data.user_id);
-        } else { // 其他人
-            removeMemMsg = me.createSBRemoveSBMsg(data.remover_id, data.user_id);
+
+            if (User.crtChannelId == data.chat_id) { // 在当前频道,展示
+                me.showgrpMsgInChat(removeMemMsg, new Date());
+                me.removeChatMem(data.user_id);
+            }
+
+            me.addInfoToCache(data.chat_id, removeMemMsg);
+        }
+        else { // 其他人,不提示
+            if (User.crtChannelId == data.chat_id) {
+                me.removeChatMem(data.user_id);
+            }
         }
 
-        
-
+        me.removeMemFormCache(data.chat_id, data.user_id);
     },
 
     createMeRemoveSBMsg(removerID, userID) {
-
+        var userName = ChatHelper.getName(userID);
+        return '你将' + userName + '移出了群聊';
     },
     createSBRemoveMeMsg(removerID, userID) {
-
+        var removerName = ChatHelper.getName(removerID),
+            userName = ChatHelper.getName(userID);
+        return '你被' + removerName + '移出了群聊';
     },
-    createSBRemoveSBMsg(removerID, userID) {
 
+    // User.allChannels移除成员
+    removeMemFormCache(chatID, beRemovedID) {
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == chatID) {
+                for (var j = 0; j < User.allChannels[i].members.length; j++) {
+                    if (User.allChannels[i].members[j].user_id == beRemovedID) {
+                        User.allChannels[i].members.splice(j, 1); // 将数据从数组中移除
+                        break;
+                    }
+                }
+
+                break; // 移除后不循环
+            }
+        }
+    },
+
+    // 多人会话人员列表移除成员
+    removeChatMem(beRemovedID) {
+        var store = Ext.Viewport.lookup('IM').lookup('im-main').down('#groupList').getStore();
+        if (store) {
+            var record = store.getById(beRemovedID);
+            store.remove(record);
+        }
+    },
+
+    /* ******************************** members_added *********************************************/
+
+    handleMemAddEvent(msg) {
+        const me = this,
+            data = msg.data,
+            userIDs = JSON.parse(data.user_ids);
+
+        var addMemMsg = '';
+
+        if (data.operator_id == User.ownerID) { // 自己添加人员
+            addMemMsg = me.createMeAddSBMsg(data.operator_id, userIDs);
+        } else {
+            addMemMsg = me.createSBAddSBMsg(data.operator_id, userIDs);
+        }
+
+        if (User.crtChannelId == data.chat_id) { // 在当前频道,展示
+            me.showgrpMsgInChat(addMemMsg, new Date());
+
+            me.addChatMems(data.operator_id, userIDs);
+        }
+
+        me.addInfoToCache(data.chat_id, addMemMsg);
+
+        me.addMemsToChatCache(data.chat_id, userIDs);
+    },
+
+    // 你邀请xxx、xxx加入了群聊
+    createMeAddSBMsg(operatorID, userIDs) {
+        var msg = '',
+            name = '',
+            result = '';
+        for (var i = 0; i < userIDs.length; i++) {
+            name = ChatHelper.getName(userIDs[i]);
+
+            if (i == 0) {
+                msg += name;
+            } else {
+                msg = msg + '、' + name;
+            }
+        }
+
+        result = '你邀请' + msg + '加入了群聊';
+
+        return result;
+    },
+
+    // xxx邀请xxx、xxx加入了群聊
+    createSBAddSBMsg(operatorID, userIDs) {
+        var msg = '',
+            name = '',
+            result = '';
+        for (var i = 0; i < userIDs.length; i++) {
+            name = ChatHelper.getName(userIDs[i]);
+
+            if (i == 0) {
+                msg += name;
+            } else {
+                msg = msg + '、' + name;
+            }
+        }
+
+        // 创建者姓名
+        name = ChatHelper.getName(operatorID);
+
+        result = name + '邀请' + msg + '加入了群聊';
+
+        return result;
+    },
+
+    addChatMems(chatID, userIDs) {
+        var store = Ext.Viewport.lookup('IM').lookup('im-main').down('#groupList').getStore();
+        if (store) {
+            for (var i = 0; i < userIDs.length; i++) {
+                store.add({
+                    chat_id: chatID,
+                    user_name: ChatHelper.getName(userIDs[i]),
+                    user_id: userIDs[i],
+                    status: StatusHelper.getStatus(userIDs[i])
+                });
+            }
+        }
+    },
+
+    addMemsToChatCache(chatID, userIDs) {
+        var userName = '',
+            status = '';
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == chatID) {
+                for (var j = 0; j < userIDs.length; j++) {
+                    status = StatusHelper.getStatus(userIDs[j]);
+                    userName = ChatHelper.getName(userIDs[j]);
+                    User.allChannels[i].members.push({
+                        chat_id: chatID,
+                        status: status,
+                        user_id: userIDs[j],
+                        user_name: userName
+                    });
+                }
+
+            }
+        }
     }
 });

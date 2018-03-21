@@ -385,12 +385,22 @@ Ext.define('IM.utils.BindHelper', {
         }
     },
 
-    bindOneMsg(data, chatStore) {
-
+    bindGrpMsg(cid, chatStore) {
+        for(var i = 0; i < User.grpChgInfo.length; i++) {
+            if(cid == User.grpChgInfo[i].chatId) {
+                for(var j = 0; j < User.grpChgInfo[i].grpMsg.length; j++) {
+                    chatStore.add({
+                        updateTime: User.grpChgInfo[i].grpMsg[j].date,
+                        GrpChangeMsg: User.grpChgInfo[i].grpMsg[j].msg,
+                        showGrpChange: true
+                    });
+                }
+                break;
+            }
+        }
     },
 
-
-    setRightTitle(name) {
+    setRightTitle(name,type) {
         // 长度超过8时，截取
         if (name.length > 8) {
             name = name.substr(0, 8) + '...';
@@ -398,6 +408,12 @@ Ext.define('IM.utils.BindHelper', {
         Ext.Viewport.lookup('IM').getViewModel().set({
             'sendToName': name
         });
+
+        if(type == 'D') {
+            Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit').setHidden(true);
+        } else {
+            Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit').setHidden(false);
+        }
     }
 
 });

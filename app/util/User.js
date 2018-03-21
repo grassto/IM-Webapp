@@ -33,10 +33,18 @@ Ext.define('PushIM.Webapp.util.User', {
     grpChgInfo: [], // 群聊提示信息
     // {
     //     chatId: xxx,
-    //     grpAddMsg: [{msg:xxx,updateTime:xxx},{msg:xxx,updateTime:xxx},...],
+    //     grpMsg: [{msg:'msg',updateAt:xxx},{msg:'msg',updateAt:xxx}]
+    // }
+
+    // {
+    //     chatId: xxx,
+    //     grpAddMsg: [{msg:'msg',updateAt:xxx},{msg:'msg',updateAt:xxx},...],
     //     memRemoveMsg: [],
     //     memAddMsg: []
     // }
+    // grpAddMsg: [],
+    // memAddMsg: [],
+    // memRemoveMsg: [],
 
     clear() {
         User.ownerID = '';
@@ -55,6 +63,9 @@ Ext.define('PushIM.Webapp.util.User', {
         User.isPlus = true;
         User.detailByOrg = {};
         User.grpChgInfo = [];
+        // User.grpAddMsg = [];
+        // User.memAddMsg = [];
+        // User.memRemoveMsg = [];
     }
 
 });

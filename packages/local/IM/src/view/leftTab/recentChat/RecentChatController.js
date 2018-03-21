@@ -9,7 +9,7 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
      */
     onSelRecentMem(view, location) {
         var me = this;
-        ChatHelper.chgToIMView();
+        // ChatHelper.chgToIMView();
         if(location.record.data.type === 'D') {
             ChatHelper.openDirectChat(location.record.data.id);
         } else if(location.record.data.type === 'G') {

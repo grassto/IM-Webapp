@@ -35,8 +35,8 @@ websocket提示的event
 2.status_changed 状态变更
 	这个发送广播的时候貌似不对
 3.group_added 新增多人会话
-
-
+4.members_added 加人进入多人会话
+5.member_removed 多人会话移除用户
 
 
 组织一下xxx把你和xxx加入了群聊

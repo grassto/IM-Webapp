@@ -17,7 +17,7 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
         me.callParent(arguments);
 
         me.element.on({
-            delegate: '.x-listitem',
+            // delegate: '.x-listitem',
             contextmenu: 'onContextmenu',
             scope: me
         });
@@ -44,18 +44,18 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
     onContextmenu(e, el) {
         const me = this,
             t = Ext.fly(e.target);
-            // debugger;
+        // debugger;
 
         // 这个样式只是为了判断其是否为item的右击
         if (t.hasCls('itemRight')) {
             // 根据节点上的数据进行数据绑定，方便操作
-            var chatId = el.getAttribute('chat_id'),
-                toTop = el.getAttribute('toTop'),
+            var chatId = t.getAttribute('chat_id'),
+                toTop = t.getAttribute('toTop'),
                 isTopText = me.onTopParse(toTop);
 
             var menu = Ext.create('Ext.menu.Menu', {
                 // .x-menu-item-icon { display: none; }
-                items: [{
+                items: [/*{
                     text: isTopText,
                     handler: function (btn) {
                         var topIndex,
@@ -73,13 +73,12 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
 
                         store.sort('toTop', 'DESC');
                     }
-                }/*, {
-                    text: '消息不提醒'
-                }, {
-                    text: '移除'
-                }, {
-                    text: '清空聊天记录'
-                }*/]
+                }, */{
+                        text: '移除会话',
+                        handler: function () {
+                            PreferenceHelper.hideChat(chatId);
+                        }
+                    }]
             });
             menu.showAt(e.getPoint());
         }

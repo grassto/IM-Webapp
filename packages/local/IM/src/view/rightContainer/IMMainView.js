@@ -18,11 +18,18 @@ Ext.define('IM.view.rightContainer.IMMainView', {
         // 头
         {
             xtype: 'container',
+            layout: 'hbox',
             userCls: 'right-title',
             items: [{
                 bind: {
                     html: '<span>{sendToName}</span><span style="display:{showStatus};color:#bfbfbf;margin-left:30px;font-size:small;">{status}</span>'
                 }
+            }, {
+                xtype: 'button',
+                itemId: 'btnEdit',
+                width: 40,
+                iconCls: 'x-fa fa-pencil',
+                handler: 'changeChatHeader'
             }, {
                 xtype: 'button',
                 docked: 'right',
@@ -90,7 +97,7 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                     model: 'IM.model.GroupMembers'
                 },
                 itemTpl: '<div userID="{user_id}">{user_name}<span style="margin-right:5px;background:{status};display:block;width:10px;height:10px;float:left;border-radius:50%;"></span></div>',
-                minWidth: 100,
+                minWidth: 200,
                 style: {
                     borderLeft: 'solid 1px #cfcfcf'
                 },

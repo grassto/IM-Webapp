@@ -32,7 +32,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     },
 
     onGrpListRightClick(e, el) {
-        debugger;
         const me = this,
             t = Ext.fly(e.target);
 
@@ -108,7 +107,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
      */
     onOpenChannel(crtChannelID) {
         User.crtChannelId = crtChannelID;
-        // // debugger;
 
         var me = this,
             chatView = me.getView().down('#chatView'),
@@ -295,7 +293,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 files: fileIds
             };
 
-            // // debugger;
             Utils.ajaxByZY('post', 'posts', {
                 params: JSON.stringify(message),
                 success: function (data) {
@@ -331,5 +328,29 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         return result;
     },
 
+
+    changeChatHeader() {
+        Ext.Msg.prompt('修改标题', '请输入新标题', function(ok, title) {
+            if(ok == 'ok') {
+                Utils.ajaxByZY('PUT', 'chats/' + User.crtChannelId, {
+                    params: JSON.stringify({
+                        chat_id: User.crtChannelId,
+                        header: title
+                    }),
+                    success:function(data) {
+                        // 页面数据
+                        BindHelper.setRightTitle(title);
+                        var store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
+                            record = store.getById(User.crtChannelId);
+                        record.set({name: title});
+
+                        // 缓存数据
+                        ChatHelper.handleHeaderCache(User.crtChannelId, title);
+                    }
+                });
+                
+            }
+        });
+    }
 
 });

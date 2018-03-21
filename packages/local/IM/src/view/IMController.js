@@ -59,7 +59,6 @@ Ext.define('IM.view.IMController', {
      * @param {string} oldType 需要删除的xtype
      */
     showRightView(xtype, oldType) {
-        // // // debugger;
         const me = this,
             view = me.getView();
 
@@ -86,7 +85,7 @@ Ext.define('IM.view.IMController', {
     btnOnChgToIM() {
         var me = this,
             record = me.getViewModel().get('orgSelRecord');
-        // debugger;
+
         // 选中的不是自己
         if (User.ownerID !== record.data.id) {
             if (!record.data.leaf) {
@@ -95,7 +94,7 @@ Ext.define('IM.view.IMController', {
                         me.chgToIMView();
                         var memsID = [];
                         memsID = BindHelper.getLeafDataFromTree(record, memsID);
-                        // debugger;
+                        
                         ChatHelper.createGroupChat(memsID);
                     }
                 });
@@ -161,7 +160,7 @@ Ext.define('IM.view.IMController', {
         var result = text.replace(reg, function (str) {
             var out = '',
                 id = str.substring(1, str.length - 1);
-            // // // debugger;
+            
             if (fileIds) {
                 for (var i = 0; i < fileIds.length; i++) {
                     if (fileIds[i] == id) {
@@ -214,13 +213,15 @@ Ext.define('IM.view.IMController', {
 
         WebSocketHelper.initialize(Config.wsDevGoUrl);
         WebSocketHelper.setEventCallback((msg) => {
-            debugger;
             switch (msg.event) {
                 case 'posted':
                     SocketEventHelper.handleNewPostEvent(msg);
                     break;
                 case 'group_added':
                     SocketEventHelper.handleGrpAddEvent(msg);
+                    break;
+                case 'members_added':
+                    SocketEventHelper.handleMemAddEvent(msg);
                     break;
                 case 'member_removed':
                     SocketEventHelper.handleMemRemoveEvent(msg);
@@ -236,7 +237,6 @@ Ext.define('IM.view.IMController', {
     /* **************************************** 切换tab ***********************************/
     // 切换tab时调用
     onTabChanges(tabpanel, tab, oldTab) {
-        // // // debugger;
         var me = this,
             xtype,
             oldType;
@@ -269,7 +269,6 @@ Ext.define('IM.view.IMController', {
         const me = this,
             view = me.getView().down('#middleView');
 
-        // // debugger;
         oldType = view.down('#' + oldType);
         if (oldType) {
             oldType.hide();

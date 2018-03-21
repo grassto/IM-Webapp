@@ -78,7 +78,7 @@ Ext.define('IM.view.groupSel.GroupSelController', {
             var memsID = me.onAddMemsID(listData);// 添加选中用户的id进入数组
 
             if (User.isPlus) { // 由加号发起的多人会话
-                ChatHelper.chgToIMView();// 显示聊天页面
+                // ChatHelper.chgToIMView();// 显示聊天页面
 
                 ChatHelper.createGroupChat(memsID);// 根据用户id创建多人会话
 

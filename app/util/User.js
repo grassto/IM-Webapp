@@ -11,10 +11,9 @@ Ext.define('PushIM.Webapp.util.User', {
     organization: [],
     allStatus: [], // 所有的人员状态
     allOthers: [], // 除去自己外的所有用户
-    crtSelUser: {},
 
+    // 这个可以不要
     posts: [], // 消息
-    crtChannelName: '', // 会话用户名代替频道名称
 
     crtUser: {}, // 个人信息
     allChannels: [], // 当前用户所在的所有频道
@@ -25,16 +24,19 @@ Ext.define('PushIM.Webapp.util.User', {
 
     crtChannelId: '', // 当前选择的频道ID
     crtSelUserId: '', // 当前选中的对方用户ID
-    statusDesc: '', // 选中的人的状态显示
-
-    rightClickChat: [], // 右击选中的chat_id
 
     crtChatMembers: [], // 当前频道中的成员，当发起多人会话时使用
     isPlus: true, // 点击的是否为+弹出的发起多人会话的框
 
     detailByOrg: {}, // 从详细界面跳转到聊天页面所需要的数据
 
-    isViewed: false, // 用来处理未读消息相关事项
+    grpChgInfo: [], // 群聊提示信息
+    // {
+    //     chatId: xxx,
+    //     grpAddMsg: [{msg:xxx,updateTime:xxx},{msg:xxx,updateTime:xxx},...],
+    //     memRemoveMsg: [],
+    //     memAddMsg: []
+    // }
 
     clear() {
         User.ownerID = '';
@@ -43,20 +45,16 @@ Ext.define('PushIM.Webapp.util.User', {
         User.allStatus = [];
         User.allOthers = [];
         User.posts = [];
-        User.crtChannelName = '';
         User.crtUser = {};
         User.allChannels = [];
         User.preferences = [];
         User.files = [];
         User.crtChannelId = '';
         User.crtSelUserId = '';
-        User.statusDesc = '';
-        User.crtSelUser = {};
-        User.rightClickChat = [];
         User.crtChatMembers = [];
         User.isPlus = true;
         User.detailByOrg = {};
-        User.isViewed = false;
+        User.grpChgInfo = [];
     }
 
 });

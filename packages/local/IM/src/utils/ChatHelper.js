@@ -133,6 +133,7 @@ Ext.define('IM.utils.ChatHelper', {
         // 因为此处没有members的数据，所以再请求一次
         var cid = data.chat_id;
         Utils.ajaxByZY('get', 'chats/' + cid + '/members', {
+            async: false, // 在此不能异步，不然数据不统一
             success: function (result) {
                 User.allChannels.push({
                     chat: data,
@@ -193,6 +194,7 @@ Ext.define('IM.utils.ChatHelper', {
 
     openGroupChat(cid) {
         this.openDirectChat(cid);
+
         // 与打开单人频道的差别
         StatusHelper.setRightStatus('', 'none');// 设置状态
 
@@ -244,7 +246,7 @@ Ext.define('IM.utils.ChatHelper', {
         Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
             success: function (data) {
 
-                BindHelper.bindMsg(data, chatStore); // 绑定数据
+                BindHelper.bindAllMsg(data, chatStore); // 绑定数据
 
                 me.onScroll(chatView);// 可视区滚动到最下方
 
@@ -258,6 +260,7 @@ Ext.define('IM.utils.ChatHelper', {
      */
     addChatToRecent(cid) {
         const me = this;
+        // 查询chat相关信息并存入缓存
         Utils.ajaxByZY('get', 'users/' + User.ownerID + '/chats/' + cid, {
             async: false,
             success: function (data) {
@@ -278,6 +281,7 @@ Ext.define('IM.utils.ChatHelper', {
                         nickname = data.chat.header.substr(0, 8) + '...';
                     }
                 }
+                // 数据绑定至页面
                 BindHelper.addChannelToRecent(data.chat, uid, nickname);
             }
         });
@@ -340,6 +344,10 @@ Ext.define('IM.utils.ChatHelper', {
         Utils.ajaxByZY('post', 'chats/' + User.crtChannelId + '/members', {
             params: JSON.stringify(memsID),
             success: function (data) {
+                if(data.status == 'OK') {
+                    console.log('添加成功');
+                }
+                // 添加成员，移除成员，都在websocket中处理
                 // debugger;
                 // var IMView = Ext.Viewport.down('IM'),
                 //     recentChat = IMView.down('#recentChat'),

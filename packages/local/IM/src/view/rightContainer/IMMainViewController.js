@@ -24,6 +24,52 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             tap: 'onViewTap',
             scope: me
         });
+
+        view.down('#groupList').element.on({
+            contextmenu: 'onGrpListRightClick',
+            scope: me
+        });
+    },
+
+    onGrpListRightClick(e, el) {
+        debugger;
+        const me = this,
+            t = Ext.fly(e.target);
+
+        if(el.hasAttribute('userID')) {
+            var userID = el.getAttribute('userID');
+
+            var menu = Ext.create('Ext.menu.Menu', {
+                items: [{
+                    text: '移出群聊',
+                    handler: function() {
+                        Ext.Msg.confirm('移除', '确定要移出吗', function (ok) {
+                            if (ok === 'yes') {
+                                Utils.ajaxByZY('DELETE', 'chats/' + User.crtChannelId + '/members/' + userID, {
+                                    success: function(data) {
+                                        if(data.status == 'OK') {
+                                            var store = me.getView().down('#groupList').getStore(),
+                                            record = store.getById(userID);
+
+                                            store.remove(record);
+                                            // 处理内存数据，之后做
+                                            
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }, {
+                    text: '退出群聊',
+                    hidden: true
+                }]
+            });
+
+            menu.showAt(e.getPoint());
+        }
+
+        e.preventDefault();
     },
 
     onViewTap() {
@@ -78,7 +124,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     posts = data.messages;
                 User.posts = [];
                 for (var i = order.length - 1; i >= 0; i--) {
-                    posts[order[i]].username = me.getName(posts[order[i]].user_id);
+                    posts[order[i]].username = ChatHelper.getName(posts[order[i]].user_id);
                     User.posts.push(posts[order[i]]);
                     message = posts[order[i]].message;
 
@@ -95,7 +141,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     }
                 }
 
-                me.onScroll(chatView);// 可视区滚动到最下方
+                ChatHelper.onScroll(chatView);// 可视区滚动到最下方
 
                 me.onShowChatTime(chatStore);// 处理时间，一分钟内不显示
             }
@@ -136,29 +182,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     },
 
     /**
-     *  根据id获取昵称
-     * @param {string} uid 用户id
-     */
-    getName(uid) {
-        for (var i = 0; i < User.allUsers.length; i++) {
-            if (User.allUsers[i].user_id === uid) {
-                return User.allUsers[i].user_name;
-            }
-        }
-        return '';
-    },
-
-    /**
-     * 聊天展示区，滚动条自动滚动到最下方
-     * @param {object} chatView 容器
-     */
-    onScroll(chatView) {
-        var sc = chatView.getScrollable(),
-            scHeight = sc.getScrollElement().dom.scrollHeight;
-        sc.scrollTo(0, scHeight + 1000);
-    },
-
-    /**
      * 所有数据的是否展示时间
      * @param {Ext.data.Store} chatStore
      */
@@ -173,10 +196,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         }
     },
 
-    // 替换字符串中的回车
-    textToHtml(text) {
-        return text.replace(/\n/g, '<br/>').replace(/\r/g, '<br/>').replace(/\r\n/g, '<br/>');
-    },
+    
 
 
 
@@ -248,23 +268,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         }
         return '';
     },
-
-    /**
-     * 根据id来判断是否有频道存在
-     * @param {sting} uid 选中的用户ID
-     */
-    getChannelId(uid) {
-        var me = this;
-        if (User.allChannels) {
-            for (var i = 0; i < User.allChannels.length; i++) {
-                if (User.allChannels[i].name.indexOf(uid) > -1) {
-                    return User.allChannels[i].id;
-                }
-            }
-        }
-        return '';
-    },
-
 
 
     /* ********************************消息发送****************************************/

@@ -69,23 +69,25 @@ Ext.define('IM.view.chat.ChatView', {
     itemTpl: '<tpl if="values.showTime">' +
         '<div style="width:100%;color:#6f6a60;text-align:center;margin-bottom:10px;">{updateTime}</div>' +
         '</tpl>' +
-        '<tpl if="values.ROL!==\'right\'">' +
-        '<div class="evAvatar" style="float:{ROL};">' +
-        '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.senderName)]} " style="margin:0;float:{ROL};{[AvatarMgr.getColorStyle(values.senderName)]}">' +
-        '</a>' +
-        '</div>' +
-        '</tpl>' +
-        '<div style="text-align:{ROL};/*min-height:60px;overflow:hidden;*/">' +
-        '<tpl if="values.ROL==\'right\'">' +
-        '<div class="bubble">' +
+        '<tpl if="values.showGrpChange">' +
+            '<div class="grpChangeNote">{GrpChangeMsg}</div>' +
         '<tpl else>' +
-        '<div class="bubble" style="background-color:navajowhite">' +
-        '</tpl>' +
-        // '<div class="plain">{sendText} <a class="viewPic"><img class="viewPic" src="{file}"/></a></div>' +
-        '<div class="plain">{sendText}' +
-        '</div>' +
-        '</div>' +
-        ''
+            '<tpl if="values.ROL!==\'right\'">' +
+                '<div class="evAvatar" style="float:{ROL};">' +
+                '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.senderName)]} " style="margin:0;float:{ROL};{[AvatarMgr.getColorStyle(values.senderName)]}">' +
+                '</a>' +
+                '</div>' +
+            '</tpl>' +
+            '<div style="text-align:{ROL};/*min-height:60px;overflow:hidden;*/">' +
+            '<tpl if="values.ROL==\'right\'">' +
+                '<div class="bubble">' +
+            '<tpl else>' +
+                '<div class="bubble" style="background-color:navajowhite">' +
+            '</tpl>' +
+            '<div class="plain">{sendText}' +
+            '</div>' +
+            '</div>' +
+        '</tpl>'
     ,
 
     onTapChild(me, location) {

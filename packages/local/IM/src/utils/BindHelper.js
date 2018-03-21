@@ -339,7 +339,7 @@ Ext.define('IM.utils.BindHelper', {
      * @param {json} data 获取历史消息api传来的数据（chats/direct）
      * @param {*} chatStore 需要绑定数据的store
      */
-    bindMsg(data, chatStore) {
+    bindAllMsg(data, chatStore) {
         if (data) {
             var order = data.order,
                 posts = data.messages,
@@ -383,6 +383,10 @@ Ext.define('IM.utils.BindHelper', {
                 }
             }
         }
+    },
+
+    bindOneMsg(data, chatStore) {
+
     },
 
 

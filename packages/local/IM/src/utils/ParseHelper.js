@@ -58,6 +58,11 @@ Ext.define('IM.utils.ParseHelper', {
         return result;
     },
 
+    // 替换字符串中的回车
+    textToHtml(text) {
+        return text.replace(/\n/g, '<br/>').replace(/\r/g, '<br/>').replace(/\r\n/g, '<br/>');
+    },
+
 
     htmlToText(html) {
         const div = document.createElement('div');

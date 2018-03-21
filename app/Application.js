@@ -35,20 +35,12 @@ Ext.define('PushIM.Webapp.Application', {
         Ext.Msg.defaultAllowedConfig.hideAnimation = null;
         Ext.Msg.defaultAllowedConfig.showAnimation = null;
 
-        // ajax 请求的主机地址（域名和端口等）
-        // if (Utils.isDev) { //development
-        //     Config.httpUrl = Config.devHttpUrl;
-        // } else { // production
-        //     if (Utils.isWeb) { // http
-        //         Config.httpUrl = Config.relativeHttpUrl;
-        //     } else {
-        //         Config.httpUrl = Config.prodHttpUrl;
-        //     }
-        // }
+
         Config.httpUrl = Config.httpAIOUrl;
         Config.httpUrlForGo = Config.httpDevGoUrl;
 
         me.hideAvaDetail(); // 监听document的单击事件
+        // me.preventRightClick();
 
         // The viewport controller requires xtype defined by profiles, so let's perform extra
         // initialization when the application and its dependencies are fully accessible.
@@ -70,6 +62,14 @@ Ext.define('PushIM.Webapp.Application', {
                         avaDetail.hide();
                     }
                 }
+            }
+        });
+    },
+
+    preventRightClick() {
+        Ext.get(document).on({
+            contextmenu: function() {
+                alert(123);
             }
         });
     },

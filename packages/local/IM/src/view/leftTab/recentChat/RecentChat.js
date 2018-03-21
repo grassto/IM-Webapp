@@ -17,7 +17,7 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
         me.callParent(arguments);
 
         me.element.on({
-            // delegate: '.x-list-item',
+            delegate: '.x-listitem',
             contextmenu: 'onContextmenu',
             scope: me
         });
@@ -44,20 +44,20 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
     onContextmenu(e, el) {
         const me = this,
             t = Ext.fly(e.target);
+            // debugger;
 
         // 这个样式只是为了判断其是否为item的右击
         if (t.hasCls('itemRight')) {
             // 根据节点上的数据进行数据绑定，方便操作
             var chatId = el.getAttribute('chat_id'),
                 toTop = el.getAttribute('toTop'),
-                isTopText = me.onTopParse(el, toTop);
+                isTopText = me.onTopParse(toTop);
 
             var menu = Ext.create('Ext.menu.Menu', {
+                // .x-menu-item-icon { display: none; }
                 items: [{
                     text: isTopText,
                     handler: function (btn) {
-                        
-
                         var topIndex,
                             store = me.getStore(),
                             record = store.getById(chatId);
@@ -88,8 +88,7 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
     },
 
     // 有关置顶消息的内存数据操作
-    onTopParse(el, toTop) {
-        // 将chat_id记录在内存中
+    onTopParse(toTop) {
         var isTopText = '置顶';
 
         // 先判断是否置顶

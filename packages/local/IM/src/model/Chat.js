@@ -35,6 +35,12 @@ Ext.define('IM.model.Chat', {
             type: 'bool',
             defaultValue: true
         },
-        'msg_id' // 消息id
+        'msg_id', // 消息id
+        { // 多人会话的通知信息是否展示
+            name: 'showGrpChange',
+            type: 'bool',
+            defaultValue: false
+        },
+        'GrpChangeMsg'
     ]
 });

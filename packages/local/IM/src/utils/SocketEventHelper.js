@@ -139,6 +139,8 @@ Ext.define('IM.utils.SocketEventHelper', {
      * @param {string} sendText 发送的内容
      */
     notify(senderName, sendText) {
+        // this.showNewMsgByTitle(); // web版新消息提示
+
         if (!window.Notification) {
             alert('浏览器不支持通知！');
         }
@@ -178,6 +180,11 @@ Ext.define('IM.utils.SocketEventHelper', {
             n.onerror = function () {
                 console.log('产生错误');
             };
+        }
+    },
+    showNewMsgByTitle() {
+        if(window.newMessageEvent.isNotify) {
+            window.newMessageEvent.show();
         }
     },
 

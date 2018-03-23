@@ -24,7 +24,6 @@ Ext.define('IM.view.IM', {
         'IM.view.msgManager.MsgManager',
         'IM.view.groupSel.GroupSel',
         'IM.view.favorite.Favorite',
-        'IM.view.groupSel2.GroupSel2',
         'IM.view.leftTab.setting.setting'
     ],
 
@@ -84,9 +83,6 @@ Ext.define('IM.view.IM', {
     grpSel: { // 新建多人会话
         xtype: 'groupSel'
     },
-    // grpSel2: {
-    //     xtype: 'groupSel2'
-    // },
 
     fav: { // 收藏
         xtype: 'favorite'

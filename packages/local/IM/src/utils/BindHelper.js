@@ -64,6 +64,7 @@ Ext.define('IM.utils.BindHelper', {
             if (orgs[i].parent_id === '') {// 根节点
                 target.data.name = orgs[i].org_name;
                 target.data.id = orgs[i].org_id;
+                target.data.iconCls = 'x-fa fa-folder';
 
                 orgs.splice(i, 1);
                 nodes.push(target);
@@ -102,6 +103,8 @@ Ext.define('IM.utils.BindHelper', {
                 }
             }
         }
+
+        treeStore.sort();
     },
 
     /**
@@ -133,7 +136,8 @@ Ext.define('IM.utils.BindHelper', {
                     node = root[i].appendChild({
                         id: orgs[j].org_id,
                         name: orgs[j].org_name,
-                        leaf: false
+                        leaf: false,
+                        iconCls: 'x-fa fa-folder'
                     });
                     nodes.push(node);
 
@@ -197,7 +201,11 @@ Ext.define('IM.utils.BindHelper', {
             status: status
         });
 
-        recentChatView.setSelection(record);
+        // debugger;
+        if(data.creator_id == User.ownerID) {
+            recentChatView.setSelection(record);
+        }
+        // recentChatView.setSelection(record);
         chatStore.sort();
     },
 

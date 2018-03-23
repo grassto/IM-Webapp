@@ -23,11 +23,15 @@ Ext.define('IM.view.groupSel.organization.Organization', {
         xtype: 'treecolumn',
 
         renderer: function (value, record) {
-            // debugger;
-            return '<div style="line-height:38px;">' +
+            if(record.data.leaf) {
+                return '<div style="line-height:38px;">' +
                 '<a class="avatar link-avatar firstletter " letter="' + AvatarMgr.getFirstLetter(record.data.name) + '" style="float:left;' + AvatarMgr.getColorStyle(record.data.name) + '" ></a>' +
                 value +
                 '</div>';
+            }
+            return '<div style="line-height:38px;">' +
+                    value +
+                    '</div>';
         },
 
         dataIndex: 'name',
@@ -42,6 +46,10 @@ Ext.define('IM.view.groupSel.organization.Organization', {
             beforecheckchange: 'onBeforecheckchange'
         }
     }],
+
+    listeners: {
+        childTap: 'onTapTree'
+    },
 
     // CheckBox更改之前触发，判断其状态是否可以更改
     onBeforecheckchange(view, rowIndex, checked, record) {
@@ -73,7 +81,9 @@ Ext.define('IM.view.groupSel.organization.Organization', {
                 }
                 else { // 取消选中
                     record.set('isSel', false);// 左侧树，设置未选中
-                    listStore.remove(record);
+                    // 移除右侧列表的数据
+                    var newData = listStore.getAt(listStore.find('id', data.id));
+                    listStore.remove(newData);
                 }
             }
         }
@@ -83,6 +93,18 @@ Ext.define('IM.view.groupSel.organization.Organization', {
                     // record.childNodes[i].set('isSel', true);
                     me.fireMemToList(listStore, checked, record.childNodes[i]);
                 }
+            }
+        }
+    },
+
+    onTapTree(me, location) {
+        var record = location.record;
+        // 处理点击节点展开子节点问题
+        if(!record.isLeaf()) {
+            if(record.isExpanded()) {
+                me.collapseNode(record);
+            } else {
+                me.expandNode(record);
             }
         }
     }

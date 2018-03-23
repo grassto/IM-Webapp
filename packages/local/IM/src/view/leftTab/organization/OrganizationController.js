@@ -16,11 +16,23 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
      * @param {*} location 
      */
     orgOnSelectMem(me, location) {
+        this.expandByTap(me, location); // 点击展示或隐藏子节点内容
         this.onShowDetails();
         this.onSetDetails(location.record);
         // this.getViewModel().set('orgSelRecord', location.record); // 将数据存入viewModel
         // 这边还不如将数据存入内存
         this.saveReordToCache(location.record);
+    },
+    expandByTap(me, location) {
+        var record = location.record;
+        // 处理点击节点展开子节点问题
+        if(!record.isLeaf()) {
+            if(record.isExpanded()) {
+                me.collapseNode(record);
+            } else {
+                me.expandNode(record);
+            }
+        }
     },
 
     /**

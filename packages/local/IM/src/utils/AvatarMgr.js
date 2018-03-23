@@ -147,5 +147,30 @@ Ext.define('IM.utils.AvatarMgr', {
         const color = this.getUniqueColor(name);
 
         return `background-color:${color};`;
+    },
+
+    // <div></div><div></div>
+    getMergeDiv(name) {
+        // debugger;
+        if (Ext.isEmpty(name)) return '';
+
+        var names = name.split(', '),
+        length = names.length,
+        result;
+        if(length == 1) result = this.insertTextToDiv(names[0].substr(0, 1));
+        else if(length == 2) {
+            result = this.insertTextToDiv(names[0].substr(0, 1) + ' ' + names[1].substr(0, 1));
+        } else if(length == 3) {
+            result = this.insertTextToDiv(names[0].substr(0, 1) + ' ' + names[1].substr(0, 1)) + this.insertTextToDiv(names[2].substr(0, 1));
+        } else {
+            result = this.insertTextToDiv(names[0].substr(0, 1) + ' ' + names[1].substr(0, 1)) + this.insertTextToDiv(names[2].substr(0, 1) + ' ' + names[3].substr(0, 1));
+        }
+
+        return result;
+        
+    },
+
+    insertTextToDiv(text) {
+        return '<div style="height:19px;line-height:19px;padding-left: 4px;">' + text + '</div>';
     }
 });

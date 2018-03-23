@@ -4,6 +4,8 @@ $left-tab-backgroundcolor: rgb(225,230,235);// #2e3238;
 $left-tab-list: rgb(24,156,245);
 $left-tab-color: black;
 
+// 右击弹出的菜单，若没有iconCls，重置其宽度
+.x-menu-body-el > .x-menuitem .x-icon-wrap-el { width:7px; }
 
 .left_panel{
     // 个人信息区

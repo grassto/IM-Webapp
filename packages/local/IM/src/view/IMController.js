@@ -349,7 +349,6 @@ Ext.define('IM.view.IMController', {
         Ext.destroy(this.fav);
         Ext.destroy(this.msgMgr);
         Ext.destroy(this.grpSel);
-        Ext.destroy(this.grpSel2);
         this.callParent();
     },
 

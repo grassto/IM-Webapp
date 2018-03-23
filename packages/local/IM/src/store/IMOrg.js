@@ -13,6 +13,10 @@ Ext.define('IM.store.IMOrg', {
             name: 'isSel',
             type: 'bool'
         }
-    ]
+    ],
+    sorters: [{
+        property: 'id',
+        direction: 'ASC'
+    }]
 
 });

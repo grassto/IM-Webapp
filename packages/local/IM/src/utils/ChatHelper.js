@@ -391,6 +391,8 @@ Ext.define('IM.utils.ChatHelper', {
                 if (data.Status == 'OK') {
                     record.set('isUnRead', false);
                     record.set('unReadNum', 0);
+
+                    window.newMessageEvent.clear();
                 }
             }
         });

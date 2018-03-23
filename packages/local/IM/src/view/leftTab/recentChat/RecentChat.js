@@ -25,11 +25,17 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
 
 
     itemTpl: [
-        '<div toTop="{toTop}" chat_id="{id}" class="itemRight" style="line-height:38px;">',
+        '<div toTop="{toTop}" chat_id="{id}" class="itemRight" style="line-height:38px;white-space:nowrap;cursor:default;overflow:hidden;text-overflow:ellipsis;">',
+        '<tpl if="values.type == \'D\'">',
         '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]} " style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
-        '</a>',
+        '<tpl else>',
+        '<div class="mergeAvatar" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
+        '{[AvatarMgr.getMergeDiv(values.name)]}',
+        '</div>',
+        '</tpl>',
         '<a class="RecentUnRead" unRead="{unReadNum}" style="cursor:default;display:{[values.isUnRead?"block":"none"]}"></a>',
-        '<span style="cursor:default;">{name}</span>',
+        // '<div style="white-space:nowrap;cursor:default;overflow:hidden;text-overflow:ellipsis;{[values.type=="D"?"float:left;":""]}">{name}</div>',
+        '{name}',
         '<div style="float:right;display:{[values.type=="D"?"block":"none"]};">',
         '{status}',
         '</div>',

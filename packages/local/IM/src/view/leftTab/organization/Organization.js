@@ -6,7 +6,7 @@ Ext.define('IM.view.leftTab.organization.Organization', {
         'IM.view.leftTab.organization.OrganizationController',
         'IM.store.IMOrg'
     ],
-    
+
     controller: 'left-orgController',
 
     userCls: 'IM-org-field',
@@ -26,10 +26,15 @@ Ext.define('IM.view.leftTab.organization.Organization', {
         xtype: 'treecolumn',
 
         renderer: function (value, record) {
+            if (record.data.leaf) {
+                return '<div style="line-height:38px;">' +
+                    '<a class="avatar link-avatar firstletter " letter="' + AvatarMgr.getFirstLetter(record.data.name) + '" style="float:left;' + AvatarMgr.getColorStyle(record.data.name) + '" ></a>' +
+                    value +
+                    '</div>';
+            }
             return '<div style="line-height:38px;">' +
-                '<a class="avatar link-avatar firstletter " letter="' + AvatarMgr.getFirstLetter(record.data.name) + '" style="float:left;' + AvatarMgr.getColorStyle(record.data.name) + '" ></a>' +
-                value +
-                '</div>';
+                    value +
+                    '</div>';
         },
 
         dataIndex: 'name',

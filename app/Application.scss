@@ -91,3 +91,12 @@ a.link-avatar {
 .viewPic{
     max-width: 450px;
 }
+
+
+.mergeAvatar{
+    height: $avatar-size;
+    width: $avatar-size;
+    cursor: pointer;
+    margin-right: 0.4em;
+    @include border-radius(10%);
+}

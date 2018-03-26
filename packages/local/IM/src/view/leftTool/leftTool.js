@@ -69,7 +69,7 @@ Ext.define('IM.view.leftTool.leftTool', {
         xtype: 'button',
         text: '测试',
         docked: 'bottom',
-        handler: 'onTestConnect',
+        handler: 'onTest',
         hidden: true
     }]
 });

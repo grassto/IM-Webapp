@@ -119,27 +119,44 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                 '<span class="at at-U"><span class="at-type">({TypeDesc}) </span>{Name}</span>'
             ].join('')),
             callback: function (term, response) {
-                console.log(`@ callback with term "${term}"`);
+                var has = PreferenceHelper.isShowAt(); // 单人会话不查
+                if (has) {
+                    console.log(`@ callback with term "${term}"`);
 
-                if (me._lastTerm == term) return;
-                // 终止上一次的查询
-                if (me._xhr) {
-                    Ext.Ajax.abort(me._xhr);
+                    if (me._lastTerm == term) return;
+                    // 终止上一次的查询
+                    if (me._xhr) {
+                        Ext.Ajax.abort(me._xhr);
+                    }
+
+                    // me._xhr = Utils.ajaxByZY('post', 'ajax/OA.Comment.AtData/GetAtData', {
+                    //     data: {
+                    //         P0: 7,
+                    //         P1: term
+                    //     },
+                    //     success(result) {
+                    //         debugger;
+                    //         me._lastTerm = term;
+
+                    //         response(result);
+                    //     },
+                    //     maskTarget: false
+                    // }, true);
+
+                    me._xhr = Utils.ajaxByZY('post', 'users/at', {
+                        params: JSON.stringify({
+                            top: '7',
+                            search: term
+                        }),
+                        success(result) {
+                            // debugger;
+                            me._lastTerm = term;
+
+                            response(result);
+                        },
+                        maskTarget: false
+                    });
                 }
-
-                me._xhr = me.ajax('post', 'ajax/OA.Comment.AtData/GetAtData', {
-                    data: {
-                        P0: 7,
-                        P1: term
-                    },
-                    success(result) {
-                        me._lastTerm = term;
-
-                        response(result);
-                    },
-                    maskTarget: false
-                }, true);
-
             }
         }];
 

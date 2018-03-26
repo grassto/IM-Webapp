@@ -76,9 +76,26 @@ Ext.define('IM.utils.PreferenceHelper', {
                         }
                     }
 
-                    ChatHelper.on
+                    // ChatHelper.on
                 }
             }
         });
+    },
+
+     /**
+     * 是否进行@查询
+     * @returns bool
+     */
+    isShowAt() {
+        const store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
+            record = store.getById(User.crtChannelId);
+
+        if(record) {
+            if(record.getData().type != 'D') {
+                return true;
+            }
+        }
+
+        return false;
     }
 });

@@ -364,11 +364,12 @@ Ext.define('IM.view.IMController', {
     },
 
     /* **************************************** 测试连接 ***********************************/
-    onTestConnect() {
-        Utils.ajaxByZY('get', 'users/C1064/status', {
-            success: function (data) {
-                debugger;
-            }
-        });
+    onTest() {
+        // Utils.ajaxByZY('get', 'users/C1064/status', {
+        //     success: function (data) {
+        //         debugger;
+        //     }
+        // });
+        Ext.Viewport.getController().showView('testView');
     }
 });

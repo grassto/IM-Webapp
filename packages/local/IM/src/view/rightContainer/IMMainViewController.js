@@ -351,6 +351,18 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 
             }
         });
+    },
+
+    // 修改群名
+    onTextBlur(field) {
+        var text = field.getValue();
+        if(text == '') {
+            // 将field的值设为原来的
+            field.setValue(User.rightTitle);
+        } else {
+            // 请求服务端，更改数据库的值
+            console.log('请求服务端，更改数据库的值');
+        }
     }
 
 });

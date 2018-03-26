@@ -20,7 +20,7 @@ Ext.define('IM.view.rightContainer.IMMainView', {
             xtype: 'container',
             layout: 'hbox',
             userCls: 'right-title',
-            items: [{
+            items: [/* {
                 bind: {
                     html: '<span>{sendToName}</span><span style="display:{showStatus};color:#bfbfbf;margin-left:30px;font-size:small;">{status}</span>'
                 }
@@ -30,6 +30,16 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                 width: 40,
                 iconCls: 'x-fa fa-pencil',
                 handler: 'changeChatHeader'
+            }, */{
+                xtype: 'textfield',
+                itemId: 'btnEdit',
+                ui: 'rightTitle',
+                bind: {
+                    value: '{sendToName}'
+                },
+                listeners: {
+                    blur: 'onTextBlur'
+                }
             }, {
                 xtype: 'button',
                 docked: 'right',
@@ -84,10 +94,7 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                                 }]
                             }
                         ]
-                    },
-                     {
-
-                     }
+                    }
                 ]
             },
             {

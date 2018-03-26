@@ -22,7 +22,7 @@ Ext.define('IM.utils.BindHelper', {
             }
 
             var isUnRead = false,
-            unReadNum = 0;
+                unReadNum = 0;
             for (var j = 0; j < User.allChannels[i].members.length; j++) {
                 // debugger;
                 if (User.allChannels[i].members[j].user_id == User.ownerID) { // 自己的未读
@@ -30,7 +30,7 @@ Ext.define('IM.utils.BindHelper', {
                     break;
                 }
             }
-            if(unReadNum > 0) {
+            if (unReadNum > 0) {
                 isUnRead = true;
             }
 
@@ -46,7 +46,7 @@ Ext.define('IM.utils.BindHelper', {
         }
     },
 
-    
+
 
 
     // 加载组织结构树信息(之后还需处理)
@@ -202,7 +202,7 @@ Ext.define('IM.utils.BindHelper', {
         });
 
         // debugger;
-        if(data.creator_id == User.ownerID) {
+        if (data.creator_id == User.ownerID) {
             recentChatView.setSelection(record);
         }
         // recentChatView.setSelection(record);
@@ -383,20 +383,20 @@ Ext.define('IM.utils.BindHelper', {
                     updateTime: new Date(posts[order[i]].update_at)
                 });
 
-                if(posts[order[i]].msg_type == 'I') {
-                    
+                if (posts[order[i]].msg_type == 'I') {
+
                     var url = Config.httpUrlForGo + 'files/' + posts[order[i]].attach_id + '/thumbnail';
-                        // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
-                        window.imagess(url, posts[order[i]].attach_id);
+                    // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
+                    window.imagess(url, posts[order[i]].attach_id);
                 }
             }
         }
     },
 
     bindGrpMsg(cid, chatStore) {
-        for(var i = 0; i < User.grpChgInfo.length; i++) {
-            if(cid == User.grpChgInfo[i].chatId) {
-                for(var j = 0; j < User.grpChgInfo[i].grpMsg.length; j++) {
+        for (var i = 0; i < User.grpChgInfo.length; i++) {
+            if (cid == User.grpChgInfo[i].chatId) {
+                for (var j = 0; j < User.grpChgInfo[i].grpMsg.length; j++) {
                     chatStore.add({
                         updateTime: User.grpChgInfo[i].grpMsg[j].date,
                         GrpChangeMsg: User.grpChgInfo[i].grpMsg[j].msg,
@@ -408,19 +408,33 @@ Ext.define('IM.utils.BindHelper', {
         }
     },
 
-    setRightTitle(name,type) {
-        // 长度超过8时，截取
-        if (name.length > 8) {
-            name = name.substr(0, 8) + '...';
-        }
+    setRightTitle(name, type) {
+        // // 长度超过8时，截取
+        // if (name.length > 8) {
+        //     name = name.substr(0, 8) + '...';
+        // }
+        // Ext.Viewport.lookup('IM').getViewModel().set({
+        //     'sendToName': name
+        // });
+
+        // if(type == 'D') {
+        //     Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit').setHidden(true);
+        // } else {
+        //     Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit').setHidden(false);
+        // }
+        User.rightTitle = name; // 记录在缓存中，若field改为空，则使用原值，不更改数据库
+
         Ext.Viewport.lookup('IM').getViewModel().set({
             'sendToName': name
         });
-
+        var field = Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit');
+        // 是否可编辑
         if(type == 'D') {
-            Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit').setHidden(true);
+            field.setEditable(false);
+            field.setClearable(false);
         } else {
-            Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit').setHidden(false);
+            field.setEditable(true);
+            field.setClearable(true);
         }
     }
 

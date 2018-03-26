@@ -19,7 +19,7 @@ Ext.define('PushIM.Webapp.util.User', {
     allChannels: [], // 当前用户所在的所有频道
 
     preferences: [],
-    files: [], //所选中的文件或图片id
+    files: [], // 所选中的文件或图片id
 
 
     crtChannelId: '', // 当前选择的频道ID
@@ -46,6 +46,8 @@ Ext.define('PushIM.Webapp.util.User', {
     // memAddMsg: [],
     // memRemoveMsg: [],
 
+    rightTitle: '',
+
     clear() {
         User.ownerID = '';
         User.allUsers = [];
@@ -66,6 +68,7 @@ Ext.define('PushIM.Webapp.util.User', {
         // User.grpAddMsg = [];
         // User.memAddMsg = [];
         // User.memRemoveMsg = [];
+        User.rightTitle = '';
     }
 
 });

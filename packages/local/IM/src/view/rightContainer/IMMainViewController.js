@@ -19,7 +19,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
     init() {
         var me = this,
-        view = me.getView();
+            view = me.getView();
         view.element.on({
             tap: 'onViewTap',
             scope: me
@@ -35,24 +35,24 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         const me = this,
             t = Ext.fly(e.target);
 
-        if(el.hasAttribute('userID')) {
+        if (el.hasAttribute('userID')) {
             var userID = el.getAttribute('userID');
 
             var menu = Ext.create('Ext.menu.Menu', {
                 items: [{
                     text: '移出群聊',
-                    handler: function() {
+                    handler: function () {
                         Ext.Msg.confirm('移除', '确定要移出吗', function (ok) {
                             if (ok === 'yes') {
                                 Utils.ajaxByZY('DELETE', 'chats/' + User.crtChannelId + '/members/' + userID, {
-                                    success: function(data) {
-                                        if(data.status == 'OK') {
+                                    success: function (data) {
+                                        if (data.status == 'OK') {
                                             var store = me.getView().down('#groupList').getStore(),
-                                            record = store.getById(userID);
+                                                record = store.getById(userID);
 
                                             store.remove(record);
                                             // 处理内存数据，之后做
-                                            
+
                                         }
                                     }
                                 });
@@ -73,15 +73,15 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
     onViewTap() {
         var view = this.getView().up('IM'),
-        recentChat = view.down('#recentChat'),
-        lastSel = recentChat.getSelectable().getLastSelected();
+            recentChat = view.down('#recentChat'),
+            lastSel = recentChat.getSelectable().getLastSelected();
         var data = '';
-        if(lastSel) { // 是否点击过
+        if (lastSel) { // 是否点击过
             data = lastSel.data;
-            if(lastSel.length) {
+            if (lastSel.length) {
                 data = lastSel[0].data;
             }
-            if(data.unReadNum > 0) {
+            if (data.unReadNum > 0) {
                 var record = recentChat.getStore().getById(data.id);
                 ChatHelper.setUnReadToRead(record);
             }
@@ -94,7 +94,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
      */
     onShowGrpSel() {
         User.isPlus = false; // 判断是哪个按钮
-        
+
         this.fireEvent('grpSel');
     },
 
@@ -194,7 +194,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         }
     },
 
-    
+
 
 
 
@@ -216,8 +216,8 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     openChat(uid, nickname) {
         var me = this,
             channelId = me.getChatID(uid);
-            var channelView = me.getView().up('IM').down('#recentChat'),
-                    channelStore = channelView.getStore();
+        var channelView = me.getView().up('IM').down('#recentChat'),
+            channelStore = channelView.getStore();
         if (channelId !== '') {
             // 获取历史消息
             console.log('存在,获取历史消息');
@@ -238,7 +238,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                             user_id: User.ownerID
                         }
                     });
-                    
+
                     var newRecord = channelStore.add({
                         id: data.chat_id,
                         name: nickname,
@@ -330,25 +330,25 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
 
     changeChatHeader() {
-        Ext.Msg.prompt('修改标题', '请输入新标题', function(ok, title) {
-            if(ok == 'ok') {
+        Ext.Msg.prompt('修改标题', '请输入新标题', function (ok, title) {
+            if (ok == 'ok') {
                 Utils.ajaxByZY('PUT', 'chats/' + User.crtChannelId, {
                     params: JSON.stringify({
                         chat_id: User.crtChannelId,
                         header: title
                     }),
-                    success:function(data) {
+                    success: function (data) {
                         // 页面数据
                         BindHelper.setRightTitle(title);
                         var store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
                             record = store.getById(User.crtChannelId);
-                        record.set({name: title});
+                        record.set({ name: title });
 
                         // 缓存数据
                         ChatHelper.handleHeaderCache(User.crtChannelId, title);
                     }
                 });
-                
+
             }
         });
     },
@@ -356,13 +356,43 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     // 修改群名
     onTextBlur(field) {
         var text = field.getValue();
-        if(text == '') {
+        if (text == '' || text == User.rightTitle) { // 置为空或者和原来相同的不更改
             // 将field的值设为原来的
             field.setValue(User.rightTitle);
         } else {
+            
             // 请求服务端，更改数据库的值
             console.log('请求服务端，更改数据库的值');
+
+            // 终止上一次的ajax请求
+            if(field._xhr) {
+                Ext.Ajax.abort(field._xhr);
+            }
+            field._xhr = Utils.ajaxByZY('put', 'chats/' + User.crtChannelId, {
+                params: JSON.stringify({
+                    chat_id: User.crtChannelId,
+                    header: text
+                }),
+                success: function (data) {
+                    if (data) {
+                        var record = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(User.crtChannelId);
+                        if (record) {
+                            record.set('name', text); // 更新页面上的值
+                            
+                            User.rightTitle = text; // 更新缓存
+                        }
+                    } else {
+                        Utils.toastShort('请求更新失败');
+                        field.setValue(User.rightTitle);
+                    }
+                },
+                failure: function () {
+                    Utils.toastShort('请求更新失败');
+                    field.setValue(User.rightTitle);
+                }
+            });
         }
+
     }
 
 });

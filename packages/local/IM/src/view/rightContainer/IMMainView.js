@@ -33,7 +33,7 @@ Ext.define('IM.view.rightContainer.IMMainView', {
             }, */{
                 xtype: 'textfield',
                 itemId: 'btnEdit',
-                ui: 'rightTitle',
+                // ui: 'rightTitle',
                 bind: {
                     value: '{sendToName}'
                 },

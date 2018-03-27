@@ -408,7 +408,9 @@ Ext.define('IM.utils.ChatHelper', {
             scHeight = sc.getScrollElement().dom.scrollHeight,
             scTop = sc.getScrollElement().dom.scrollTop;
         // sc.scrollTo(0, scHeight - scTop);
-        sc.scrollTo(0, scHeight);
+        sc.scrollTo(0, scHeight, {
+            duration: 100
+        });
 
     },
 

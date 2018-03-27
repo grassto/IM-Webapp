@@ -33,7 +33,8 @@ Ext.define('IM.view.rightContainer.IMMainView', {
             }, */{
                 xtype: 'textfield',
                 itemId: 'btnEdit',
-                // ui: 'rightTitle',
+                userCls: 'rightTitle',
+                style: 'font-size: 20px; font-weight:bold;background:red',
                 bind: {
                     value: '{sendToName}'
                 },
@@ -103,8 +104,8 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                 store: {
                     model: 'IM.model.GroupMembers'
                 },
-                itemTpl: '<div userID="{user_id}">{user_name}<span style="margin-right:5px;background:{status};display:block;width:10px;height:10px;float:left;border-radius:50%;"></span></div>',
-                minWidth: 150,
+                itemTpl: '<div style="cursor:default;" userID="{user_id}">{user_name}<span style="margin-right:5px;background:{status};display:block;width:10px;height:10px;float:left;border-radius:50%;"></span></div>',
+                minWidth: 100,
                 style: {
                     borderLeft: 'solid 1px #cfcfcf'
                 },

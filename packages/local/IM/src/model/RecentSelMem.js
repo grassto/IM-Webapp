@@ -45,21 +45,5 @@ Ext.define('IM.model.RecentSelMem', {
             name: 'toTop',
             type: 'int'
         }
-    ],
-
-    sorters: [{
-        property: 'toTop',
-        direction: 'DESC'
-    }, { // 按时间降序排序
-        property: 'last_post_at',
-        direction: 'DESC'
-    }]
-
-    // sorters: [{ // 先按时间降序排序
-    //     property: 'last_post_at',
-    //     direction: 'DESC'
-    // }, { // 后按id升序排
-    //     property: 'id',
-    //     direction: 'ASC'
-    // }]
+    ]
 });

@@ -42,6 +42,7 @@ Ext.define('IM.utils.PreferenceHelper', {
         return res;
     },
 
+    // 最近会话移除
     hideChat(chatId) {
         Utils.ajaxByZY('PUT', 'chats/' + chatId + '/hide', {
             success: function (data) {
@@ -82,16 +83,56 @@ Ext.define('IM.utils.PreferenceHelper', {
         });
     },
 
-     /**
-     * 是否进行@查询
-     * @returns bool
+    // 多人会话人员列表移除人员
+    hideChatMember(chatID, userID, store) {
+        const me = this;
+        Ext.Msg.confirm('移除', '确定要移出吗', function (ok) {
+            if (ok === 'yes') {
+                Utils.ajaxByZY('DELETE', 'chats/' + chatID + '/members/' + userID, {
+                    success: function (data) {
+                        if (data.status == 'OK') {
+                            var record = store.getById(userID);
+
+                            store.remove(record);
+
+                            // 处理内存数据，之后做
+                            me.hChatCheAfterHideChatMem(chatID, userID);
+                        } else {
+                            Utils.toastShort('你没有权限踢出用户');
+                        }
+                    }
+                });
+            }
+        });
+    },
+
+    /**
+     * 删除缓存User.allChannels中的成员信息
+     * @param {string} chatID
+     * @param {string} userID
      */
+    hChatCheAfterHideChatMem(chatID, userID) {
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == chatID) {
+                for (var j = 0; j < User.allChannels[i].members.length; j++) {
+                    if (User.allChannels[i].members[j].user_id == userID) {
+                        User.allChannels[i].members.splice(j, 1);
+                    }
+                }
+            }
+        }
+    },
+
+    /**
+    * 是否进行@查询
+    * @returns bool
+    */
     isShowAt() {
         const store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
             record = store.getById(User.crtChannelId);
 
-        if(record) {
-            if(record.getData().type != 'D') {
+        if (record) {
+            if (record.getData().type != 'D') {
                 return true;
             }
         }

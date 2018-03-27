@@ -130,7 +130,7 @@ Ext.define('IM.utils.SocketEventHelper', {
             }
         }
         /* ****************************************************** 最近会话重新排序 ******************************************************************************************************/
-        me.reSortRecentList(IMView);
+        me.reSortRecentList(IMView, data);
     },
 
     /**
@@ -208,11 +208,12 @@ Ext.define('IM.utils.SocketEventHelper', {
     },
 
     // 最近会话重新排序
-    reSortRecentList(IMView) {
+    reSortRecentList(IMView, data) {
         var list = IMView.down('#recentChat'),
-            listStore = list.getStore();
+            listStore = list.getStore(),
+            record = listStore.getById(data.chat_id);
 
-        // listStore.sort('last_post_at', 'DESC');
+        record.set('last_post_at', new Date(data.update_at));
         listStore.sort();
     },
 

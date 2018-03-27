@@ -41,7 +41,8 @@ Ext.define('IM.utils.BindHelper', {
                 status: status,
                 chat_name: User.allChannels[i].chat.chat_name,
                 isUnRead: isUnRead,
-                unReadNum: unReadNum
+                unReadNum: unReadNum,
+                last_post_at: new Date(User.allChannels[i].chat.last_post_at)
             });
         }
     },
@@ -198,7 +199,8 @@ Ext.define('IM.utils.BindHelper', {
             name: nickname,
             type: data.chat_type,
             last_post_at: new Date(data.update_at),
-            status: status
+            status: status,
+            chat_name: data.chat_name
         });
 
         // debugger;

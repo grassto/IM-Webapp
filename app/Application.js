@@ -40,7 +40,8 @@ Ext.define('PushIM.Webapp.Application', {
         Config.httpUrlForGo = Config.httpDevGoUrl;
 
         me.hideAvaDetail(); // 监听document的单击事件
-        // me.preventRightClick();
+        me.preventRightClick(); // 禁用页面原本右击事件
+
 
         // The viewport controller requires xtype defined by profiles, so let's perform extra
         // initialization when the application and its dependencies are fully accessible.
@@ -67,11 +68,9 @@ Ext.define('PushIM.Webapp.Application', {
     },
 
     preventRightClick() {
-        Ext.get(document).on({
-            contextmenu: function() {
-                alert(123);
-            }
-        });
+        Ext.getDoc().on('contextmenu', function(e) {
+            e.stopEvent();
+      });
     },
 
     /**

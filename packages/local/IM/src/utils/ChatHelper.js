@@ -293,9 +293,7 @@ Ext.define('IM.utils.ChatHelper', {
                         }
                     }
                 } else if (data.chat.chat_type == 'G') {
-                    if (data.chat.header.length > 8) {
-                        nickname = data.chat.header.substr(0, 8) + '...';
-                    }
+                        nickname = data.chat.header;
                 }
                 // 数据绑定至页面
                 BindHelper.addChannelToRecent(data.chat, uid, nickname);
@@ -408,9 +406,9 @@ Ext.define('IM.utils.ChatHelper', {
             scHeight = sc.getScrollElement().dom.scrollHeight,
             scTop = sc.getScrollElement().dom.scrollTop;
         // sc.scrollTo(0, scHeight - scTop);
-        sc.scrollTo(0, scHeight, {
+        sc.scrollTo(0, scHeight/* , {
             duration: 100
-        });
+        }*/);
 
     },
 

@@ -9,7 +9,15 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
     controller: 'recentChat',
 
     store: {
-        model: 'IM.model.RecentSelMem'
+        model: 'IM.model.RecentSelMem',
+
+        sorters: [{
+            property: 'toTop',
+            direction: 'DESC'
+        }, { // 按时间降序排序
+            property: 'last_post_at',
+            direction: 'DESC'
+        }]
     },
 
     initialize() {
@@ -17,7 +25,7 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
         me.callParent(arguments);
 
         me.element.on({
-            // delegate: '.x-listitem',
+            delegate: '.x-listitem',
             contextmenu: 'onContextmenu',
             scope: me
         });
@@ -48,45 +56,67 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
 
     // 鼠标右击事件
     onContextmenu(e, el) {
-        const me = this,
-            t = Ext.fly(e.target);
+        const me = this;
         // debugger;
 
+        // // 这个样式只是为了判断其是否为item的右击
+        // if (t.hasCls('itemRight')) {
+        //     // 根据节点上的数据进行数据绑定，方便操作
+        //     var chatId = t.getAttribute('chat_id'),
+        //         toTop = t.getAttribute('toTop'),
+        //         isTopText = me.onTopParse(toTop);
+
+        //     var menu = Ext.create('Ext.menu.Menu', {
+        //         // .x-menu-item-icon { display: none; }
+        //         items: [/*{
+        //             text: isTopText,
+        //             handler: function (btn) {
+        //                 var topIndex,
+        //                     store = me.getStore(),
+        //                     record = store.getById(chatId);
+
+        //                 if (btn.getText() == '取消置顶') {
+        //                     PreferenceHelper.setRecentTop(chatId, -1);
+        //                     topIndex = null;
+        //                 } else {
+        //                     topIndex = PreferenceHelper.toTopAddOne();
+        //                     PreferenceHelper.setRecentTop(chatId, topIndex);
+        //                 }
+        //                 record.set('toTop', topIndex);
+
+        //                 store.sort('toTop', 'DESC');
+        //             }
+        //         }, */{
+        //                 text: '移除会话',
+        //                 handler: function () {
+        //                     PreferenceHelper.hideChat(chatId);
+        //                 }
+        //             }]
+        //     });
+        //     menu.showAt(e.getPoint());
+        // }
+
+
         // 这个样式只是为了判断其是否为item的右击
-        if (t.hasCls('itemRight')) {
-            // 根据节点上的数据进行数据绑定，方便操作
-            var chatId = t.getAttribute('chat_id'),
-                toTop = t.getAttribute('toTop'),
-                isTopText = me.onTopParse(toTop);
 
+        // 根据节点上的数据进行数据绑定，方便操作
+        var recordIndex = el.getAttribute('data-recordindex'),
+            record = me.getStore().getAt(recordIndex);
+
+        if (record) {
+            var chatId = record.get('id');
             var menu = Ext.create('Ext.menu.Menu', {
-                // .x-menu-item-icon { display: none; }
-                items: [/*{
-                    text: isTopText,
-                    handler: function (btn) {
-                        var topIndex,
-                            store = me.getStore(),
-                            record = store.getById(chatId);
-
-                        if (btn.getText() == '取消置顶') {
-                            PreferenceHelper.setRecentTop(chatId, -1);
-                            topIndex = null;
-                        } else {
-                            topIndex = PreferenceHelper.toTopAddOne();
-                            PreferenceHelper.setRecentTop(chatId, topIndex);
-                        }
-                        record.set('toTop', topIndex);
-
-                        store.sort('toTop', 'DESC');
+                items: [{
+                    text: '移除会话',
+                    handler: function () {
+                        PreferenceHelper.hideChat(chatId);
                     }
-                }, */{
-                        text: '移除会话',
-                        handler: function () {
-                            PreferenceHelper.hideChat(chatId);
-                        }
-                    }]
+                }]
             });
+
             menu.showAt(e.getPoint());
+        } else {
+            Utils.toastShort('程序出错了');
         }
 
         e.preventDefault();

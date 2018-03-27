@@ -20,57 +20,72 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     init() {
         var me = this,
             view = me.getView();
+        // 页面的点击事件，是否取消未读，调用view的api
         view.element.on({
             tap: 'onViewTap',
             scope: me
         });
 
+        // 多人会话人员列表右击事件
         view.down('#groupList').element.on({
+            delegate: '.x-listitem',
             contextmenu: 'onGrpListRightClick',
             scope: me
         });
     },
 
+    // 人员列表的右击事件
     onGrpListRightClick(e, el) {
-        const me = this,
-            t = Ext.fly(e.target);
+        const me = this;
+        var recordIndex = el.getAttribute('data-recordindex'),
+            store = me.getView().down('#groupList').getStore(),
+            record = store.getAt(recordIndex),
+            chatID = record.get('chat_id'),
+            userID = record.get('user_id');
 
-        if (el.hasAttribute('userID')) {
-            var userID = el.getAttribute('userID');
+        var menu = Ext.create('Ext.menu.Menu', {
+            items: [{
+                text: '移出群聊',
+                handler: function () {
+                    PreferenceHelper.hideChatMember(chatID, userID, store);
+                }
+            }, {
+                text: '退出群聊',
+                hidden: true
+            }]
+        });
 
-            var menu = Ext.create('Ext.menu.Menu', {
-                items: [{
-                    text: '移出群聊',
-                    handler: function () {
-                        Ext.Msg.confirm('移除', '确定要移出吗', function (ok) {
-                            if (ok === 'yes') {
-                                Utils.ajaxByZY('DELETE', 'chats/' + User.crtChannelId + '/members/' + userID, {
-                                    success: function (data) {
-                                        if (data.status == 'OK') {
-                                            var store = me.getView().down('#groupList').getStore(),
-                                                record = store.getById(userID);
-
-                                            store.remove(record);
-                                            // 处理内存数据，之后做
-
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    }
-                }, {
-                    text: '退出群聊',
-                    hidden: true
-                }]
-            });
-
-            menu.showAt(e.getPoint());
-        }
+        me.imitateShowAt(menu, e.getPoint());
 
         e.preventDefault();
     },
 
+    // 参照showAt源码，更改x方向的位置
+    imitateShowAt(menu, x, y) {
+        if (menu.getFloated() || menu.isPositioned()) {
+            if (arguments.length === 2) {
+                if (x.x) {
+                    y = x.y;
+                    x = x.x - 70; // 减去的在这里写死了，不太好
+                } else {
+                    y = x[1];
+                    x = x[0] - 70;
+                }
+            }
+            menu.show();
+            if (menu.isPositioned()) {
+                menu.setLeft(x);
+                menu.setTop(y);
+            } else {
+                menu.setX(x);
+                menu.setY(y);
+            }
+        }
+        return menu;
+
+    },
+
+    // 调用view的API
     onViewTap() {
         var view = this.getView().up('IM'),
             recentChat = view.down('#recentChat'),
@@ -360,12 +375,12 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             // 将field的值设为原来的
             field.setValue(User.rightTitle);
         } else {
-            
+
             // 请求服务端，更改数据库的值
             console.log('请求服务端，更改数据库的值');
 
             // 终止上一次的ajax请求
-            if(field._xhr) {
+            if (field._xhr) {
                 Ext.Ajax.abort(field._xhr);
             }
             field._xhr = Utils.ajaxByZY('put', 'chats/' + User.crtChannelId, {
@@ -378,7 +393,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                         var record = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(User.crtChannelId);
                         if (record) {
                             record.set('name', text); // 更新页面上的值
-                            
+
                             User.rightTitle = text; // 更新缓存
                         }
                     } else {

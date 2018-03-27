@@ -29,4 +29,13 @@
     //     $textfield-input-font-weight: 'bold',
     //     $background-color: #2358
     // );
+
+    .rightTitle {
+       &> .x-body-wrap-el {
+            .x-input-el {
+                font-size: 20px;
+                font-weight: bold;
+            }
+       }
+    }
 }

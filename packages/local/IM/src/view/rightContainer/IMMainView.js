@@ -34,7 +34,6 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                 xtype: 'textfield',
                 itemId: 'btnEdit',
                 userCls: 'rightTitle',
-                style: 'font-size: 20px; font-weight:bold;background:red',
                 bind: {
                     value: '{sendToName}'
                 },

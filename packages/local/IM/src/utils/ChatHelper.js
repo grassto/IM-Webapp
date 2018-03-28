@@ -134,7 +134,7 @@ Ext.define('IM.utils.ChatHelper', {
      * 组织User.allChannels为：{chat:..., members:...}
      * @param {json} data 只有chat数据
      */
-    handleChatCache(data) {
+    addChatCache(data) {
         // 因为此处没有members的数据，所以再请求一次
         var cid = data.chat_id;
         Utils.ajaxByZY('get', 'chats/' + cid + '/members', {
@@ -310,7 +310,7 @@ Ext.define('IM.utils.ChatHelper', {
             params: JSON.stringify([User.ownerID, uid]),
             success: function (data) {
 
-                me.handleChatCache(data); // 内存中加入chat的信息
+                me.addChatCache(data); // 内存中加入chat的信息
 
                 BindHelper.addChannelToRecent(data, uid, nickname);
 
@@ -336,7 +336,7 @@ Ext.define('IM.utils.ChatHelper', {
                     console.log('创建多人会话成功', data);
 
                     // User.crtChannelId = data.chat_id;
-                    me.handleChatCache(data);
+                    me.addChatCache(data);
 
                     BindHelper.addChannelToRecent(data, '', data.header);
 

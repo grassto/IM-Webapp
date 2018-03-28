@@ -2,8 +2,8 @@ Ext.define('IM.model.Mention', {
     extend: 'Ext.data.Model',
 
     fields: [
-        'ID',
-        'Name',
+        'user_id',
+        'user_name',
         'Type',
         {
             name: 'TypeDesc',

@@ -35,8 +35,9 @@ websocket提示的event
 2.status_changed 状态变更
 	这个发送广播的时候貌似不对
 3.group_added 新增多人会话
-4.members_added 加人进入多人会话
-5.member_removed 多人会话移除用户
+	
+4.member_removed 删除多人会话中的成员（假删）
+xxx将xxx移出了群聊
 
 
 组织一下xxx把你和xxx加入了群聊
@@ -45,3 +46,14 @@ websocket提示的event
 
 排序问题
 新来的会话不置顶
+
+
+标题修改
+删除最近会话
+加人删人处理缓存
+
+
+
+
+多人的通知
+文件，传送的方式

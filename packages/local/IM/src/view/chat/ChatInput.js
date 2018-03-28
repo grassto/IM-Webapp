@@ -199,9 +199,11 @@ Ext.define('IM.view.chat.ChatInput', {
 
     doInitUploader(btnBrowse, isAllFile) {
         var me = this,
-            fileType = [FileUtil.imageFilter];
+            filters = {
+                mime_types: [FileUtil.imageFilter]
+            };
         if (isAllFile) {
-            fileType = [FileUtil.imageFilter, FileUtil.archiveFilter, FileUtil.docFilter, FileUtil.otherFilter];
+            filters = {};
         }
         var uploader = new plupload.Uploader({
             required_features: 'send_browser_cookies',
@@ -211,11 +213,12 @@ Ext.define('IM.view.chat.ChatInput', {
 
             chunk_size: '1mb',
             unique_names: false,
-            filters: {
-                // prevent_duplicates: true,
-                // max_file_size: '40mb',
-                mime_types: fileType
-            },
+            filters: filters,
+            // {
+            //     // prevent_duplicates: true,
+            //     // max_file_size: '40mb',
+            //     // mime_types: fileType
+            // },
 
             init: {
                 FilesAdded(up, files) {

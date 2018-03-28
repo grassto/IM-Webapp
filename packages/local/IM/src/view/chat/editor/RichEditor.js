@@ -113,49 +113,51 @@ Ext.define('IM.view.chat.editor.RichEditor', {
          */
         config.triggerChars = [{
             trigger: '@',
-            minChars: 1,
+            minChars: 0,
             store: atStore,
             itemTpl: Ext.create('Ext.XTemplate', [
-                '<span class="at at-U"><span class="at-type">({TypeDesc}) </span>{Name}</span>'
+                // '<span class="at at-U"><span class="at-type">({TypeDesc}) </span>{user_name}</span>'
+                '<span class="at at-U">{user_name}</span>'
             ].join('')),
             callback: function (term, response) {
-                var has = PreferenceHelper.isShowAt(); // 单人会话不查
-                if (has) {
+                // debugger;
+                var has = PreferenceHelper.isShowAt(User.crtChannelId); // 单人会话不查
+
+                if (has) { // 多人会话
                     console.log(`@ callback with term "${term}"`);
 
                     if (me._lastTerm == term) return;
-                    // 终止上一次的查询
-                    if (me._xhr) {
-                        Ext.Ajax.abort(me._xhr);
+
+                    var mems;
+
+                    if(term == '') { // 只有@的时候，展示所有人
+                        mems = PreferenceHelper.getAllAtChatMems(User.crtChannelId);
+                    } else {
+                        mems = PreferenceHelper.getAtMems(User.crtChannelId, term);
                     }
 
-                    // me._xhr = Utils.ajaxByZY('post', 'ajax/OA.Comment.AtData/GetAtData', {
-                    //     data: {
-                    //         P0: 7,
-                    //         P1: term
-                    //     },
+                    me._lastTerm = term;
+                    response(mems);
+
+
+                    // 终止上一次的查询
+                    // if (me._xhr) {
+                    //     Ext.Ajax.abort(me._xhr);
+                    // }
+
+                    // me._xhr = Utils.ajaxByZY('post', 'users/at', {
+                    //     params: JSON.stringify({
+                    //         top: '7',
+                    //         search: term
+                    //     }),
                     //     success(result) {
-                    //         debugger;
+                    //         // debugger;
                     //         me._lastTerm = term;
 
                     //         response(result);
                     //     },
                     //     maskTarget: false
-                    // }, true);
-
-                    me._xhr = Utils.ajaxByZY('post', 'users/at', {
-                        params: JSON.stringify({
-                            top: '7',
-                            search: term
-                        }),
-                        success(result) {
-                            // debugger;
-                            me._lastTerm = term;
-
-                            response(result);
-                        },
-                        maskTarget: false
-                    });
+                    // });
                 }
             }
         }];

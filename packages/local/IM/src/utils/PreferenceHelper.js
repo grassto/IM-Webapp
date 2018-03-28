@@ -127,9 +127,9 @@ Ext.define('IM.utils.PreferenceHelper', {
     * 是否进行@查询
     * @returns bool
     */
-    isShowAt() {
+    isShowAt(chatID) {
         const store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
-            record = store.getById(User.crtChannelId);
+            record = store.getById(chatID);
 
         if (record) {
             if (record.getData().type != 'D') {
@@ -138,5 +138,68 @@ Ext.define('IM.utils.PreferenceHelper', {
         }
 
         return false;
+    },
+
+    // 获取频道中@的所有的成员
+    getAllAtChatMems(chatID) {
+        var result = [],
+            memsCount = 0;
+        result = this.getChatMemsFromCacheByID(chatID);
+        if (result.length > 0) {
+            result.unshift({ user_id: 'all', user_name: '所有人(' + memsCount + ')' });
+        }
+        return result;
+    },
+    // 获取@的成员
+    getAtMems(chatID, term) {
+        var result = [],
+            mems = this.getChatMemsFromCacheByID(chatID);
+        if (mems) {
+            for (var i = 0; i < mems.length; i++) {
+                // 根据拼音或者是汉字匹配
+                if(this.isAtShowName(term, mems[i].user_name)) { // 找到了
+                    result.push(mems[i]);
+                }
+            }
+        }
+
+        return result;
+    },
+    // 根据id从缓存中找到对应的chat
+    getChatFromCacheByID(chatID) {
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == chatID) {
+                return User.allChannels[i];
+            }
+        }
+        return '';
+    },
+    // 根据id从缓存中找到对应的chatMembers(去除自己)
+    getChatMemsFromCacheByID(chatID) {
+        var result = [];
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == chatID) {
+                result = User.allChannels[i].members;
+                break;
+            }
+        }
+
+        // 去除自己
+        for (var j = 0; j < result.length; j++) {
+            if (User.ownerID == result[j].user_id) {
+                result.splice(j, 1);
+                break;
+            }
+        }
+        return result;
+    },
+
+    /**
+     * 根据输入的拼音或汉字判断当前选中的频道中是否有匹配的人
+     * @param {string} term 拼音或汉字
+     * @param {string} name 需要匹配的名字
+     */
+    isAtShowName(term, name) {
+        // 之后再处理
     }
 });

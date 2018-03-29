@@ -41,6 +41,6 @@ Ext.define('IM.model.Chat', {
             type: 'bool',
             defaultValue: false
         },
-        'GrpChangeMsg'
+        'GrpChangeMsg' // 多人会话消息提示信息
     ]
 });

@@ -54,16 +54,33 @@ Ext.define('IM.utils.ChatHelper', {
             }
         }
     },
+    chgToDetailView() {
+        const me = this,
+            rootView = Ext.Viewport.lookup('IM'),
+            imMainView = rootView.lookup('details');
+        if (!imMainView) { // 存在了就不切换
+            var detailsView = rootView.lookup('im-main'),
+                blankView = rootView.lookup('pageblank');
+            if (blankView) {
+                me.showRightView('details', 'pageblank');
+            }
+            if (detailsView) {
+                me.showRightView('details', 'im-main');
+            }
+        }
+    },
     /**
     * 右侧的页面切换
     * @param {string} xtype 需要展示的xtype
     * @param {string} oldType 需要删除的xtype
     */
     showRightView(xtype, oldType) {
+        // debugger;
         const view = Ext.Viewport.lookup('IM');
 
-        oldType = view.lookup(oldType);
+        // oldType = view.lookup(oldType);
         if (oldType) {
+            oldType = view.lookup(oldType);
             view.remove(oldType, true);
         }
         let rightView = view.lookup(xtype); // 需要添加的
@@ -257,7 +274,7 @@ Ext.define('IM.utils.ChatHelper', {
 
         chatStore.removeAll(); // 清空聊天数据
 
-        BindHelper.bindGrpMsg(cid, chatStore); // 绑定群聊提示信息
+        // BindHelper.bindGrpMsg(cid, chatStore); // 绑定群聊提示信息
 
         Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
             success: function (data) {
@@ -359,7 +376,7 @@ Ext.define('IM.utils.ChatHelper', {
             params: JSON.stringify(memsID),
             success: function (data) {
                 if(data) {
-                    console.log('添加成功');
+                    console.log('添加成功', data);
                 }
                 // 添加成员，移除成员，都在websocket中处理
                 // debugger;

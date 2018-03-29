@@ -17,7 +17,7 @@ Ext.define('IM.view.leftTab.organization.OrganizationController', {
      */
     orgOnSelectMem(me, location) {
         this.expandByTap(me, location); // 点击展示或隐藏子节点内容
-        this.onShowDetails();
+        ChatHelper.chgToDetailView();
         this.onSetDetails(location.record);
         // this.getViewModel().set('orgSelRecord', location.record); // 将数据存入viewModel
         // 这边还不如将数据存入内存

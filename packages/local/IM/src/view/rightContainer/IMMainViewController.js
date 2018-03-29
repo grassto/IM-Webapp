@@ -43,21 +43,33 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             chatID = record.get('chat_id'),
             userID = record.get('user_id');
 
+        var text = me.getRemoveText(userID);
+
         var menu = Ext.create('Ext.menu.Menu', {
             items: [{
-                text: '移出群聊',
+                text: text,
                 handler: function () {
-                    PreferenceHelper.hideChatMember(chatID, userID, store);
+                    var grpWarnMsg = PreferenceHelper.preGrpChat(); // 在多人会话中进行操作，提前需要的判断
+                    if (grpWarnMsg == '') {
+                        PreferenceHelper.hideChatMember(chatID, userID, store);
+                    } else {
+                        PreferenceHelper.warnGrpRemovedMem(grpWarnMsg);
+                    }
                 }
-            }, {
-                text: '退出群聊',
-                hidden: true
             }]
         });
 
         me.imitateShowAt(menu, e.getPoint());
 
         e.preventDefault();
+    },
+
+    // 判断是不是自己退出群聊，返回菜单的text
+    getRemoveText(userID) {
+        if (User.ownerID == userID) {
+            return '退出群聊';
+        }
+        return '移出群聊';
     },
 
     // 参照showAt源码，更改x方向的位置
@@ -286,46 +298,56 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     /* ********************************消息发送****************************************/
 
     onSend() {
-        var me = this,
-            fileIds = [];
-        for (var i = 0; i < User.files.length; i++) {
-            fileIds.push(User.files[i].file_id);
+        // 判断是否是被移除了的会话
+        var grpWarnMsg = PreferenceHelper.preGrpChat();
+        if (grpWarnMsg != '') {
+            PreferenceHelper.warnGrpRemovedMem(grpWarnMsg);
+        } else {
+            var me = this,
+                fileIds = [];
+
+            for (var i = 0; i < User.files.length; i++) {
+                fileIds.push(User.files[i].file_id);
+            }
+
+            var textAreaField = me.getView().down('richEditor'),
+                sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
+                sendHtml = ParseHelper.onParseMsg(sendPicHtml), // img标签解析
+                sendText = ParseHelper.htmlToText(sendHtml);// 内容
+            // 判断是否有内容或文件
+            if (fileIds.length > 0 || sendText) {
+                let message = {
+                    base_message: {
+                        chat_id: User.crtChannelId,
+                        // create_at: 0,
+                        message: sendText
+                        // update_at: new Date().getTime()
+                    },
+                    files: fileIds
+                };
+
+                Utils.ajaxByZY('post', 'posts', {
+                    params: JSON.stringify(message),
+                    success: function (data) {
+                        // 将选中的人移至最上方
+                        me.fireEvent('listToTop', data.user_id);
+                        console.log('发送成功', data);
+                        User.files = [];
+                    }
+                });
+
+                textAreaField.clear(); // 清空编辑框
+
+                // // 将选中的人移至最上方
+                // var viewModel = me.getView().up('IM').getViewModel(),
+                //     name = viewModel.get('sendToName');
+            } else {// 可以在此给提示信息
+                // btn.setTooltip('不能输入空内容');
+                Utils.toastShort('发送内容不能为空');
+            }
         }
 
-        var textAreaField = me.getView().down('richEditor'),
-            sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
-            sendHtml = ParseHelper.onParseMsg(sendPicHtml), // img标签解析
-            sendText = ParseHelper.htmlToText(sendHtml);// 内容
-        // 判断是否有内容或文件
-        if (fileIds.length > 0 || sendText) {
-            let message = {
-                base_message: {
-                    chat_id: User.crtChannelId,
-                    // create_at: 0,
-                    message: sendText
-                    // update_at: new Date().getTime()
-                },
-                files: fileIds
-            };
 
-            Utils.ajaxByZY('post', 'posts', {
-                params: JSON.stringify(message),
-                success: function (data) {
-                    // 将选中的人移至最上方
-                    me.fireEvent('listToTop', data.user_id);
-                    console.log('发送成功', data);
-                    User.files = [];
-                }
-            });
-
-            textAreaField.clear(); // 清空编辑框
-
-            // // 将选中的人移至最上方
-            // var viewModel = me.getView().up('IM').getViewModel(),
-            //     name = viewModel.get('sendToName');
-        } else {// 可以在此给提示信息
-            // btn.setTooltip('不能输入空内容');
-        }
     },
 
     // 消息解析
@@ -370,44 +392,50 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
     // 修改群名
     onTextBlur(field) {
-        var text = field.getValue();
-        if (text == '' || text == User.rightTitle) { // 置为空或者和原来相同的不更改
-            // 将field的值设为原来的
-            field.setValue(User.rightTitle);
-        } else {
+        var grpWarnMsg = PreferenceHelper.preGrpChat();
+        if (grpWarnMsg == '') {
+            var text = field.getValue();
+            if (text == '' || text == User.rightTitle) { // 置为空或者和原来相同的不更改
+                // 将field的值设为原来的
+                field.setValue(User.rightTitle);
+            } else {
 
-            // 请求服务端，更改数据库的值
-            console.log('请求服务端，更改数据库的值');
+                // 请求服务端，更改数据库的值
+                console.log('请求服务端，更改数据库的值');
 
-            // 终止上一次的ajax请求
-            if (field._xhr) {
-                Ext.Ajax.abort(field._xhr);
-            }
-            field._xhr = Utils.ajaxByZY('put', 'chats/' + User.crtChannelId, {
-                params: JSON.stringify({
-                    chat_id: User.crtChannelId,
-                    header: text
-                }),
-                success: function (data) {
-                    if (data) {
-                        var record = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(User.crtChannelId);
-                        if (record) {
-                            record.set('name', text); // 更新页面上的值
+                // 终止上一次的ajax请求
+                if (field._xhr) {
+                    Ext.Ajax.abort(field._xhr);
+                }
+                field._xhr = Utils.ajaxByZY('put', 'chats/' + User.crtChannelId, {
+                    params: JSON.stringify({
+                        chat_id: User.crtChannelId,
+                        header: text
+                    }),
+                    success: function (data) {
+                        if (data) {
+                            var record = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(User.crtChannelId);
+                            if (record) {
+                                record.set('name', text); // 更新页面上的值
 
-                            User.rightTitle = text; // 更新缓存
+                                User.rightTitle = text; // 更新缓存
+                            }
+                        } else {
+                            Utils.toastShort('请求更新失败');
+                            field.setValue(User.rightTitle);
                         }
-                    } else {
+                    },
+                    failure: function () {
                         Utils.toastShort('请求更新失败');
                         field.setValue(User.rightTitle);
                     }
-                },
-                failure: function () {
-                    Utils.toastShort('请求更新失败');
-                    field.setValue(User.rightTitle);
-                }
-            });
+                });
+            }
+        } else {
+            // 将field的值设为原来的
+            field.setValue(User.rightTitle);
+            PreferenceHelper.warnGrpRemovedMem(grpWarnMsg);
         }
-
     }
 
 });

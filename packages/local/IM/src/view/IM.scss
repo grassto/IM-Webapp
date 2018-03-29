@@ -1,11 +1,16 @@
 $auth-background-image: url(get-resource-path('images/2.png'));
 $right-addMem-image: url(get-resource-path('images/add-members.png'));
 $left-tab-backgroundcolor: rgb(225,230,235);// #2e3238;
-$left-tab-list: rgb(24,156,245);
+$left-tab-list: #79beed;
+$left-tab-hover-list: rgb(182, 211, 230);
 $left-tab-color: black;
 
 // 右击弹出的菜单，若没有iconCls，重置其宽度
 .x-menu-body-el > .x-menuitem .x-icon-wrap-el { width:7px; }
+
+.imitateBrowse {
+    -webkit-app-region: drag;
+}
 
 .left_panel{
     // 个人信息区
@@ -105,7 +110,7 @@ $left-tab-color: black;
             background-color: $left-tab-backgroundcolor;
 
             &.x-hovered {
-                background-color: $left-tab-list;
+                background-color: $left-tab-hover-list;
             }
 
             &.x-selected {
@@ -274,4 +279,14 @@ $left-tab-color: black;
             border-bottom: 1px solid #d6d6d6;
         }
     }
+
+}
+
+
+.imitateBrowse{
+    -webkit-app-region: drag;
+}
+
+.imitateLeftTitle{
+    background: #286dc7;
 }

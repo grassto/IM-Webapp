@@ -34,7 +34,12 @@
 		"Highcharts": true,
 		"WebSocketHelper": true,
 		"BindHelper": true,
-		"ParseHelper": true
+		"ParseHelper": true,
+		"PreferenceHelper": true,
+		"SocketEventHelper": true,
+		"ChatHelper": true,
+		"NoticeType": true,
+		"MsgType": true
 	},
 	"rules": { // 0 off, 1 warn, 2 error
 		"no-constant-condition": 2, // 禁止在条件中使用常量表达式 

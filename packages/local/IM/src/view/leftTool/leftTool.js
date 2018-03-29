@@ -3,73 +3,88 @@ Ext.define('IM.view.leftTool.leftTool', {
     xtype: 'leftTool',
 
     layout: 'vbox',
-    userCls: 'left_tool',
-    maxWidth: 50,
-    minWidth: 50,
+    width: 50,
     items: [{
-        cls: 'leftTool-avatar',
+        xtype: 'container',
+        height: 30,
+        cls: 'imitateLeftTitle',
         bind: {
-            html: '{avatar}'
+            hidden: '{isShowBrowseTitle}'
         }
     }, {
-        xtype: 'tabpanel',
-        itemId: 'leftTool_tab',
-        listeners: {
-            activeItemchange: 'onTabChanges'
-        },
-        tabBar: {
-            defaultTabUI: 'leftToolBar-ui',
-            layout: {
-                pack: 'center'
-            },
-            docked: 'left'
-        },
-        items:[
-            {
-                iconCls: 'x-fa fa-comment',
-                itemId: 'leastComment'
-                // badgeText: '3'
-            }, {
-                iconCls: 'x-fa fa-user',
-                itemId: 'users'
-            }, {
-                iconCls: 'x-fa fa-th-large',
-                itemId: 'settings'
+        xtype: 'panel',
+        flex: 1,
+        layout: 'vbox',
+        userCls: 'left_tool',
+        maxWidth: 50,
+        minWidth: 50,
+        items: [{
+            cls: 'leftTool-avatar',
+            bind: {
+                html: '{avatar}'
             }
-        ]
-    }, {
-        xtype: 'button',
-        ui: 'leftTool-ui',
-        iconCls: 'x-fa fa-list',
-        docked: 'bottom',
-        menu: [{
-            text: '设置',
-            // iconCls: 'x-fa fa-wrench'
         }, {
-            text: '注销',
-            handler: 'onLogout',
-            // iconCls: 'x-fa fa-times-rectangle-o'
+            xtype: 'tabpanel',
+            itemId: 'leftTool_tab',
+            listeners: {
+                activeItemchange: 'onTabChanges'
+            },
+            tabBar: {
+                defaultTabUI: 'leftToolBar-ui',
+                layout: {
+                    pack: 'center'
+                },
+                docked: 'left'
+            },
+            items: [
+                {
+                    iconCls: 'x-fa fa-comment',
+                    itemId: 'leastComment'
+                    // badgeText: '3'
+                }, {
+                    iconCls: 'x-fa fa-user',
+                    itemId: 'users'
+                }, {
+                    iconCls: 'x-fa fa-th-large',
+                    itemId: 'settings'
+                }
+            ]
         }, {
-            text: '关于',
-            // handler: 'onShowAbout'
+            xtype: 'button',
+            ui: 'leftTool-ui',
+            iconCls: 'x-fa fa-list',
+            docked: 'bottom',
+            menu: [{
+                text: '设置',
+                // iconCls: 'x-fa fa-wrench'
+            }, {
+                text: '注销',
+                handler: 'onLogout',
+                // iconCls: 'x-fa fa-times-rectangle-o'
+            }, {
+                text: '关于',
+                // handler: 'onShowAbout'
+            }]
+        }, {
+            xtype: 'button',
+            ui: 'leftTool-ui',
+            iconCls: 'x-fa fa-clock-o',
+            docked: 'bottom',
+            handler: 'onShowMsgManger'
+        }, {
+            xtype: 'button',
+            ui: 'leftTool-ui',
+            iconCls: 'x-fa fa-star',
+            docked: 'bottom',
+            handler: 'onShowFav'
+        }, {
+            xtype: 'button',
+            text: '测试',
+            docked: 'bottom',
+            handler: 'onTest',
+            hidden: true
         }]
-    }, {
-        xtype: 'button',
-        ui: 'leftTool-ui',
-        iconCls: 'x-fa fa-clock-o',
-        docked: 'bottom',
-        handler: 'onShowMsgManger'
-    }, {
-        xtype: 'button',
-        ui: 'leftTool-ui',
-        iconCls: 'x-fa fa-star',
-        docked: 'bottom',
-        handler: 'onShowFav'
-    }, {
-        xtype: 'button',
-        text: '测试',
-        docked: 'bottom',
-        handler: 'onTest',
-        hidden: true
     }]
+
+
 });

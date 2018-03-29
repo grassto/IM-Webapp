@@ -183,7 +183,7 @@ Ext.define('IM.utils.SocketEventHelper', {
         }
     },
     showNewMsgByTitle() {
-        if(window.newMessageEvent.isNotify) {
+        if (window.newMessageEvent.isNotify) {
             window.newMessageEvent.show();
         }
     },
@@ -214,7 +214,7 @@ Ext.define('IM.utils.SocketEventHelper', {
             record = listStore.getById(data.chat_id);
 
         record.set('last_post_at', new Date(data.update_at));
-        listStore.sort();
+        // listStore.sort();
     },
 
     /**
@@ -241,17 +241,18 @@ Ext.define('IM.utils.SocketEventHelper', {
 
     handleGrpAddEvent(msg) {
         const me = this,
-            data = msg.data;
+            data = msg.data,
+            memIDs = JSON.parse(data.user_ids);
 
         var GrpChangeMsg = '';
 
         // 首先判断创建者是否是自己
         if (data.creator_id == User.ownerID) { // 是自己，所有的操作都及时更新到页面上
 
-            GrpChangeMsg = this.createOwnWelcomeMsg(data.creator_id, data.user_ids);
+            GrpChangeMsg = this.createOwnWelcomeMsg(data.creator_id, memIDs);
 
         } else { // 不是自己创建的，先判断页面上是否有此频道
-            GrpChangeMsg = me.createOtherWelcomeMsg(data.creator_id, data.user_ids);
+            GrpChangeMsg = me.createOtherWelcomeMsg(data.creator_id, memIDs);
 
             // if (me.hasChat(data.chat_id)) { // 有此频道，只有跟自己相关的信息才会展示
 
@@ -264,10 +265,11 @@ Ext.define('IM.utils.SocketEventHelper', {
 
         }
 
+        // 不需要展示了，获取历史记录的时候会绑定了
         // 在当前频道，添加信息进入chat
-        if (User.crtChannelId == data.chat_id) {
-            me.showgrpMsgInChat(GrpChangeMsg, new Date());
-        }
+        // if (User.crtChannelId == data.chat_id) {
+        //     me.showgrpMsgInChat(GrpChangeMsg, new Date());
+        // }
 
         // 不管你有没有显示都加入缓存
         me.addInfoToCache(data.chat_id, GrpChangeMsg);
@@ -487,6 +489,7 @@ Ext.define('IM.utils.SocketEventHelper', {
         var msg = '',
             name = '',
             result = '';
+
         for (var i = 0; i < userIDs.length; i++) {
             name = ChatHelper.getName(userIDs[i]);
 
@@ -507,6 +510,7 @@ Ext.define('IM.utils.SocketEventHelper', {
         var msg = '',
             name = '',
             result = '';
+
         for (var i = 0; i < userIDs.length; i++) {
             name = ChatHelper.getName(userIDs[i]);
 

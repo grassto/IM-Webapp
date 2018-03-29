@@ -70,5 +70,118 @@ Ext.define('IM.utils.ParseHelper', {
         const result = div.innerText;
 
         return result;
+    },
+
+    /**
+     * 解析服务器端获取的数据
+     * @param {Object} data 从服务器端获取的数据
+     * @return {Object} 解析后的数据，Object直接放入store
+     */
+    getMsgData(data) {
+        const me = this;
+        var result = {};
+
+        if (data.wrapper_type == MsgWrapperType.Notice) { // 多人通知信息
+            var grpChangeMsg = ''; // 组织提示信息
+            var memIDs = me.getNoticeMemsByContent(data.notice.operator_id, data.notice.content);
+
+            if (data.notice.operator_id == User.ownerID) { // 发起者的展示信息
+                switch (data.notice.notice_type) {
+                    case NoticeType.CreateGrp:
+                        grpChangeMsg = SocketEventHelper.createOwnWelcomeMsg(data.notice.operator_id, memIDs);
+                        break;
+                    case NoticeType.AddMem:
+                        grpChangeMsg = SocketEventHelper.createMeAddSBMsg(data.notice.operator_id, memIDs);
+                        break;
+                    case NoticeType.RemoveMem:
+                        grpChangeMsg = SocketEventHelper.createMeRemoveSBMsg(data.notice.operator_id, memIDs[0]);
+                        break;
+                    case NoticeType.ChgTitle:
+                        // 
+                        break;
+                    case NoticeType.ChgManager:
+                        // 
+                        break;
+                    default:
+                        break;
+                }
+            } else { // 被操作者的展示信息
+                switch (data.notice.notice_type) {
+                    case NoticeType.CreateGrp:
+                        grpChangeMsg = SocketEventHelper.createOtherWelcomeMsg(data.notice.operator_id, memIDs);
+                        break;
+                    case NoticeType.AddMem:
+                        grpChangeMsg = SocketEventHelper.createSBAddSBMsg(data.notice.operator_id, memIDs);
+                        break;
+                    case NoticeType.RemoveMem:
+                        grpChangeMsg = SocketEventHelper.createSBRemoveMeMsg(data.notice.operator_id, memIDs[0]);
+                        break;
+                    case NoticeType.ChgTitle:
+                        // 
+                        break;
+                    case NoticeType.ChgManager:
+                        // 
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            result = {
+                updateTime: new Date(data.create_at),
+                GrpChangeMsg: grpChangeMsg,
+                showGrpChange: true
+            };
+        } else if (data.wrapper_type == MsgWrapperType.Message) { // 平常的消息
+            var message = data.message, // IMMsg表中的信息
+                userName = '', // 在缓存中查找用户名
+                ROL = '', // 区别自己和他人的消息，自己的靠右
+                text = ''; // 发送的文本
+
+            if (message.user_id == User.ownerID) {
+                ROL = 'right';
+            }
+
+            userName = ChatHelper.getName(message.user_id);
+
+            if (message.msg_type == MsgType.TextMsg) {
+                text = window.minEmoji(message.message); // emoji解析
+
+            } else if (message.msg_type == MsgType.ImgMsg) {
+                text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';;
+
+                // 处理滚动条
+                var url = Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail';
+                // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
+                window.imagess(url, message.attach_id);
+            }
+
+            result = {
+                msg_id: text,
+                senderName: userName,
+                sendText: text,
+                ROL: ROL,
+                updateTime: new Date(message.update_at)
+            };
+        }
+
+        return result;
+    },
+
+    /**
+     * 获取被操作者，返回数组
+     * @param {string} opID 创建者id
+     * @param {string} memsIdStr 参与者的id
+     */
+    getNoticeMemsByContent(opID, memsIdStr) {
+        var ids = memsIdStr.split(',');
+        for (var i = 0; i < ids.length; i++) {
+            if (ids[i] == opID) {
+                ids.splice(i, 1);
+                break;
+            }
+        }
+
+        return ids;
     }
 });

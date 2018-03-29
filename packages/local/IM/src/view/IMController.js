@@ -30,6 +30,8 @@ Ext.define('IM.view.IMController', {
         var me = this;
         me.callParent(arguments);
 
+        me.handleCEF();
+
         // 打开连接
         me.mounted();
 
@@ -50,7 +52,14 @@ Ext.define('IM.view.IMController', {
         });
 
         // 右侧页面展示
-        me.showRightView('pageblank');
+        ChatHelper.showRightView('pageblank');
+    },
+
+    // 是否展示关闭头
+    handleCEF() {
+        if(window.cefMain) {
+            this.getViewModel().set('isShowBrowseTitle', false);
+        }
     },
 
     /**
@@ -60,7 +69,7 @@ Ext.define('IM.view.IMController', {
      */
     showRightView(xtype, oldType) {
         const me = this,
-            view = me.getView();
+            view = me.getView().down('#exceptTitle');
 
         oldType = view.lookup(oldType);
         if (oldType) {
@@ -116,7 +125,7 @@ Ext.define('IM.view.IMController', {
     chgToIMView() {
         const me = this,
             rootView = me.getView(),
-            imMainView = rootView.lookup('im-main');
+            imMainView = rootView.lookup('im-main').down('#exceptTitle');
         if (!imMainView) { // 存在了就不切换
             var detailsView = rootView.lookup('details'),
                 blankView = rootView.lookup('pageblank');

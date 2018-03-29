@@ -201,5 +201,35 @@ Ext.define('IM.utils.PreferenceHelper', {
      */
     isAtShowName(term, name) {
         // 之后再处理
+    },
+
+    // 在多人会话中，需要有操作的时候，都得调用，返回是否可以继续，true：可以，false：不可以
+    preGrpChat() {
+        var result = '';
+        if(this.isDeleted()) {
+            result = '对不起，您已被移出该会话';
+        }
+
+        return result;
+    },
+
+    // 判断是否在多人会话中被删除了
+    isDeleted() {
+        var result = false;
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == User.crtChannelId) {
+                if (User.allChannels[i].chat.member_delete_at > 0) {
+                    result = true;
+                }
+                break;
+            }
+        }
+
+        return result;
+    },
+
+    // 多人会话，不能操作，警告信息
+    warnGrpRemovedMem(grpWarnMsg) {
+        Utils.toastShort(grpWarnMsg);
     }
 });

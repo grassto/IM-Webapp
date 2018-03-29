@@ -12,109 +12,134 @@ Ext.define('IM.view.rightContainer.IMMainView', {
     ],
 
     layout: 'vbox',
-    cls: 'right_panel',
-
-    items: [
-        // 头
-        {
-            xtype: 'container',
-            layout: 'hbox',
-            userCls: 'right-title',
-            items: [/* {
-                bind: {
-                    html: '<span>{sendToName}</span><span style="display:{showStatus};color:#bfbfbf;margin-left:30px;font-size:small;">{status}</span>'
-                }
-            }, {
-                xtype: 'button',
-                itemId: 'btnEdit',
-                width: 40,
-                iconCls: 'x-fa fa-pencil',
-                handler: 'changeChatHeader'
-            }, */{
-                xtype: 'textfield',
-                itemId: 'btnEdit',
-                userCls: 'rightTitle',
-                bind: {
-                    value: '{sendToName}'
-                },
-                listeners: {
-                    blur: 'onTextBlur'
-                }
-            }, {
-                xtype: 'button',
-                docked: 'right',
-                iconCls: 'addMem',
-                handler: 'onShowGrpSel'
-            }]
+    items: [{
+        xtype: 'container',
+        height: 30,
+        cls: 'imitateBrowse',
+        bind: {
+            hidden: '{isShowBrowseTitle}'
         },
-        {
-            flex: 1,
-            layout: 'hbox',
-            items: [{
-                xtype: 'panel',
-                // resizable: {
-                //     edges: 'west'
-                // },
-                flex: 1,
-                layout: 'vbox',
-                items: [
-                    // 内容显示区
-                    {
-                        // xtype: 'dataview',
-                        xtype: 'chatView',
-                        itemId: 'chatView',
-                        flex: 1,
-                        style: {
-                            borderBottom: '1px solid #d6d6d6'
-                        }
-                    },
-                    // 聊天输入区
-                    {
-                        xtype: 'panel',
-                        resizable: {
-                            edges: 'n'
-                        },
-                        minHeight: 170,
-                        layout: 'vbox',
-                        items: [
-                            {
-                                xtype: 'chatInput',
-                                userCls: 'editor-Ct',
-                                flex: 1
-                            },
-                            {
-                                xtype: 'container',
-                                items: [{
-                                    docked: 'right',
-                                    xtype: 'button',
-                                    text: '发送',
-                                    width: 50,
-                                    height: 28,
-                                    handler: 'onSend'
-                                }]
-                            }
-                        ]
+        items: [{
+            xtype: 'button',
+            ui: 'flat',
+            docked: 'right',
+            iconCls: 'x-fa fa-remove'
+        }, {
+            xtype: 'button',
+            ui: 'flat',
+            docked: 'right',
+            iconCls: 'x-fa fa-window-maximize'
+        }, {
+            xtype: 'button',
+            ui: 'flat',
+            docked: 'right',
+            iconCls: 'x-fa fa-window-minimize'
+        }]
+    }, {
+        xtype: 'container',
+        flex: 1,
+        layout: 'vbox',
+        cls: 'right_panel',
+
+        items: [
+            // 头
+            {
+                xtype: 'container',
+                layout: 'hbox',
+                userCls: 'right-title',
+                items: [/* {
+                    bind: {
+                        html: '<span>{sendToName}</span><span style="display:{showStatus};color:#bfbfbf;margin-left:30px;font-size:small;">{status}</span>'
                     }
-                ]
+                }, {
+                    xtype: 'button',
+                    itemId: 'btnEdit',
+                    width: 40,
+                    iconCls: 'x-fa fa-pencil',
+                    handler: 'changeChatHeader'
+                }, */{
+                        xtype: 'textfield',
+                        itemId: 'btnEdit',
+                        userCls: 'rightTitle',
+                        bind: {
+                            value: '{sendToName}'
+                        },
+                        listeners: {
+                            blur: 'onTextBlur'
+                        }
+                    }, {
+                        xtype: 'button',
+                        docked: 'right',
+                        iconCls: 'addMem',
+                        handler: 'onShowGrpSel'
+                    }]
             },
             {
-                xtype: 'list',
-                itemId: 'groupList',
-                store: {
-                    model: 'IM.model.GroupMembers'
+                flex: 1,
+                layout: 'hbox',
+                items: [{
+                    xtype: 'panel',
+                    // resizable: {
+                    //     edges: 'west'
+                    // },
+                    flex: 1,
+                    layout: 'vbox',
+                    items: [
+                        // 内容显示区
+                        {
+                            // xtype: 'dataview',
+                            xtype: 'chatView',
+                            itemId: 'chatView',
+                            flex: 1,
+                            style: {
+                                borderBottom: '1px solid #d6d6d6'
+                            }
+                        },
+                        // 聊天输入区
+                        {
+                            xtype: 'panel',
+                            resizable: {
+                                edges: 'n'
+                            },
+                            minHeight: 170,
+                            layout: 'vbox',
+                            items: [
+                                {
+                                    xtype: 'chatInput',
+                                    userCls: 'editor-Ct',
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'container',
+                                    items: [{
+                                        docked: 'right',
+                                        xtype: 'button',
+                                        text: '发送',
+                                        width: 50,
+                                        height: 28,
+                                        handler: 'onSend'
+                                    }]
+                                }
+                            ]
+                        }
+                    ]
                 },
-                itemTpl: '<div style="cursor:default;" userID="{user_id}">{user_name}<span style="margin-right:5px;background:{status};display:block;width:10px;height:10px;float:left;border-radius:50%;"></span></div>',
-                minWidth: 100,
-                style: {
-                    borderLeft: 'solid 1px #cfcfcf'
-                },
-                hidden: true
+                {
+                    xtype: 'list',
+                    itemId: 'groupList',
+                    store: {
+                        model: 'IM.model.GroupMembers'
+                    },
+                    itemTpl: '<div style="cursor:default;" userID="{user_id}">{user_name}<span style="margin-right:5px;background:{status};display:block;width:10px;height:10px;float:left;border-radius:50%;"></span></div>',
+                    minWidth: 100,
+                    style: {
+                        borderLeft: 'solid 1px #cfcfcf'
+                    },
+                    hidden: true
+                }
+                ]
             }
-            ]
-        }
-    ]
-    
-    // destroy() {
-    //     alert('en');
-    // }
+        ]
+    }]
+
 });

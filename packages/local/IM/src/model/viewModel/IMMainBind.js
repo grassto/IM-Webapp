@@ -21,7 +21,9 @@ Ext.define('IM.model.viewModel.IMMainBind', {
         showStatus: 'inline',
 
         isOrgDetail: true, // 详细界面的展示信息
-        orgSelRecord: {}
+        orgSelRecord: {},
+
+        isShowBrowseTitle: false
     },
 
     formulas: {

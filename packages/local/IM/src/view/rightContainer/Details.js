@@ -6,31 +6,60 @@ Ext.define('IM.view.rightContainer.Details', {
         'Ext.layout.VBox'
     ],
 
-    layout: {
-        type: 'vbox',
-        pack: 'center',
-        align: 'center'
-    },
-
     defaultListenerScope: true,
 
-    userCls: 'details',
-
+    layout: 'vbox',
     items: [{
-        // 可以使用父容器的viewModel
+        xtype: 'container',
+        height: 30,
+        cls: 'imitateBrowse',
         bind: {
-            html: '{detailHtml}'
-        }
-    }, {
-        xtype: 'button',
-        bind: {
-            text: '{btnText}'
+            hidden: '{isShowBrowseTitle}'
         },
-        ui: 'action',
-        userCls: 'detailBtn',
-        handler: 'btnOnChgToIM',
-        width: '300px'
+        items: [{
+            xtype: 'button',
+            ui: 'flat',
+            docked: 'right',
+            iconCls: 'x-fa fa-remove'
+        }, {
+            xtype: 'button',
+            ui: 'flat',
+            docked: 'right',
+            iconCls: 'x-fa fa-window-maximize'
+        }, {
+            xtype: 'button',
+            ui: 'flat',
+            docked: 'right',
+            iconCls: 'x-fa fa-window-minimize'
+        }]
+    }, {
+        xtype: 'container',
+        flex: 1,
+        layout: {
+            type: 'vbox',
+            pack: 'center',
+            align: 'center'
+        },
+
+        userCls: 'details',
+
+        items: [{
+            // 可以使用父容器的viewModel
+            bind: {
+                html: '{detailHtml}'
+            }
+        }, {
+            xtype: 'button',
+            bind: {
+                text: '{btnText}'
+            },
+            ui: 'action',
+            userCls: 'detailBtn',
+            handler: 'btnOnChgToIM',
+            width: '300px'
+        }]
     }],
+
 
     btnOnChgToIM() {
         ChatHelper.doubleToIMView();

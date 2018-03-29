@@ -207,8 +207,9 @@ Ext.define('IM.utils.BindHelper', {
         if (data.creator_id == User.ownerID) {
             recentChatView.setSelection(record);
         }
-        // recentChatView.setSelection(record);
-        chatStore.sort();
+
+        // 会出错，之后再改
+        // chatStore.sort();
     },
 
     /**
@@ -350,48 +351,58 @@ Ext.define('IM.utils.BindHelper', {
      * @param {*} chatStore 需要绑定数据的store
      */
     bindAllMsg(data, chatStore) {
-        if (data) {
-            var order = data.order,
-                posts = data.messages,
-                message,
-                fileIDs = [],
-                ROL = '';
-            User.posts = [];
-            for (var i = order.length - 1; i >= 0; i--) {
-                posts[order[i]].username = ChatHelper.getName(posts[order[i]].user_id);
-                User.posts.push(posts[order[i]]);
-                message = posts[order[i]].message;
+        if (data.length > 0) {
+            var records = [];
 
-                if (posts[order[i]].msg_type == 'I') {
-                    fileIDs = [];
-                    message = '[' + posts[order[i]].attach_id + ']';
-                    fileIDs.push(posts[order[i]].attach_id);
-                }
-
-                message = window.minEmoji(message); // emoji解析
-                message = ParseHelper.parsePic(message, fileIDs); // 图片解析
-                message = ParseHelper.parseURL(message); // URL解析
-
-                if (posts[order[i]].user_id == User.ownerID) {
-                    ROL = 'right';
-                } else {
-                    ROL = '';
-                }
-                chatStore.add({
-                    msg_id: posts[order[i]].msg_id,
-                    senderName: posts[order[i]].username,
-                    sendText: message,
-                    ROL: ROL,
-                    updateTime: new Date(posts[order[i]].update_at)
-                });
-
-                if (posts[order[i]].msg_type == 'I') {
-
-                    var url = Config.httpUrlForGo + 'files/' + posts[order[i]].attach_id + '/thumbnail';
-                    // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
-                    window.imagess(url, posts[order[i]].attach_id);
-                }
+            for (var i = 0; i < data.length; i++) {
+                // data[i].wrapper_type  message/notice
+                var record = ParseHelper.getMsgData(data[i]);
+                records.push(record);
             }
+
+            chatStore.add(records);
+
+            // var order = data.order,
+            //     posts = data.messages,
+            //     message,
+            //     fileIDs = [],
+            //     ROL = '';
+            // User.posts = [];
+            // for (var i = order.length - 1; i >= 0; i--) {
+            //     posts[order[i]].username = ChatHelper.getName(posts[order[i]].user_id);
+            //     User.posts.push(posts[order[i]]);
+            //     message = posts[order[i]].message;
+
+            //     if (posts[order[i]].msg_type == 'I') {
+            //         fileIDs = [];
+            //         message = '[' + posts[order[i]].attach_id + ']';
+            //         fileIDs.push(posts[order[i]].attach_id);
+            //     }
+
+            //     message = window.minEmoji(message); // emoji解析
+            //     message = ParseHelper.parsePic(message, fileIDs); // 图片解析
+            //     message = ParseHelper.parseURL(message); // URL解析
+
+            //     if (posts[order[i]].user_id == User.ownerID) {
+            //         ROL = 'right';
+            //     } else {
+            //         ROL = '';
+            //     }
+            //     chatStore.add({
+            //         msg_id: posts[order[i]].msg_id,
+            //         senderName: posts[order[i]].username,
+            //         sendText: message,
+            //         ROL: ROL,
+            //         updateTime: new Date(posts[order[i]].update_at)
+            //     });
+
+            //     if (posts[order[i]].msg_type == 'I') {
+
+            //         var url = Config.httpUrlForGo + 'files/' + posts[order[i]].attach_id + '/thumbnail';
+            //         // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
+            //         window.imagess(url, posts[order[i]].attach_id);
+            //     }
+            // }
         }
     },
 
@@ -431,7 +442,7 @@ Ext.define('IM.utils.BindHelper', {
         });
         var field = Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit');
         // 是否可编辑
-        if(type == 'D') {
+        if (type == 'D') {
             field.setEditable(false);
             field.setClearable(false);
         } else {

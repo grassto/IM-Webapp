@@ -28,10 +28,11 @@ Ext.define('IM.view.IM', {
     ],
 
 
-    layout: 'hbox',
     viewModel: {
         type: 'mainBind'
     },
+
+    layout: 'hbox',
 
     items: [{ // 左侧工具条
         xtype: 'leftTool'
@@ -79,6 +80,8 @@ Ext.define('IM.view.IM', {
             flex: 1
         }]
     }],
+
+
 
     grpSel: { // 新建多人会话
         xtype: 'groupSel'

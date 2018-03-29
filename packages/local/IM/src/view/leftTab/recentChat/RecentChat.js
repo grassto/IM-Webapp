@@ -106,6 +106,7 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
         if (record) {
             var chatId = record.get('id');
             var menu = Ext.create('Ext.menu.Menu', {
+                width: 80,
                 items: [{
                     text: '移除会话',
                     handler: function () {

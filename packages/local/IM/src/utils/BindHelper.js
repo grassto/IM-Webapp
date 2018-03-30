@@ -13,25 +13,19 @@ Ext.define('IM.utils.BindHelper', {
     loadRecentChat(leftMembers) {
         var me = this,
             store = leftMembers.getStore(),
+            isUnRead = false,
             status;
         for (let i = 0; i < User.allChannels.length; i++) {
-            if (User.allChannels[i].chat.chat_type == 'D') {
+            if (User.allChannels[i].chat.chat_type == ChatType.Direct) {
                 status = StatusHelper.getStatus(StatusHelper.getUserIDByChatName(User.allChannels[i].chat.chat_name));
             } else {
                 status = '不显示';
             }
 
-            var isUnRead = false,
-                unReadNum = 0;
-            for (var j = 0; j < User.allChannels[i].members.length; j++) {
-                // debugger;
-                if (User.allChannels[i].members[j].user_id == User.ownerID) { // 自己的未读
-                    unReadNum += User.allChannels[i].members[j].unread_count;
-                    break;
-                }
-            }
-            if (unReadNum > 0) {
+            if(User.allChannels[i].chat.unread_count > 0) {
                 isUnRead = true;
+            } else {
+                isUnRead = false;
             }
 
             store.add({
@@ -41,7 +35,7 @@ Ext.define('IM.utils.BindHelper', {
                 status: status,
                 chat_name: User.allChannels[i].chat.chat_name,
                 isUnRead: isUnRead,
-                unReadNum: unReadNum,
+                unReadNum: User.allChannels[i].chat.unread_count,
                 last_post_at: new Date(User.allChannels[i].chat.last_post_at)
             });
         }

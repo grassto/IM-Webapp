@@ -14,26 +14,30 @@ Ext.define('IM.view.rightContainer.IMMainView', {
     layout: 'vbox',
     items: [{
         xtype: 'container',
-        height: 30,
-        cls: 'imitateBrowse',
+        layout: 'hbox',
         bind: {
-            hidden: '{isShowBrowseTitle}'
+            hidden: '{isHideBrowseTitle}'
         },
+        height: 25,
         items: [{
-            xtype: 'button',
-            ui: 'flat',
-            docked: 'right',
-            iconCls: 'x-fa fa-remove'
+            xtype: 'component',
+            cls: 'imitateBrowse',
+            flex: 1
         }, {
             xtype: 'button',
-            ui: 'flat',
-            docked: 'right',
-            iconCls: 'x-fa fa-window-maximize'
+            ui: 'cef',
+            iconCls: 'i-im-min',
+            handler: 'cefMin'
         }, {
             xtype: 'button',
-            ui: 'flat',
-            docked: 'right',
-            iconCls: 'x-fa fa-window-minimize'
+            ui: 'cef',
+            iconCls: 'i-im-maxmin',
+            handler: 'cefMax'
+        }, {
+            xtype: 'button',
+            ui: 'cefClose',
+            iconCls: 'i-im-close',
+            handler: 'cefClose'
         }]
     }, {
         xtype: 'container',
@@ -71,6 +75,9 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                         xtype: 'button',
                         docked: 'right',
                         iconCls: 'addMem',
+                        // iconCls: 'i-im-addmem',
+                        // height: 50,
+                        // width: 50,
                         handler: 'onShowGrpSel'
                     }]
             },

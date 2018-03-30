@@ -229,7 +229,7 @@ Ext.define('IM.utils.PreferenceHelper', {
     },
 
     // 多人会话，不能操作，警告信息
-    warnGrpRemovedMem(grpWarnMsg) {
+    warnGrpMem(grpWarnMsg) {
         Utils.toastShort(grpWarnMsg);
     }
 });

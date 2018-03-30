@@ -8,14 +8,16 @@ Ext.define('IM.view.middlePanel.MiddlePanel', {
 
     items: [{
         xtype: 'container',
-        height: 30,
+        height: 15,
         cls: 'imitateMidTitle',
         bind: {
-            hidden: '{isShowBrowseTitle}'
+            hidden: '{isHideBrowseTitle}'
         }
     }, {
         xtype: 'panel',
         layout: 'hbox',
+        height: 57,
+        cls: 'midSearchPlace',
         items: [{
             xtype: 'formpanel', // 搜索框
             reference: 'searchForm',

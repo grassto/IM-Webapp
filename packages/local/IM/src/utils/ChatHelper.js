@@ -129,6 +129,17 @@ Ext.define('IM.utils.ChatHelper', {
         return '';
     },
 
+    getChatType(cid) {
+        var result = '';
+        for(var i = 0; i < User.allChannels.length; i++) {
+            if(User.allChannels[i].chat.chat_id == cid) {
+                result = User.allChannels[i].chat.chat_tpe;
+            }
+        }
+
+        return result;
+    },
+
     /**
      *  根据id获取昵称
      * @param {string} uid 用户id
@@ -138,6 +149,7 @@ Ext.define('IM.utils.ChatHelper', {
         for (var i = 0; i < User.allUsers.length; i++) {
             if (User.allUsers[i].user_id === uid) {
                 name = User.allUsers[i].user_name;
+                break;
             }
         }
         if (name == '') {// 请求数据库查找
@@ -145,6 +157,31 @@ Ext.define('IM.utils.ChatHelper', {
             // User.allUsers.push(); // 加入缓存
         }
         return name;
+    },
+
+    getOtherUserID(chatName) {
+        var result = '';
+        var userIds = chatName.split('__'); // 拆分字符串
+        if (userIds.length === 2) {
+            for (var j = 0; j < 2; j++) {
+                if (userIds[j] !== User.ownerID) {
+                    result = userIds[j];
+                    break;
+                }
+            }
+        }
+        return result;
+    },
+
+    getChatHeader(cid) {
+        var result = '';
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == cid) {
+                result = User.allChannels[i].chat.header;
+                break;
+            }
+        }
+        return result;
     },
 
     /**
@@ -166,8 +203,8 @@ Ext.define('IM.utils.ChatHelper', {
     },
 
     handleHeaderCache(chatID, header) {
-        for(var i = 0; i < User.allChannels.length; i++) {
-            if(User.allChannels[i].chat.chat_id == chatID) {
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == chatID) {
                 User.allChannels[i].chat.channelname = header;
                 User.allChannels[i].chat.header = header;
             }
@@ -205,7 +242,7 @@ Ext.define('IM.utils.ChatHelper', {
             chatView = Ext.Viewport.lookup('IM').down('#recentChat'),
             chatStore = chatView.getStore(),
             record = chatStore.getById(cid);
-        
+
         if (record) { // 讲道理，这里肯定有这个record
             // chatView.setSelection(record); // 设置选中
 
@@ -310,7 +347,7 @@ Ext.define('IM.utils.ChatHelper', {
                         }
                     }
                 } else if (data.chat.chat_type == 'G') {
-                        nickname = data.chat.header;
+                    nickname = data.chat.header;
                 }
                 // 数据绑定至页面
                 BindHelper.addChannelToRecent(data.chat, uid, nickname);
@@ -375,7 +412,7 @@ Ext.define('IM.utils.ChatHelper', {
         Utils.ajaxByZY('post', 'chats/' + User.crtChannelId + '/members', {
             params: JSON.stringify(memsID),
             success: function (data) {
-                if(data) {
+                if (data) {
                     console.log('添加成功', data);
                 }
                 // 添加成员，移除成员，都在websocket中处理

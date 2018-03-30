@@ -6,30 +6,35 @@ Ext.define('IM.view.rightContainer.BlankPage', {
         'Ext.layout.VBox'
     ],
 
+    defaultListenerScope: true,
     layout: 'vbox',
 
     items: [{
         xtype: 'container',
-        cls: 'imitateBrowse',
+        layout: 'hbox',
         bind: {
-            hidden: '{isShowBrowseTitle}'
+            hidden: '{isHideBrowseTitle}'
         },
-        height: 30,
+        height: 25,
         items: [{
-            xtype: 'button',
-            ui: 'flat',
-            docked: 'right',
-            iconCls: 'x-fa fa-remove'
+            xtype: 'component',
+            cls: 'imitateBrowse',
+            flex: 1
         }, {
             xtype: 'button',
-            ui: 'flat',
-            docked: 'right',
-            iconCls: 'x-fa fa-window-maximize'
+            ui: 'cef',
+            iconCls: 'i-im-min',
+            handler: 'cefMin'
         }, {
             xtype: 'button',
-            ui: 'flat',
-            docked: 'right',
-            iconCls: 'x-fa fa-window-minimize'
+            ui: 'cef',
+            iconCls: 'i-im-maxmin',
+            handler: 'cefMax'
+        }, {
+            xtype: 'button',
+            ui: 'cefClose',
+            iconCls: 'i-im-close',
+            handler: 'cefClose'
         }]
     }, {
         flex: 1,
@@ -41,5 +46,24 @@ Ext.define('IM.view.rightContainer.BlankPage', {
         cls: 'blank-page-container',
         html: '<div class=\'fa-outer-class\'><span class=\'x-fa fa-clock-o\'></span></div>' +
             '<h1>未选择聊天!</h1><span class=\'blank-page-text\'></span>'
-    }]
+    }],
+
+
+    cefClose() {
+        if(window.cefMain) {
+            window.cefMain.close();
+        }
+    },
+
+    cefMax() {
+        if(window.cefMain) {
+            window.cefMain.max();
+        }
+    },
+
+    cefMin() {
+        if(window.cefMain) {
+            window.cefMain.min();
+        }
+    }
 });

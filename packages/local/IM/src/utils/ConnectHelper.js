@@ -77,8 +77,10 @@ Ext.define('IM.utils.ConnectHelper', {
         Utils.mask(recView);
         Utils.ajaxByZY('get', 'users/me/chats', {
             success: function (data) {
-                // debugger;
+                debugger;
                 console.log('所有频道：', data);
+
+                CEFHelper.initNotice(data);
 
                 me.pushChatToCache(data);
 

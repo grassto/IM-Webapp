@@ -1,8 +1,13 @@
+@import "../../sass/etc/fonts/all";
+
 $auth-background-image: url(get-resource-path('images/2.png'));
 $right-addMem-image: url(get-resource-path('images/add-members.png'));
 $left-tab-backgroundcolor: rgb(225,230,235);// #2e3238;
-$left-tab-list: #79beed;
-$left-tab-hover-list: rgb(182, 211, 230);
+$left-tab-list: rgb(198,201,204);
+$left-tab-hover-list: rgb(218,221,224);
+$mid-search-background: rgb(235,239,242);
+// $left-tab-list: #79beed;
+// $left-tab-hover-list: rgb(182, 211, 230);
 $left-tab-color: black;
 
 // 右击弹出的菜单，若没有iconCls，重置其宽度
@@ -18,11 +23,11 @@ $left-tab-color: black;
         color: $left-tab-color;
     }
     .x-button .x-inner-el{
-        background-color: $left-tab-backgroundcolor;
+        background-color: $mid-search-background;
         border: 0;
     }
     .x-formpanel-body-el{
-        background-color: $left-tab-backgroundcolor;
+        background-color: $mid-search-background;
     }
 
     // 搜索框
@@ -289,8 +294,10 @@ $left-tab-color: black;
 
 .imitateLeftTitle{
     background: #286dc7;
+    -webkit-app-region: drag;
 }
 
 .imitateMidTitle{
-    background: #e1e6eb;
+    background: $mid-search-background;
+    -webkit-app-region: drag;
 }

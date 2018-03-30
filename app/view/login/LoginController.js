@@ -81,5 +81,24 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
         } else {
             Utils.toastLong('用户名或密码不能为空');
         }
+    },
+
+
+    loginClose() {
+        if(window.cefMain) {
+            window.cefMain.close();
+        }
+    },
+
+    loginMax() {
+        if(window.cefMain) {
+            window.cefMain.max();
+        }
+    },
+
+    loginMin() {
+        if(window.cefMain) {
+            window.cefMain.min();
+        }
     }
 });

@@ -1,0 +1,12 @@
+/* FONT PATH
+ * -------------------------- */
+
+//# fashion -inline
+@font-face {
+  font-family: 'im';
+  src: url('#{$i-im-font-path}/im.woff?v=#{$i-im-version}') format('woff'),
+    url('#{$i-im-font-path}/im.ttf?v=#{$i-im-version}') format('truetype'),
+    url('#{$i-im-font-path}/im.svg?v=#{$i-im-version}') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}

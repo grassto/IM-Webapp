@@ -6,10 +6,10 @@ Ext.define('IM.view.leftTool.leftTool', {
     width: 50,
     items: [{
         xtype: 'container',
-        height: 30,
+        height: 15,
         cls: 'imitateLeftTitle',
         bind: {
-            hidden: '{isShowBrowseTitle}'
+            hidden: '{isHideBrowseTitle}'
         }
     }, {
         xtype: 'panel',

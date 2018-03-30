@@ -100,3 +100,27 @@ a.link-avatar {
     margin-right: 0.4em;
     @include border-radius(10%);
 }
+
+
+
+@include button-ui(
+    $ui: 'cef',
+    $border-color: transparent,
+    $hovered-border-color: transparent,
+    $pressed-border-color: transparent,
+
+    $background-color: rgba(white, 0),
+    $hovered-background-color: rgb(229,229,229),
+    $pressed-background-color:rgb(229,229,229)
+  );
+
+  @include button-ui(
+    $ui: 'cefClose',
+    $border-color: transparent,
+    $hovered-border-color: transparent,
+    $pressed-border-color: transparent,
+
+    $background-color: rgba(white, 0),
+    $hovered-background-color: red,
+    $pressed-background-color:red
+  );

@@ -58,7 +58,7 @@ Ext.define('IM.view.IMController', {
     // 是否展示关闭头
     handleCEF() {
         if(window.cefMain) {
-            this.getViewModel().set('isShowBrowseTitle', false);
+            this.getViewModel().set('isHideBrowseTitle', false);
         }
     },
 

@@ -11,26 +11,33 @@ Ext.define('IM.view.rightContainer.Details', {
     layout: 'vbox',
     items: [{
         xtype: 'container',
-        height: 30,
-        cls: 'imitateBrowse',
+        layout: 'hbox',
         bind: {
-            hidden: '{isShowBrowseTitle}'
+            hidden: '{isHideBrowseTitle}'
         },
+        height: 25,
         items: [{
-            xtype: 'button',
-            ui: 'flat',
-            docked: 'right',
-            iconCls: 'x-fa fa-remove'
+            xtype: 'component',
+            cls: 'imitateBrowse',
+            flex: 1
         }, {
             xtype: 'button',
-            ui: 'flat',
-            docked: 'right',
-            iconCls: 'x-fa fa-window-maximize'
+            ui: 'cef',
+            // docked: 'right',
+            iconCls: 'i-im-min',
+            handler: 'cefMin'
         }, {
             xtype: 'button',
-            ui: 'flat',
-            docked: 'right',
-            iconCls: 'x-fa fa-window-minimize'
+            ui: 'cef',
+            // docked: 'right',
+            iconCls: 'i-im-maxmin',
+            handler: 'cefMax'
+        }, {
+            xtype: 'button',
+            ui: 'cefClose',
+            // docked: 'right',
+            iconCls: 'i-im-close',
+            handler: 'cefClose'
         }]
     }, {
         xtype: 'container',
@@ -63,5 +70,23 @@ Ext.define('IM.view.rightContainer.Details', {
 
     btnOnChgToIM() {
         ChatHelper.doubleToIMView();
+    },
+
+    cefClose() {
+        if(window.cefMain) {
+            window.cefMain.close();
+        }
+    },
+
+    cefMax() {
+        if(window.cefMain) {
+            window.cefMain.max();
+        }
+    },
+
+    cefMin() {
+        if(window.cefMain) {
+            window.cefMain.min();
+        }
     }
 });

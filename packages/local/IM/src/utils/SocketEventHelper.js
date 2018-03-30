@@ -34,6 +34,7 @@ Ext.define('IM.utils.SocketEventHelper', {
 
                     if (data.user_id !== User.ownerID) { // 不是自己发的
                         me.notify('多人会话：' + userName, data.message);
+                        CEFHelper.addNotice(data, '多人会话：' + userName);
                     }
                     break;
                 }
@@ -43,6 +44,7 @@ Ext.define('IM.utils.SocketEventHelper', {
                 ChatHelper.addChatToRecent(data.chat_id);
 
                 me.notify('多人会话：' + userName, data.message);
+                CEFHelper.addNotice(data, '多人会话：' + userName);
             }
 
             // 选中的不是当前频道，给未读通知
@@ -67,6 +69,7 @@ Ext.define('IM.utils.SocketEventHelper', {
 
                         if (data.user_id !== User.ownerID) { // 不是自己发的
                             me.notify(userName, data.message);
+                            CEFHelper.addNotice(data, userName);
                         }
                         break;
                     }
@@ -77,6 +80,7 @@ Ext.define('IM.utils.SocketEventHelper', {
                     ChatHelper.addChatToRecent(data.chat_id);
 
                     me.notify(userName, data.message);
+                    CEFHelper.addNotice(data, userName);
                 }
 
 

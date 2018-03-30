@@ -53,7 +53,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     if (grpWarnMsg == '') {
                         PreferenceHelper.hideChatMember(chatID, userID, store);
                     } else {
-                        PreferenceHelper.warnGrpRemovedMem(grpWarnMsg);
+                        PreferenceHelper.warnGrpMem(grpWarnMsg);
                     }
                 }
             }]
@@ -120,9 +120,14 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
      * 右侧页面的发起群聊图标，选中后会在发起群聊的框中展示出已经选中的人
      */
     onShowGrpSel() {
-        User.isPlus = false; // 判断是哪个按钮
+        var grpWarnMsg = PreferenceHelper.preGrpChat();
+        if (grpWarnMsg == '') {
+            User.isPlus = false; // 判断是哪个按钮
 
-        this.fireEvent('grpSel');
+            this.fireEvent('grpSel');
+        } else {
+            PreferenceHelper.warnGrpMem(grpWarnMsg);
+        }
     },
 
 
@@ -301,7 +306,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         // 判断是否是被移除了的会话
         var grpWarnMsg = PreferenceHelper.preGrpChat();
         if (grpWarnMsg != '') {
-            PreferenceHelper.warnGrpRemovedMem(grpWarnMsg);
+            PreferenceHelper.warnGrpMem(grpWarnMsg);
         } else {
             var me = this,
                 fileIds = [];
@@ -392,14 +397,15 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
     // 修改群名
     onTextBlur(field) {
-        var grpWarnMsg = PreferenceHelper.preGrpChat();
-        if (grpWarnMsg == '') {
-            var text = field.getValue();
-            if (text == '' || text == User.rightTitle) { // 置为空或者和原来相同的不更改
-                // 将field的值设为原来的
-                field.setValue(User.rightTitle);
-            } else {
 
+        var text = field.getValue();
+        if (text == '' || text == User.rightTitle) { // 置为空或者和原来相同的不更改
+            // 将field的值设为原来的
+            field.setValue(User.rightTitle);
+        } else {
+            // 更新多人会话之前的操作
+            var grpWarnMsg = PreferenceHelper.preGrpChat();
+            if (grpWarnMsg == '') {
                 // 请求服务端，更改数据库的值
                 console.log('请求服务端，更改数据库的值');
 
@@ -430,11 +436,32 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                         field.setValue(User.rightTitle);
                     }
                 });
+            } else {
+                // 将field的值设为原来的
+                field.setValue(User.rightTitle);
+                PreferenceHelper.warnGrpMem(grpWarnMsg);
             }
-        } else {
-            // 将field的值设为原来的
-            field.setValue(User.rightTitle);
-            PreferenceHelper.warnGrpRemovedMem(grpWarnMsg);
+        }
+
+    },
+
+
+/* ************************************* cef ******************************************/
+    cefClose() {
+        if(window.cefMain) {
+            window.cefMain.close();
+        }
+    },
+
+    cefMax() {
+        if(window.cefMain) {
+            window.cefMain.max();
+        }
+    },
+
+    cefMin() {
+        if(window.cefMain) {
+            window.cefMain.min();
         }
     }
 

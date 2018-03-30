@@ -1,0 +1,16 @@
+/* Font Awesome uses the Unicode Private Use Area (PUA) to ensure screen
+   readers do not read off random characters that represent icons */
+
+[class^="i-im-"], [class*=" i-im-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'im' !important;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.#{$i-im-css-prefix}-maxmin:before { content: $i-im-var-maxmin !important; }
+.#{$i-im-css-prefix}-min:before { content: $i-im-var-min !important; }
+.#{$i-im-css-prefix}-close:before { content: $i-im-var-close !important; }
+.#{$i-im-css-prefix}-addmem:before { content: $i-im-var-addmem !important; }

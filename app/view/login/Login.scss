@@ -11,69 +11,89 @@ $auth-form-bgImg: url(get-resource-path('images/formBG.jpg'));
     $body-color: $auth-color,
     $body-padding: 24px
 );
-
-.auth-login {
+.login-body {
     @include background-size(cover);
     background-image: $auth-background-image;
     background-position: center;
-
-    > .x-body-el {
-        background-color: rgba(black, 0.25);
+    
+    
+    .loginImitateBrowse {
+        .loginDrag {
+            -webkit-app-region: drag;
+        }
+        .x-dock {
+            background-color: rgba(black, 0.25);
+        }
     }
 
-    .x-formpanel {
-        width: 256px;
+    .auth-login {
 
-        // 给formpanel增加背景图片
-        .x-formpanel-body-el {
-            background-image: $auth-form-bgImg;
-            background-size: cover;
-            background-position: center;
+        .formNoDrag {
+            -webkit-app-region: no-drag;
+        }
 
-            // 复选框文字：白色
-            label{
+        -webkit-app-region: drag;
+
+        > .x-body-el {
+            background-color: rgba(black, 0.25);
+        }
+    
+        .x-formpanel {
+            width: 256px;
+    
+            // 给formpanel增加背景图片
+            .x-formpanel-body-el {
+                background-image: $auth-form-bgImg;
+                background-size: cover;
+                background-position: center;
+    
+                // 复选框文字：白色
+                label{
+                    color: $auth-color;
+                }
+            }
+    
+            .x-button {
+                // Balance button vertical spacing with form fields
+                margin: $field-vertical-spacing/2 0;
+    
+                .x-big {
+                    margin: $field-vertical-spacing-big/2 0;
+                }
+            }
+        }
+    
+        .auth-header,
+        .auth-footer {
+            color: $auth-color;
+            text-align: center;
+            padding: 1rem;
+    
+            a {
                 color: $auth-color;
+                text-decoration: none;
             }
         }
-
-        .x-button {
-            // Balance button vertical spacing with form fields
-            margin: $field-vertical-spacing/2 0;
-
-            .x-big {
-                margin: $field-vertical-spacing-big/2 0;
+    
+        .auth-header {
+            .logo {
+                @include single-text-shadow;
+                color: $auth-color;
+                font-size: 3rem;
+                line-height: 1;
+            }
+    
+            .title, .caption {
+                white-space: nowrap;
+            }
+    
+            .title {
+                margin-top: 1rem;
+                font-size: 2rem;
+                font-weight: bold;
             }
         }
     }
 
-    .auth-header,
-    .auth-footer {
-        color: $auth-color;
-        text-align: center;
-        padding: 1rem;
-
-        a {
-            color: $auth-color;
-            text-decoration: none;
-        }
-    }
-
-    .auth-header {
-        .logo {
-            @include single-text-shadow;
-            color: $auth-color;
-            font-size: 3rem;
-            line-height: 1;
-        }
-
-        .title, .caption {
-            white-space: nowrap;
-        }
-
-        .title {
-            margin-top: 1rem;
-            font-size: 2rem;
-            font-weight: bold;
-        }
-    }
 }
+

@@ -220,7 +220,7 @@ Ext.define('IM.view.IMController', {
             view = me.getView(),
             viewModel = view.getViewModel();
 
-        WebSocketHelper.initialize(Config.wsDevGoUrl);
+        WebSocketHelper.initialize(Config.wsGoUrl);
         WebSocketHelper.setEventCallback((msg) => {
             switch (msg.event) {
                 case 'posted':
@@ -234,6 +234,12 @@ Ext.define('IM.view.IMController', {
                     break;
                 case 'member_removed':
                     SocketEventHelper.handleMemRemoveEvent(msg);
+                    break;
+                case 'change_manager':
+                    SocketEventHelper.handleMgrChgEvent(msg);
+                    break;
+                case 'chat_updated':
+                    SocketEventHelper.handleChgChatHeader(msg);
                     break;
                 default:
                     break;

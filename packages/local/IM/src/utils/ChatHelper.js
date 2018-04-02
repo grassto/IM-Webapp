@@ -131,8 +131,8 @@ Ext.define('IM.utils.ChatHelper', {
 
     getChatType(cid) {
         var result = '';
-        for(var i = 0; i < User.allChannels.length; i++) {
-            if(User.allChannels[i].chat.chat_id == cid) {
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == cid) {
                 result = User.allChannels[i].chat.chat_tpe;
             }
         }
@@ -227,6 +227,34 @@ Ext.define('IM.utils.ChatHelper', {
             me.openDirectChat(cid);
         } else { // 不存在，创建会话
             me.createDirectChat(uid, nickname);
+        }
+    },
+
+    openChat(cid) {
+        var me = this;
+        // 根据缓存中的数据判断
+        // for (var i = 0; i < User.allChannels.length; i++) {
+        //     if (User.allChannels[i].chat.chat_id == cid) {
+        //         if (User.allChannels[i].chat.chat_type == ChatType.Direct) {
+        //             me.openDirectChat(cid);
+        //         } else if (User.allChannels[i].chat.chat_type == ChatType.Group) {
+        //             me.openGroupChat(cid);
+        //         }
+        //         break;
+        //     }
+        // }
+
+        // 根据store的数据判断
+        var view = Ext.Viewport.lookup('IM').down('#recentChat'),
+        store = view.getStore(),
+        record = store.getById(cid);
+        if(record) {
+            view.setSelection(record);
+            if(record.data.type == ChatType.Direct) {
+                me.openDirectChat(cid);
+            } else if(record.data.type == ChatType.Group) {
+                me.openGroupChat(cid);
+            }
         }
     },
 

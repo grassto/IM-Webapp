@@ -3,7 +3,7 @@ Ext.define('IM.utils.CEFHelper', {
     singleton: true,
 
     addNotice(data, header) {
-        debugger;
+        // debugger;
         if (window.cefMain) {
             const store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
                 record = store.getById(data.chat_id);

@@ -2,6 +2,8 @@ Ext.define('IM.utils.PreferenceHelper', {
     alternateClassName: 'PreferenceHelper',
     singleton: true,
 
+    /* ************************************* 最近会话列表 **************************************/
+
     toTopArray: [],
     toTop: '1',
 
@@ -83,6 +85,8 @@ Ext.define('IM.utils.PreferenceHelper', {
         });
     },
 
+    /* ************************************** 多人会话人员列表 ***********************************/
+
     // 多人会话人员列表移除人员
     hideChatMember(chatID, userID, store) {
         const me = this;
@@ -123,6 +127,43 @@ Ext.define('IM.utils.PreferenceHelper', {
         }
     },
 
+    /**
+     * 更换管理员
+     * @param {string} chatID
+     * @param {string} userID 新的管理员
+     */
+    chgManager(chatID, userID) {
+        var me = this;
+        Utils.ajaxByZY('PUT', 'chats/' + chatID + '/manager', {
+            params: JSON.stringify([userID]),
+            success: function(data) {
+                if(data.status == 'OK') {
+                    console.log('更换管理员成功，处理内存数据');
+                    me.cacheChgMgr(chatID, userID);
+                }
+            }
+        });
+    },
+
+    // 从缓存中获取管理员id
+    getManagerFromCache(chatID) {
+        var result = '';
+        for(var i = 0; i < User.allChannels.length; i++) {
+            if(User.allChannels[i].chat.chat_id == chatID) {
+                result = User.allChannels[i].chat.manager_id;
+                break;
+            }
+        }
+        return result;
+    },
+
+    // 更新缓存数据
+    cacheChgMgr(chatID, userID) {
+        var chat = this.getChatFromCacheByID(chatID);
+        chat.chat.chat_id = userID;
+    },
+
+    /* ************************************** @相关 ***************************************/
     /**
     * 是否进行@查询
     * @returns bool
@@ -202,6 +243,8 @@ Ext.define('IM.utils.PreferenceHelper', {
     isAtShowName(term, name) {
         // 之后再处理
     },
+
+    /* ****************************************** 多人会话全局操作 ****************************************/
 
     // 在多人会话中，需要有操作的时候，都得调用，返回是否可以继续，true：可以，false：不可以
     preGrpChat() {

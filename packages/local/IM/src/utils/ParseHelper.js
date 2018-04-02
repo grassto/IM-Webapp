@@ -97,10 +97,10 @@ Ext.define('IM.utils.ParseHelper', {
                         grpChangeMsg = SocketEventHelper.createMeRemoveSBMsg(data.notice.operator_id, memIDs[0]);
                         break;
                     case NoticeType.ChgTitle:
-                        // 
+                        grpChangeMsg = SocketEventHelper.createMeChgHeaderMsg(data.notice.content);
                         break;
                     case NoticeType.ChgManager:
-                        // 
+                        grpChangeMsg = SocketEventHelper.meChgMgrToSB(memIDs[0]);
                         break;
                     default:
                         break;
@@ -117,10 +117,10 @@ Ext.define('IM.utils.ParseHelper', {
                         grpChangeMsg = SocketEventHelper.createSBRemoveMeMsg(data.notice.operator_id, memIDs[0]);
                         break;
                     case NoticeType.ChgTitle:
-                        // 
+                        grpChangeMsg = SocketEventHelper.createSBChgHeaderMsg(data.notice.content, data.notice.operator_id);
                         break;
                     case NoticeType.ChgManager:
-                        // 
+                        grpChangeMsg = SocketEventHelper.sbChgMgrToMe(data.notice.operator_id);
                         break;
                     default:
                         break;

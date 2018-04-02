@@ -1,5 +1,6 @@
 /**
  * 处理连接，数据绑定等相关信息,
+ * User.xxx
  * 绑定完成后，缓存中的数据crtUser,allUsers,organization,allOthers,allChannels,allStatus
  */
 Ext.define('IM.utils.ConnectHelper', {
@@ -77,7 +78,6 @@ Ext.define('IM.utils.ConnectHelper', {
         Utils.mask(recView);
         Utils.ajaxByZY('get', 'users/me/chats', {
             success: function (data) {
-                debugger;
                 console.log('所有频道：', data);
 
                 CEFHelper.initNotice(data);

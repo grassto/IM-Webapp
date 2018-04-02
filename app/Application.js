@@ -36,11 +36,18 @@ Ext.define('PushIM.Webapp.Application', {
         Ext.Msg.defaultAllowedConfig.showAnimation = null;
 
 
-        Config.httpUrl = Config.httpAIOUrl;
-        Config.httpUrlForGo = Config.httpDevGoUrl;
+        if(Ext.manifest.env == 'production') {
+            Config.wsGoUrl = Config.wsPdcGoUrl;
+            Config.httpUrl = Config.httpAIOUrl;
+            Config.httpUrlForGo = Config.httpPdcGoUrl;
+        } else { // if(Ext.manifest.env == 'development')
+            Config.wsGoUrl = Config.wsDevGoUrl;
+            Config.httpUrl = Config.httpAIOUrl;
+            Config.httpUrlForGo = Config.httpDevGoUrl;
+        }
 
         me.hideAvaDetail(); // 监听document的单击事件
-        me.preventRightClick(); // 禁用页面原本右击事件
+        // me.preventRightClick(); // 禁用页面原本右击事件
 
 
         // The viewport controller requires xtype defined by profiles, so let's perform extra

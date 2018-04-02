@@ -45,6 +45,13 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
         var text = me.getRemoveText(userID);
 
+        // 是否需要展示更换管理员
+        var manager = PreferenceHelper.getManagerFromCache(chatID),
+            isHideChgMgr = true;
+        if(manager == User.ownerID) {
+            isHideChgMgr = false;
+        }
+
         var menu = Ext.create('Ext.menu.Menu', {
             items: [{
                 text: text,
@@ -52,6 +59,17 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     var grpWarnMsg = PreferenceHelper.preGrpChat(); // 在多人会话中进行操作，提前需要的判断
                     if (grpWarnMsg == '') {
                         PreferenceHelper.hideChatMember(chatID, userID, store);
+                    } else {
+                        PreferenceHelper.warnGrpMem(grpWarnMsg);
+                    }
+                }
+            }, {
+                text:'更换管理员',
+                hidden: isHideChgMgr,
+                handler: function() {
+                    var grpWarnMsg = PreferenceHelper.preGrpChat(); // 在多人会话中进行操作，提前需要的判断
+                    if (grpWarnMsg == '') { // 可以执行操作
+                        PreferenceHelper.chgManager(chatID, userID);
                     } else {
                         PreferenceHelper.warnGrpMem(grpWarnMsg);
                     }

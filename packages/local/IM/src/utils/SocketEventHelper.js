@@ -144,46 +144,48 @@ Ext.define('IM.utils.SocketEventHelper', {
      */
     notify(senderName, sendText) {
         // this.showNewMsgByTitle(); // web版新消息提示
+        if(!window.cefMain) {
 
-        if (!window.Notification) {
-            alert('浏览器不支持通知！');
-        }
-        console.log(window.Notification.permission);
-        if (window.Notification.permission != 'granted') {
-            Notification.requestPermission(function (status) {
-                // status是授权状态，如果用户允许显示桌面通知，则status为'granted'
-                console.log('status: ' + status);
-                //  permission只读属性:
-                //  default 用户没有接收或拒绝授权 不能显示通知
-                //  granted 用户接受授权 允许显示通知
-                //  denied  用户拒绝授权 不允许显示通知
-                var permission = Notification.permission;
-                console.log('permission: ' + permission);
-            });
-        }
-        if (Notification.permission === 'granted') {
-            var n = new Notification(senderName,
-                {
-                    'icon': 'resources/images/LOGO1.png',
-                    'body': sendText // body中不能放html
-                }
-            );
-            n.onshow = function () {
-                console.log('显示通知');
-                setTimeout(function () {
+            if (!window.Notification) {
+                console.log('浏览器不支持通知！');
+            }
+            console.log(window.Notification.permission);
+            if (window.Notification.permission != 'granted') {
+                Notification.requestPermission(function (status) {
+                    // status是授权状态，如果用户允许显示桌面通知，则status为'granted'
+                    console.log('status: ' + status);
+                    //  permission只读属性:
+                    //  default 用户没有接收或拒绝授权 不能显示通知
+                    //  granted 用户接受授权 允许显示通知
+                    //  denied  用户拒绝授权 不允许显示通知
+                    var permission = Notification.permission;
+                    console.log('permission: ' + permission);
+                });
+            }
+            if (Notification.permission === 'granted') {
+                var n = new Notification(senderName,
+                    {
+                        'icon': 'resources/images/LOGO1.png',
+                        'body': sendText // body中不能放html
+                    }
+                );
+                n.onshow = function () {
+                    console.log('显示通知');
+                    setTimeout(function () {
+                        n.close();
+                    }, 8000);
+                };
+                n.onclick = function () {
+                    window.focus();
                     n.close();
-                }, 8000);
-            };
-            n.onclick = function () {
-                window.focus();
-                n.close();
-            };
-            n.onclose = function () {
-                console.log('通知关闭');
-            };
-            n.onerror = function () {
-                console.log('产生错误');
-            };
+                };
+                n.onclose = function () {
+                    console.log('通知关闭');
+                };
+                n.onerror = function () {
+                    console.log('产生错误');
+                };
+            }
         }
     },
     showNewMsgByTitle() {
@@ -565,5 +567,88 @@ Ext.define('IM.utils.SocketEventHelper', {
 
             }
         }
+    },
+
+/* *********************************** 更换管理员 **********************************************************/
+
+    handleMgrChgEvent(msg) {
+        var data = msg.data;
+        var chgMgrMsg = '';
+        if(data.new_manager == User.ownerID) {
+            chgMgrMsg = this.meChgMgrToSB(data.new_manager);
+
+            if (User.crtChannelId == data.chat_id) {
+                this.showgrpMsgInChat(chgMgrMsg, new Date());
+            }
+        } else if(data.old_manager == User.ownerID) {
+            chgMgrMsg = this.sbChgMgrToMe(data.old_manager);
+
+            if (User.crtChannelId == data.chat_id) {
+                this.showgrpMsgInChat(chgMgrMsg, new Date());
+            }
+        }
+
+        this.chgMgrToCahe(data.chat_id, data.new_manager);
+
+    },
+
+    // 你将群主转让给xxx
+    meChgMgrToSB(newMgr) {
+        var name = ChatHelper.getName(newMgr);
+        return '你将群主转让给' + name;
+    },
+
+    //  xxx将群主转让给你
+    sbChgMgrToMe(oldMgr) {
+        var name = ChatHelper.getName(oldMgr);
+        return name + '将群主转让给你';
+    },
+
+    // 缓存中更新管理员
+    chgMgrToCahe(chatID, newMgr) {
+        for(var i = 0; i < User.allChannels.length; i++) {
+            if(chatID == User.allChannels[i].chat.chat_id) {
+                User.allChannels[i].chat.manager_id == newMgr;
+                break;
+            }
+        }
+    },
+
+    /* *********************************** 标题头更改 **********************************/
+
+    handleChgChatHeader(msg) {
+        var me = this,
+        data = msg.data,
+        opID = data.operator_id,
+        chatInfo = JSON.stringify(data.chat),
+        chgHeaderMsg = '';
+
+        if(User.ownerID == opID) {
+            chgHeaderMsg = me.createMeChgHeaderMsg(chatInfo.header);
+        } else {
+            chgHeaderMsg = me.createSBChgHeaderMsg(chatInfo.header, opID);
+        }
+
+        if(User.crtChannelId == chatInfo.chat_id) {
+            me.showgrpMsgInChat(chgHeaderMsg, new Date());
+            Ext.Viewport.lookup('IM').getViewModel().set('sendoName', chatInfo.header);
+        }
+
+        me.chgHeaderToCache(chatInfo.chat_id, chatInfo.header);
+    },
+
+    createMeChgHeaderMsg(header) {
+        return '你修改群名为:' + header;
+    },
+
+    createSBChgHeaderMsg(header, opID) {
+        var name = ChatHelper.getName(opID);
+        return name + '修改群名为:' + header;
+    },
+
+    chgHeaderToCache(chatID, header) {
+        var chat = PreferenceHelper.getChatFromCacheByID(chatID);
+        chat.chat.header = header;
+        chat.chat.is_manual = 'Y';
     }
 });

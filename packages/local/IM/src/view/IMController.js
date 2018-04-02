@@ -16,11 +16,11 @@ Ext.define('IM.view.IMController', {
             },
             'left-orgController': {
                 showRight: 'showRightView',
-                doubleTapOrg: 'btnOnChgToIM'
+                // doubleTapOrg: 'btnOnChgToIM'
             },
             'im-right-main': {
                 grpSel: 'onShowGrpSel',
-                antiParse: 'antiParse',
+                // antiParse: 'antiParse',
                 listToTop: 'doLeftListToTop'
             }
         }
@@ -88,58 +88,9 @@ Ext.define('IM.view.IMController', {
         return rightView;
     },
 
-    /**
-     * 详细界面，转到IM聊天界面
-     */
-    btnOnChgToIM() {
-        var me = this,
-            record = me.getViewModel().get('orgSelRecord');
-
-        // 选中的不是自己
-        if (User.ownerID !== record.data.id) {
-            if (!record.data.leaf) {
-                Ext.Msg.confirm('提示', '确定要发起群聊吗？', function (btn) {
-                    if (btn == 'yes') {
-                        me.chgToIMView();
-                        var memsID = [];
-                        memsID = BindHelper.getLeafDataFromTree(record, memsID);
-                        
-                        ChatHelper.createGroupChat(memsID);
-                    }
-                });
-            } else {
-                me.chgToIMView();
-                me.getView().lookup('im-main').getController().onOpenChat();
-
-                // var viewModel = me.getViewModel(),
-                //     name = viewModel.get('sendToName');
-                // me.doLeftListToTop(name);
-            }
-        }
-
-    },
 
     /**
-    * 右侧页面切换为聊天页面
-    */
-    chgToIMView() {
-        const me = this,
-            rootView = me.getView(),
-            imMainView = rootView.lookup('im-main').down('#exceptTitle');
-        if (!imMainView) { // 存在了就不切换
-            var detailsView = rootView.lookup('details'),
-                blankView = rootView.lookup('pageblank');
-            if (blankView) { // 不存在im-main容器，则添加
-                me.showRightView('im-main', 'pageblank');
-            }
-            if (detailsView) {
-                me.showRightView('im-main', 'details');
-            }
-        }
-    },
-
-    /**
-     * 最近会话移至最上方
+     * 最近会话移至最上方（不要）
      */
     doLeftListToTop(id) {
         const me = this,
@@ -159,56 +110,6 @@ Ext.define('IM.view.IMController', {
 
     /* *************************************处理Websocket请求**************************************************/
 
-    /**
-     * 反解析
-     * @param {string} text 消息内容
-     * @param {array} fileIds 文件id
-     */
-    antiParse(text, fileIds) {
-        var reg = /\[\w+\]/g;
-        var result = text.replace(reg, function (str) {
-            var out = '',
-                id = str.substring(1, str.length - 1);
-            
-            if (fileIds) {
-                for (var i = 0; i < fileIds.length; i++) {
-                    if (fileIds[i] == id) {
-                        out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '">'; //+ '/thumbnail">';
-                        break;
-                    } else {
-                        out = str;
-                    }
-                }
-            }
-            // Utils.ajaxByZY('GET', 'files/' + id + '/hasFile', {
-            //     async: false, // 此处不能使用异步加载
-            //     // params: JSON.stringify(id),
-            //     success: function (data) {
-            //         if (data == 'yes') {
-            //             out = '<img class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
-            //         } else {
-            //             out = str;
-            //         }
-            //     }
-            // });
-            return out;
-        });
-        return result;
-    },
-
-    /**
-     * 根据channel名查找相应的record，并修改record的值
-     * @param {string} userName channel名
-     * @param {Date} date 日期时间
-     */
-    resetLastPostTime(userName, date) {
-        var me = this,
-            RStore = me.getView().down('#recentChat').getStore(),
-            record = RStore.getAt(RStore.find('name', userName));
-        // 更新record的值
-        record.set('last_post_at', date);
-    },
-
 
     /* *************************************连接相关**************************************************/
 
@@ -223,22 +124,22 @@ Ext.define('IM.view.IMController', {
         WebSocketHelper.initialize(Config.wsGoUrl);
         WebSocketHelper.setEventCallback((msg) => {
             switch (msg.event) {
-                case 'posted':
+                case SocketEventType.posted:
                     SocketEventHelper.handleNewPostEvent(msg);
                     break;
-                case 'group_added':
+                case SocketEventType.createGrp:
                     SocketEventHelper.handleGrpAddEvent(msg);
                     break;
-                case 'members_added':
+                case SocketEventType.memAdd:
                     SocketEventHelper.handleMemAddEvent(msg);
                     break;
-                case 'member_removed':
+                case SocketEventType.memRemove:
                     SocketEventHelper.handleMemRemoveEvent(msg);
                     break;
-                case 'change_manager':
+                case SocketEventType.chgManager:
                     SocketEventHelper.handleMgrChgEvent(msg);
                     break;
-                case 'chat_updated':
+                case SocketEventType.updateChat:
                     SocketEventHelper.handleChgChatHeader(msg);
                     break;
                 default:

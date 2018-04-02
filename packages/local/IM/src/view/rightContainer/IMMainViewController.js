@@ -353,7 +353,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     params: JSON.stringify(message),
                     success: function (data) {
                         // 将选中的人移至最上方
-                        me.fireEvent('listToTop', data.user_id);
+                        // me.fireEvent('listToTop', data.user_id);
                         console.log('发送成功', data);
                         User.files = [];
                     }

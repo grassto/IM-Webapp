@@ -23,7 +23,7 @@ Ext.define('IM.model.viewModel.IMMainBind', {
         isOrgDetail: true, // 详细界面的展示信息
         orgSelRecord: {},
 
-        isHideBrowseTitle: true // cef支持
+        isHideBrowseTitle: true // 隐藏浏览器关闭按钮
     },
 
     formulas: {

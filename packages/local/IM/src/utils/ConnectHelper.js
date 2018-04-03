@@ -51,6 +51,8 @@ Ext.define('IM.utils.ConnectHelper', {
                 }
 
                 BindHelper.loadOrganization(orgTree);
+                // debugger;
+                Utils.unMask(orgTree);// 不知道放这有没有用
 
                 // 定时获取状态 60s
                 me.getStatus(ids);
@@ -61,7 +63,7 @@ Ext.define('IM.utils.ConnectHelper', {
 
                 me.getChannels(view);
             }, callback() {
-                Utils.unMask(orgTree);
+                // Utils.unMask(orgTree);
             }
         });
 
@@ -85,8 +87,10 @@ Ext.define('IM.utils.ConnectHelper', {
                 me.pushChatToCache(data);
 
                 BindHelper.loadRecentChat(recView);
-            }, callback() {
+
                 Utils.unMask(recView);
+            }, callback() {
+                // Utils.unMask(recView);
             }
         });
     },

@@ -130,7 +130,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
 
                     var mems;
 
-                    if(term == '') { // 只有@的时候，展示所有人
+                    if (term == '') { // 只有@的时候，展示所有人
                         mems = PreferenceHelper.getAllAtChatMems(User.crtChannelId);
                     } else {
                         mems = PreferenceHelper.getAtMems(User.crtChannelId, term);
@@ -357,13 +357,13 @@ Ext.define('IM.view.chat.editor.RichEditor', {
      * 上传图片,黏贴，拼凑图片img
      * @param File类型
      */
-    uploadPic(file) {
+    uploadPic(picInfo) {
         var me = this,
-            formData = new FormData(),
-            clientId = new Date().getTime() + '';
-        formData.append('files', file);
+            formData = new FormData();
+        for (var i = 0; i < picInfo.length; i++) {
+            formData.append('files', picInfo[i]);
+        }
         formData.append('chat_id', User.crtChannelId);
-        formData.append('client_ids', clientId);
         $.ajax({
             url: Config.httpUrlForGo + 'files',
             type: 'post',
@@ -404,5 +404,48 @@ Ext.define('IM.view.chat.editor.RichEditor', {
 
         // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
         window.imagess(url, id);
+    },
+
+
+    uploadFile(fileInfo) {
+        User.files = fileInfo; // 通过缓存来存储
+        // 显示上传页面
+        const me = this;
+        if(!me.uploadList) {
+            me.uploadList = Ext.create('IM.widget.UploadList', {
+                id: 'uploadList'
+            });
+        }
+        me.uploadList.show();
+
+        // var me = this,
+        //     formData = new FormData();
+        // for (var i = 0; i < fileInfo.length; i++) {
+        //     formData.append('files', fileInfo[i]);
+        // }
+        // formData.append('chat_id', User.crtChannelId);
+
+        // $.ajax({
+        //     url: Config.httpUrlForGo + 'files',
+        //     type: 'post',
+        //     data: formData,
+        //     contentType: false,
+        //     processData: false,
+        //     async: false,
+        //     xhrFields: {
+        //         withCredentials: true
+        //     },
+        //     success: function (data) {
+        //         debugger;
+
+        //     }
+        // });
+    },
+
+
+    destory() {
+        Ext.destroy(this.uploadList);
+        this.callParent();
     }
+
 });

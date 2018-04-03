@@ -17,7 +17,7 @@ Ext.define('IM.view.chat.ChatInput', {
         var btnBrowse = me.down('#btnBrowse');
         me.initUploader(btnBrowse);
         var btnFile = me.down('#btnFile');
-        me.initUploader(btnFile, true);
+        me.initFileUploader(btnFile, true);
     },
 
 
@@ -133,7 +133,7 @@ Ext.define('IM.view.chat.ChatInput', {
         });
     },
 
-    
+
     /**
      * 回执按钮点击事件,btn.getPressed()判断是否按下
      */
@@ -183,7 +183,7 @@ Ext.define('IM.view.chat.ChatInput', {
     * 初始化上传按钮
     * @param {Ext.Button} btnBrowse
     */
-    initUploader(btnBrowse, isAllFile) {
+    initUploader(btnBrowse) {
         const me = this;
         if (me.uploader || !btnBrowse || !me.getEnableUpload()) return;
 
@@ -193,19 +193,179 @@ Ext.define('IM.view.chat.ChatInput', {
         });
 
         FileUtil.ensurePlUploadlibs(() => {
-            me.doInitUploader(btnBrowse, isAllFile);
+            me.doInitUploader(btnBrowse);
         });
     },
 
-    doInitUploader(btnBrowse, isAllFile) {
-        var me = this,
-            filters = {
-                mime_types: [FileUtil.imageFilter]
-            };
-        if (isAllFile) {
-            filters = {};
-        }
+    doInitUploader(btnBrowse) {
+        const me = this;
+        if (me.uploader) return; // 这儿不怎么友好
+
+        var fileType = [FileUtil.imageFilter];
+
         var uploader = new plupload.Uploader({
+            required_features: 'send_browser_cookies',
+            multipart_params: [{ chat_id: User.crtChannelId }],
+
+            browse_button: btnBrowse.buttonElement.dom, // you can pass in id...
+            container: btnBrowse.element.dom, // ... or DOM Element itself
+
+            // url: Config.httpUrlForGo + 'files',
+
+            chunk_size: '1mb',
+            unique_names: false,
+            filters: {
+                // prevent_duplicates: true,
+                max_file_size: '5mb',
+                mime_types: fileType
+            },
+
+            init: {
+                FilesAdded(up, files) {
+                    console.log('选择文件后触发');
+                    me.onPicsAdded.apply(me, arguments);
+                },
+
+                UploadProgress(up, file) {
+                    // me.onUploadProgress.apply(me, arguments);
+                },
+
+                FileUploaded(up, file, result) {
+                    // me.onFileUploaded.apply(me, arguments);
+                },
+
+                UploadComplete(up, files) {
+                    // me.onUploadComplete.apply(me, arguments);
+                },
+
+                Error(up, err) {
+                    me.onPicUploadError.apply(me, arguments);
+                    // alert('出错了');
+                }
+            }
+        });
+
+        uploader.init();
+
+        me.uploader = uploader;
+        debugger;
+    },
+
+    /**
+     * 选择文件后触发
+     * @param {plupload.Uploader} uploader
+     * @param {plupload.File[]} files
+     */
+    onPicsAdded(uploader, files) {
+        // debugger;
+        var me = this;
+        if (files.length > 0) {
+            var picInfo = [];
+            for (var i = 0; i < files.length; i++) {
+
+                if (files[i].type == 'image/png') {// 是图片，要展示
+
+                    picInfo.push(files[i]);
+
+                    // file转base64展示,
+                    // var reader = new FileReader();
+                    // reader.readAsDataURL(files[i].getNative());
+                    // reader.onload = function () {
+                    //     var editor = me.down('#richEditor'),
+                    //         base64 = this.result,
+                    //         img = '<img src="' + base64 + '" style="width:40px;height:40px"/>&#8203';
+                    //     editor.inputElement.dom.focus();
+                    //     document.execCommand('insertHTML', false, img);
+                    // };
+                } /* else {
+                    // 不是图片
+                    fileInfo.push(files[i]);
+
+                    // var formData = new FormData();
+                    // formData.append('files', files[i].getNative());
+                    // formData.append('chat_id', User.crtChannelId);
+                    // $.ajax({
+                    //     url: Config.httpUrlForGo + 'files',
+                    //     type: 'post',
+                    //     data: formData,
+                    //     contentType: false,
+                    //     processData: false,
+                    //     async: false,
+                    //     xhrFields: {
+                    //         withCredentials: true
+                    //     },
+                    //     success: function (data) {
+                    //         debugger;
+
+                    //     }
+                    // });
+                }*/
+            }
+
+            if (picInfo.length > 0) {
+                // 上传图片，得到返回的预览图展示
+                me.down('#richEditor').uploadPic(picInfo);
+            }
+            // if (fileInfo.length > 0) {
+            //     me.down('#richEditor').uploadFile(fileInfo);
+            // }
+        }
+
+        // uploader.start();
+    },
+
+    /**
+     * 单个文件上传错误
+     * @param {plupload.Uploader} uploader
+     * @param {plupload.File[]} files
+     */
+    onPicUploadError(uploader, err) {
+        console.log('onUploadError', arguments);
+
+        Ext.Msg.alert('上传失败', '上传失败');
+    },
+
+    /**
+     * 点击添加文件按钮时，如果上传组件还没有初始化好，就提示一下
+     * @param {Ext.Button} btn
+     */
+    onTapBtnFile(btn) {
+        const me = this;
+        if (!window.plupload || !me.fileUploader) {
+            Utils.toastShort(FileUtil.waitUploadInitMsg);
+
+            return;
+        }
+
+        if (!me.getEnableUpload()) {
+            Utils.toastShort('禁止上传文件');
+
+            return;
+        }
+    },
+
+
+    initFileUploader(btnBrowse) {
+        const me = this;
+        if (me.fileUploader || !btnBrowse || !me.getEnableUpload()) return;
+
+        btnBrowse.on({
+            tap: 'onTapBtnFile',
+            scope: me
+        });
+
+        FileUtil.ensurePlUploadlibs(() => {
+            me.doInitFileUploader(btnBrowse);
+        });
+    },
+
+    doInitFileUploader(btnBrowse) {
+        const me = this;
+        if (me.fileUploader) return; // 这儿不怎么友好
+
+        var fileType = [FileUtil.imageFilter, FileUtil.archiveFilter, FileUtil.docFilter, FileUtil.otherFilter];
+
+        var fileUploader = new plupload.Uploader({
             required_features: 'send_browser_cookies',
 
             browse_button: btnBrowse.buttonElement.dom, // you can pass in id...
@@ -213,16 +373,15 @@ Ext.define('IM.view.chat.ChatInput', {
 
             chunk_size: '1mb',
             unique_names: false,
-            filters: filters,
-            // {
-            //     // prevent_duplicates: true,
-            //     // max_file_size: '40mb',
-            //     // mime_types: fileType
-            // },
+            filters: {
+                // prevent_duplicates: true,
+                max_file_size: '5mb',
+                mime_types: fileType
+            },
 
             init: {
                 FilesAdded(up, files) {
-                    console.log('选择文件后触发');
+                    // console.log('选择文件后触发');
                     me.onFilesAdded.apply(me, arguments);
                 },
 
@@ -239,85 +398,59 @@ Ext.define('IM.view.chat.ChatInput', {
                 },
 
                 Error(up, err) {
-                    // me.onUploadError.apply(me, arguments);
-                    alert('出错了');
+                    me.onFilesUploadError.apply(me, arguments);
+                    // alert('出错了');
                 }
             }
         });
 
-        uploader.init();
+        fileUploader.init();
 
-        me.uploader = uploader;
+        me.fileUploader = fileUploader;
     },
 
-    /**
-     * 选择文件后触发
-     * @param {plupload.Uploader} uploader
-     * @param {plupload.File[]} files
-     */
-    onFilesAdded(uploader, files) {
-        var me = this;
+    onFilesAdded(fileUploader, files) {
+        const me = this;
         if (files.length > 0) {
             for (var i = 0; i < files.length; i++) {
+                var formData = new FormData();
+                formData.append('files', files[i].getNative());
+                formData.append('chat_id', User.crtChannelId);
+                $.ajax({
+                    url: Config.httpUrlForGo + 'files',
+                    type: 'post',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    async: false,
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    xhr: function () {
+                        var xhr = $.ajaxSettings.xhr();
+                        if (me.onprogress && xhr.upload) {
+                            xhr.upload.addEventListener('progress', me.onprogress, false);
+                            return xhr;
+                        }
+                    },
+                    success: function (data) {
+                        debugger;
 
-                if (files[i].type == 'image/png') {// 是图片，要展示
-                    // 上传图片，得到返回的预览图展示
-                    me.down('#richEditor').uploadPic(files[i].getNative());
-
-                    // file转base64展示,
-                    // var reader = new FileReader();
-                    // reader.readAsDataURL(files[i].getNative());
-                    // reader.onload = function () {
-                    //     var editor = me.down('#richEditor'),
-                    //         base64 = this.result,
-                    //         img = '<img src="' + base64 + '" style="width:40px;height:40px"/>&#8203';
-                    //     editor.inputElement.dom.focus();
-                    //     document.execCommand('insertHTML', false, img);
-                    // };
-                } else {
-                    // 不是图片
-                }
+                    }
+                });
             }
         }
+    },
+    onFilesUploadError(fileUploader, err) {
+        console.log('onUploadError', arguments);
 
-        // const me = this;
-        // if (files.length > 0) {
-        //     var formData = new FormData(),
-        //         clientId = new Date().getTime() + '';
-        //     formData.append('files', files[0].getNative());
-        //     formData.append('channel_id', User.crtChannelId);
-        //     formData.append('client_ids', clientId);
-        //     $.ajax({
-        //         url: config.httpUrl + 'files',
-        //         type: 'post',
-        //         data: formData,
-        //         contentType: false,
-        //         processData: false,
-        //         async: false,
-        //         xhrFields: {
-        //             withCredentials: true
-        //         },
-        //         success: function (data) {
-        //             var reFiles = data.file_infos;
-        //             for (var i = 0; i < reFiles.length; i++) {
-        //                 User.files.push(reFiles[i]);
-        //             }
-
-        //             var fileListStore = me.getView().down('#fileView').store;
-        //             // for (var i = 0; i < reFiles.length; i++) {
-        //             //     fileListStore.add({ FileName: reFiles[i].name, Size: reFiles[i].size });
-        //             // }
-        //             plupload.each(reFiles, function (file) {
-        //                 fileListStore.add({
-        //                     FileID: file.id,
-        //                     FileName: file.name,
-        //                     Size: file.size,
-        //                     Icon: DocUtil.getExtension(file.name),
-        //                     // Status: 0 // 未上传
-        //                 });
-        //             });
-        //         }
-        //     });
-        // }
+        Ext.Msg.alert('上传失败', '上传失败');
+    },
+    onprogress(evt) {
+        debugger;
+        var loaded = evt.loaded; // 已经上传大小情况
+        var tot = evt.total; // 附件总大小
+        var per = Math.floor(100 * loaded / tot); // 已经上传的百分比.
+        console.log(per + "%");
     }
 });

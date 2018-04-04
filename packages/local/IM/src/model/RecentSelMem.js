@@ -39,7 +39,8 @@ Ext.define('IM.model.RecentSelMem', {
         },
         {
             name: 'unReadNum',
-            type: 'int'
+            type: 'int',
+            defaultValue: 0
         },
         {
             name: 'toTop',

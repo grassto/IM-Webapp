@@ -1,12 +1,69 @@
+
+$chatView-file-image: url(get-resource-path('images/file.png'));
+
 .chatVeiw-list {
     .x-listitem {
         border-style: none;
     }
+    
+    .grpChangeNote {
+        text-align: center;
+        max-width: 300px;
+        margin: auto;
+        color: #434547;
+    }
+
+    .fileMsg {
+        width:250px;
+        height:80px;
+        border: solid 1px black;
+        border-radius: 6px;
+
+        .fileWrapper{
+            // white-space: nowrap;
+            // text-overflow: ellipsis;
+            // overflow: hidden;
+            height:60px;
+
+            .fileIcon{
+                float: left;
+                margin-right: 20px;
+                width: 60px;
+                height: 60px;
+                // background-image: $chatView-file-image;
+                background-image: $chatView-file-image;
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+        }
+        
+
+        .fileProgress{
+            float:left;
+            height: 15px;
+            width: 155px;
+            margin-left: 8px;
+            margin-right: 8px;
+            background: grey;
+            color:white;
+
+            .fileLoaded{
+                height: 15px;
+                background: #0878ba;
+            }
+
+            
+        }
+
+
+        .fileClose{
+            cursor: pointer;
+            float:left;
+        }
+
+        .fileDone{
+
+        }
+    }
 }
 
-.grpChangeNote {
-    text-align: center;
-    max-width: 300px;
-    margin: auto;
-    color: #434547;
-}

@@ -248,7 +248,7 @@ Ext.define('IM.view.chat.ChatInput', {
         uploader.init();
 
         me.uploader = uploader;
-        debugger;
+        // debugger;
     },
 
     /**
@@ -265,7 +265,7 @@ Ext.define('IM.view.chat.ChatInput', {
 
                 if (files[i].type == 'image/png') {// 是图片，要展示
 
-                    picInfo.push(files[i]);
+                    picInfo.push(files[i].getNative());
 
                     // file转base64展示,
                     // var reader = new FileReader();
@@ -325,6 +325,8 @@ Ext.define('IM.view.chat.ChatInput', {
         Ext.Msg.alert('上传失败', '上传失败');
     },
 
+
+
     /**
      * 点击添加文件按钮时，如果上传组件还没有初始化好，就提示一下
      * @param {Ext.Button} btn
@@ -343,7 +345,6 @@ Ext.define('IM.view.chat.ChatInput', {
             return;
         }
     },
-
 
     initFileUploader(btnBrowse) {
         const me = this;
@@ -412,32 +413,22 @@ Ext.define('IM.view.chat.ChatInput', {
     onFilesAdded(fileUploader, files) {
         const me = this;
         if (files.length > 0) {
+            var picInfo = [],
+                fileInfo = [];
             for (var i = 0; i < files.length; i++) {
-                var formData = new FormData();
-                formData.append('files', files[i].getNative());
-                formData.append('chat_id', User.crtChannelId);
-                $.ajax({
-                    url: Config.httpUrlForGo + 'files',
-                    type: 'post',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    async: false,
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    xhr: function () {
-                        var xhr = $.ajaxSettings.xhr();
-                        if (me.onprogress && xhr.upload) {
-                            xhr.upload.addEventListener('progress', me.onprogress, false);
-                            return xhr;
-                        }
-                    },
-                    success: function (data) {
-                        debugger;
+                if (files[i].type == 'image/png') {
+                    picInfo.push(files[i].getNative());
+                } else {
+                    fileInfo.push(files[i]);
+                }
+            }
 
-                    }
-                });
+            if (picInfo.length > 0) {
+                me.down('#richEditor').uploadPic(picInfo);
+            }
+
+            if (fileInfo.length > 0) {
+                me.down('#richEditor').uploadFile(fileInfo);
             }
         }
     },
@@ -445,12 +436,5 @@ Ext.define('IM.view.chat.ChatInput', {
         console.log('onUploadError', arguments);
 
         Ext.Msg.alert('上传失败', '上传失败');
-    },
-    onprogress(evt) {
-        debugger;
-        var loaded = evt.loaded; // 已经上传大小情况
-        var tot = evt.total; // 附件总大小
-        var per = Math.floor(100 * loaded / tot); // 已经上传的百分比.
-        console.log(per + "%");
     }
 });

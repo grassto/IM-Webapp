@@ -66,26 +66,50 @@ Ext.define('IM.view.chat.ChatView', {
         e.preventDefault(); // 取消默认事件
     },
 
-    itemTpl: '<tpl if="values.showTime">' +
+    itemTpl: '<tpl if="values.showTime">' + // 一分钟内时间不重复展示
         '<div style="width:100%;color:#6f6a60;text-align:center;margin-bottom:10px;">{updateTime}</div>' +
         '</tpl>' +
-        '<tpl if="values.showGrpChange">' +
+        '<tpl if="values.showGrpChange">' + // 展示多人会话提示信息
             '<div class="grpChangeNote">{GrpChangeMsg}</div>' +
-        '<tpl else>' +
-            '<tpl if="values.ROL!==\'right\'">' +
+        '<tpl else>' + // 正常的消息
+            '<tpl if="values.ROL!==\'right\'">' + // 头像是否展示
                 '<div class="evAvatar" style="float:{ROL};">' +
                 '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.senderName)]} " style="margin:0;float:{ROL};{[AvatarMgr.getColorStyle(values.senderName)]}">' +
                 '</a>' +
                 '</div>' +
             '</tpl>' +
             '<div style="text-align:{ROL};/*min-height:60px;overflow:hidden;*/">' +
-            '<tpl if="values.ROL==\'right\'">' +
+                '<tpl if="values.ROL==\'right\'">' +// 自己的，
                 '<div class="bubble">' +
-            '<tpl else>' +
+                '<tpl else>' + // 他人的
                 '<div class="bubble" style="background-color:navajowhite">' +
-            '</tpl>' +
-            '<div class="plain">{sendText}' +
-            '</div>' +
+                '</tpl>' +
+                    '<div class="plain">' +
+                    '<tpl if="values.msg_type==\'F\'">' + // file展示
+                        '<div class="fileMsg">' +
+                            '<div class="fileWrapper">' +
+                                '<div class="fileIcon"></div>' +
+                                '<div>{fileName}</div>' +
+                                '<div>{fileSize:fileSize}</div>' +
+                            '</div>' +
+                            '<div>' +
+                                '<tpl if="values.fileStatus == 1">' +
+                                    '<div class="fileProgress">' +
+                                        '<div style="width:{fileProgress}%;" class="fileLoaded">{fileProgress}%</div>' +
+                                    '</div>' +
+                                    '<div class="fileClose">取消</div>' +
+                                '<tpl elseif="values.fileStatus == 2">' +
+                                    '<div class="fileDone">上传成功</div>' +
+                                '<tpl elseif="values.fileStatus == 3">' +
+                                    '<div class="fileDone">上传失败</div>' +
+                                '</tpl>' +
+                            '</div>' +
+                        '</div>' +
+                    '<tpl else>' + // 文本或图片，直接拼好过来
+                        '{sendText}' +
+                    '</tpl>' +
+                    '</div>' +
+                '</div>' +
             '</div>' +
         '</tpl>'
     ,
@@ -100,13 +124,15 @@ Ext.define('IM.view.chat.ChatView', {
             var thumbSrc = t.dom.src;
             // 请求原图浏览
             ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
-            // ImgUtil.viewImgs(thumbSrc);
-            // me.onPreviewAttach(record);
         }
         if (t.hasCls('avatar')) {
             this.setHisDetails(record);
             this.showMoreAboutHim(location.sourceElement, record);
             e.stopPropagation(); // 防止事件冒泡，会调用到document的tap事件
+        }
+        if(t.hasCls('fileClose')) {
+            record.get('ajax').abort();
+            this.getStore().remove(record);
         }
     },
 
@@ -184,6 +210,6 @@ Ext.define('IM.view.chat.ChatView', {
 
     destory() {
         Ext.destroy(this.detailPanel);
-        this.callParent();
+        this.callParent(arguments);
     }
 });

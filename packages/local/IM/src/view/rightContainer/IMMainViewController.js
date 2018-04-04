@@ -349,6 +349,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     files: fileIds
                 };
 
+
                 Utils.ajaxByZY('post', 'posts', {
                     params: JSON.stringify(message),
                     success: function (data) {

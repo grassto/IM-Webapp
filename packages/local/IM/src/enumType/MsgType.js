@@ -3,5 +3,6 @@ Ext.define('IM.enumType.MsgType', {
     alternateClassName: 'MsgType',
 
     TextMsg: 'T',
-    ImgMsg: 'I'
+    ImgMsg: 'I',
+    FileMsg: 'F'
 });

@@ -48,7 +48,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         if (len > 0) {
             for (var i = 0; i < len; i++) {
                 if (files[i].type == 'image/png') { // 图片类型，则上传并绑定到editor
-                    me.uploadPic(files[i]);
+                    me.uploadPic(files);
                 } else { // 其他类型再处理
 
                 }
@@ -247,8 +247,10 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                         }
                     } else if (item.kind == 'file') {
                         var blob = item.getAsFile();
+                        var files = [];
+                        files.push(blob);
                         // 图片上传,并黏贴到输入框
-                        me.uploadPic(blob);
+                        me.uploadPic(files);
 
                         // me.bindPicToEditor(blob);
                     }
@@ -370,14 +372,14 @@ Ext.define('IM.view.chat.editor.RichEditor', {
             data: formData,
             contentType: false,
             processData: false,
-            async: false,
+            // async: false,
             xhrFields: {
                 withCredentials: true
             },
             success: function (data) {
                 // var text, url, id;
                 for (var i = 0; i < data.files.length; i++) {
-                    User.files.push(data.files[i]);
+                    // User.files.push(data.files[i]);
 
                     me.bindPicByID(data.files[i].file_id);
                 }
@@ -417,29 +419,6 @@ Ext.define('IM.view.chat.editor.RichEditor', {
             });
         }
         me.uploadList.show();
-
-        // var me = this,
-        //     formData = new FormData();
-        // for (var i = 0; i < fileInfo.length; i++) {
-        //     formData.append('files', fileInfo[i]);
-        // }
-        // formData.append('chat_id', User.crtChannelId);
-
-        // $.ajax({
-        //     url: Config.httpUrlForGo + 'files',
-        //     type: 'post',
-        //     data: formData,
-        //     contentType: false,
-        //     processData: false,
-        //     async: false,
-        //     xhrFields: {
-        //         withCredentials: true
-        //     },
-        //     success: function (data) {
-        //         debugger;
-
-        //     }
-        // });
     },
 
 

@@ -133,7 +133,8 @@ Ext.define('IM.utils.ChatHelper', {
         var result = '';
         for (var i = 0; i < User.allChannels.length; i++) {
             if (User.allChannels[i].chat.chat_id == cid) {
-                result = User.allChannels[i].chat.chat_tpe;
+                result = User.allChannels[i].chat.chat_type;
+                break;
             }
         }
 

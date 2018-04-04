@@ -37,7 +37,7 @@ Ext.define('PushIM.Webapp.Application', {
 
 
         if(Ext.manifest.env == 'production') {
-            Config.wsGoUrl = Config.wsPdcGoUrl;
+            Config.wsGoUrl = Config.wsPdcUrl;
             Config.httpUrl = Config.httpAIOUrl;
             Config.httpUrlForGo = Config.httpPdcGoUrl;
         } else { // if(Ext.manifest.env == 'development')

@@ -226,102 +226,106 @@ Ext.define('IM.utils.BindHelper', {
     },
 
 
-    onAddMemToGroup(listData) {
-        var memsID = [];
-        for (var i = 0; i < listData.length; i++) {
-            memsID.push(listData[i].data.id);
-        }
-        // for (var i = 0; i < User.crtChatMembers.length; i++) {
-        //     memsID.push(User.crtChatMembers[i]);
-        // }
+    // onAddMemToGroup(listData) {
+    //     var memsID = [];
+    //     for (var i = 0; i < listData.length; i++) {
+    //         memsID.push(listData[i].data.id);
+    //     }
+    //     // for (var i = 0; i < User.crtChatMembers.length; i++) {
+    //     //     memsID.push(User.crtChatMembers[i]);
+    //     // }
 
-        this.addMemToGroup(memsID);
-    },
+    //     this.addMemToGroup(memsID);
+    // },
 
-    addMemToGroup(memsID) {
-        // 若是从担任会话发起的多人会话，则新建多人会话
-        if (User.crtChatMembers.length == 2) {
-            memsID.push(User.crtChatMembers[0]);
-            memsID.push(User.crtChatMembers[1]);
+    // /**
+    //  * 多人会话添加成员（缓存和页面都添加）
+    //  * @param {Array} memsID 添加的用户ID
+    //  */
+    // addMemToGroup(memsID) {
+    //     // 若是从担任会话发起的多人会话，则新建多人会话
+    //     if (User.crtChatMembers.length == 2) {
+    //         memsID.push(User.crtChatMembers[0]);
+    //         memsID.push(User.crtChatMembers[1]);
 
-        } else {
-            Utils.ajaxByZY('post', 'chats/' + User.crtChannelId + '/members', {
-                params: JSON.stringify(memsID),
-                success: function (data) {
-                    var IMView = Ext.Viewport.down('IM'),
-                        recentChat = IMView.down('#recentChat'),
-                        chatStore = recentChat.getStore(),
-                        record;
-                    if (User.crtChatMembers.length == 2) {// 从单人会话过来的，则增加一个新频道，在页面进行展示
-                        record = chatStore.insert(0, {
-                            id: data.chat_id,
-                            name: data.chat_name,
-                            type: data.chat_type
-                        });
-                        recentChat.setSelection(record); // 设置选中
-                        User.crtChannelId = data.chat_id; // 当前选中的频道
-                        if (data.chat_name.length > 8) {
-                            data.chat_name = data.chat_name.substr(0, 8) + '...';
-                        }
-                        IMView.getViewModel().set({
-                            'sendToName': data.chat_name,
-                            'isOrgDetail': false
-                        });
-                        if (IMView.lookup('im-main')) {
-                            IMView.lookup('im-main').down('#chatView').getStore().removeAll();
-                        }
-
-
-                        User.allChannels.push({
-                            chat: {
-                                channelname: data.chat_name,
-                                chat_id: data.chat_id,
-                                chat_name: data.chat_name,
-                                chat_type: data.chat_type
-                            },
-                            members: {
-                                chat_id: data.chat_id,
-                                user_id: User.ownerID
-                            }
-                        });
-
-                    } else if (User.crtChatMembers.length > 2) {
-                        // 修改store的数据
-                    }
-                }
-            });
-        }
-    },
+    //     } else {
+    //         Utils.ajaxByZY('post', 'chats/' + User.crtChannelId + '/members', {
+    //             params: JSON.stringify(memsID),
+    //             success: function (data) {
+    //                 var IMView = Ext.Viewport.down('IM'),
+    //                     recentChat = IMView.down('#recentChat'),
+    //                     chatStore = recentChat.getStore(),
+    //                     record;
+    //                 if (User.crtChatMembers.length == 2) {// 从单人会话过来的，则增加一个新频道，在页面进行展示
+    //                     record = chatStore.insert(0, {
+    //                         id: data.chat_id,
+    //                         name: data.chat_name,
+    //                         type: data.chat_type
+    //                     });
+    //                     recentChat.setSelection(record); // 设置选中
+    //                     User.crtChannelId = data.chat_id; // 当前选中的频道
+    //                     if (data.chat_name.length > 8) {
+    //                         data.chat_name = data.chat_name.substr(0, 8) + '...';
+    //                     }
+    //                     IMView.getViewModel().set({
+    //                         'sendToName': data.chat_name,
+    //                         'isOrgDetail': false
+    //                     });
+    //                     if (IMView.lookup('im-main')) {
+    //                         IMView.lookup('im-main').down('#chatView').getStore().removeAll();
+    //                     }
 
 
-    addChatToList(listView, data) {
+    //                     User.allChannels.push({
+    //                         chat: {
+    //                             channelname: data.chat_name,
+    //                             chat_id: data.chat_id,
+    //                             chat_name: data.chat_name,
+    //                             chat_type: data.chat_type
+    //                         },
+    //                         members: {
+    //                             chat_id: data.chat_id,
+    //                             user_id: User.ownerID
+    //                         }
+    //                     });
 
-        User.allChannels.push({
-            chat: {
-                channelname: data.chat_name,
-                chat_id: data.chat_id,
-                chat_name: data.chat_name,
-                chat_type: data.chat_type
-            },
-            members: {
-                chat_id: data.chat_id,
-                user_id: User.ownerID
-            }
-        });
-        // User.allChannels.push({ id: cid, name: cName });
-        var channelStore = listView.getStore(),
-            chatName;
-        if (data.chat_name.length > 8) {
-            chatName = data.chat_name.substr(0, 8) + '...';
-        }
-        channelStore.insert(0, {
-            id: data.chat_id,
-            name: chatName,
-            isUnRead: false,
-            unReadNum: 0,
-            last_post_at: new Date(data.update_at)
-        });
-    },
+    //                 } else if (User.crtChatMembers.length > 2) {
+    //                     // 修改store的数据
+    //                 }
+    //             }
+    //         });
+    //     }
+    // },
+
+
+    // addChatToList(listView, data) {
+
+    //     User.allChannels.push({
+    //         chat: {
+    //             channelname: data.chat_name,
+    //             chat_id: data.chat_id,
+    //             chat_name: data.chat_name,
+    //             chat_type: data.chat_type
+    //         },
+    //         members: {
+    //             chat_id: data.chat_id,
+    //             user_id: User.ownerID
+    //         }
+    //     });
+    //     // User.allChannels.push({ id: cid, name: cName });
+    //     var channelStore = listView.getStore(),
+    //         chatName;
+    //     if (data.chat_name.length > 8) {
+    //         chatName = data.chat_name.substr(0, 8) + '...';
+    //     }
+    //     channelStore.insert(0, {
+    //         id: data.chat_id,
+    //         name: chatName,
+    //         isUnRead: false,
+    //         unReadNum: 0,
+    //         last_post_at: new Date(data.update_at)
+    //     });
+    // },
 
 
     /**
@@ -400,6 +404,7 @@ Ext.define('IM.utils.BindHelper', {
         }
     },
 
+    // 现在不需要了
     bindGrpMsg(cid, chatStore) {
         for (var i = 0; i < User.grpChgInfo.length; i++) {
             if (cid == User.grpChgInfo[i].chatId) {
@@ -415,20 +420,12 @@ Ext.define('IM.utils.BindHelper', {
         }
     },
 
+    /**
+     * 更改标题头
+     * @param {string} name 标题头
+     * @param {string} type 会话类型
+     */
     setRightTitle(name, type) {
-        // // 长度超过8时，截取
-        // if (name.length > 8) {
-        //     name = name.substr(0, 8) + '...';
-        // }
-        // Ext.Viewport.lookup('IM').getViewModel().set({
-        //     'sendToName': name
-        // });
-
-        // if(type == 'D') {
-        //     Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit').setHidden(true);
-        // } else {
-        //     Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit').setHidden(false);
-        // }
         User.rightTitle = name; // 记录在缓存中，若field改为空，则使用原值，不更改数据库
 
         Ext.Viewport.lookup('IM').getViewModel().set({
@@ -443,6 +440,11 @@ Ext.define('IM.utils.BindHelper', {
             field.setEditable(true);
             field.setClearable(true);
         }
+    },
+
+
+    beforeFileUploaded(files) {
+
     }
 
 });

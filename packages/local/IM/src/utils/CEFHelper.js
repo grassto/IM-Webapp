@@ -3,14 +3,13 @@ Ext.define('IM.utils.CEFHelper', {
     singleton: true,
 
     addNotice(data, header) {
-        // debugger;
         if (window.cefMain) {
             const store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
                 record = store.getById(data.chat_id);
 
             // 未读条数
             var unreadNum = record.get('unReadNum');
-            if (unreadNum) {
+            if (unreadNum >= 0) {
                 unreadNum += 1;
             }
 

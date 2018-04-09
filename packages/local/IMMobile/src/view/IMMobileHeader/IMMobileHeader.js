@@ -9,7 +9,7 @@ Ext.define('IMMobile.view.IMMobileHeader.IMMobileHeader', {
 
     items: [{
         xtype: 'component',
-        html: '普实软件'
+        html: '<div style="line-height:30px;">普实软件</div>'
     }, {
         xtype: 'component',
         flex: 1

@@ -4,7 +4,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
 
     requires: [
         'IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController',
-        'IMCommon.store.RecentChatList'
+        'IMMobile.store.RecentChatList'
     ],
 
     controller: 'IMMobileChatController',

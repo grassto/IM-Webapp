@@ -6,7 +6,7 @@ Ext.define('PushIM.Webapp.view.login.Login', {
         'Ext.field.Password',
         'PushIM.Webapp.view.login.LoginController',
         'Ext.field.Checkbox',
-        'IM.view.IM' // 我得用到package下面的图标
+        // 'IM.view.IM' // 我得用到package下面的图标
     ],
 
     viewModel: {

@@ -48,7 +48,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         // 是否需要展示更换管理员
         var manager = PreferenceHelper.getManagerFromCache(chatID),
             isHideChgMgr = true;
-        if(manager == User.ownerID) {
+        if (manager == User.ownerID) {
             isHideChgMgr = false;
         }
 
@@ -64,9 +64,9 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     }
                 }
             }, {
-                text:'更换管理员',
+                text: '更换管理员',
                 hidden: isHideChgMgr,
-                handler: function() {
+                handler: function () {
                     var grpWarnMsg = PreferenceHelper.preGrpChat(); // 在多人会话中进行操作，提前需要的判断
                     if (grpWarnMsg == '') { // 可以执行操作
                         PreferenceHelper.chgManager(chatID, userID);
@@ -319,24 +319,34 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
 
     /* ********************************消息发送****************************************/
-
-    onSend() {
+    /**
+     * 增加参数，适配上传按钮上传文件
+     * @param {string} files 文件id
+     */
+    onSend(files) {
         // 判断是否是被移除了的会话
         var grpWarnMsg = PreferenceHelper.preGrpChat();
         if (grpWarnMsg != '') {
             PreferenceHelper.warnGrpMem(grpWarnMsg);
         } else {
-            var me = this,
-                fileIds = [];
+            const me = this,
+                textAreaField = me.getView().down('richEditor'); // 编辑输入框
 
-            for (var i = 0; i < User.files.length; i++) {
-                fileIds.push(User.files[i].file_id);
+            var sendText = '', // 发送的文本
+                fileIds = []; // 附件id
+
+            if (files) {
+                fileIds.push(files);
+                sendText = '[' + files + ']';
+            } else { // 原先的处理方式，只考虑图片的
+                for (var i = 0; i < User.files.length; i++) {
+                    fileIds.push(User.files[i].file_id);
+                }
+                var sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
+                    sendHtml = ParseHelper.onParseMsg(sendPicHtml); // img标签解析
+                sendText = ParseHelper.htmlToText(sendHtml);// 内容
             }
 
-            var textAreaField = me.getView().down('richEditor'),
-                sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
-                sendHtml = ParseHelper.onParseMsg(sendPicHtml), // img标签解析
-                sendText = ParseHelper.htmlToText(sendHtml);// 内容
             // 判断是否有内容或文件
             if (fileIds.length > 0 || sendText) {
                 let message = {
@@ -465,21 +475,21 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     },
 
 
-/* ************************************* cef ******************************************/
+    /* ************************************* cef ******************************************/
     cefClose() {
-        if(window.cefMain) {
+        if (window.cefMain) {
             window.cefMain.close();
         }
     },
 
     cefMax() {
-        if(window.cefMain) {
+        if (window.cefMain) {
             window.cefMain.max();
         }
     },
 
     cefMin() {
-        if(window.cefMain) {
+        if (window.cefMain) {
             window.cefMain.min();
         }
     }

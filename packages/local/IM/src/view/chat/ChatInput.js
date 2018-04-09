@@ -260,10 +260,12 @@ Ext.define('IM.view.chat.ChatInput', {
         // debugger;
         var me = this;
         if (files.length > 0) {
+            var type; // 图片格式jpg,jpeg,gif,png,bmp
             var picInfo = [];
             for (var i = 0; i < files.length; i++) {
+                type = files[i].type.substr(files[i].type.indexOf('/') + 1);
 
-                if (files[i].type == 'image/png') {// 是图片，要展示
+                if (FileUtil.imageFilter.extensions.indexOf(type) > -1) {// 是图片，要展示
 
                     picInfo.push(files[i].getNative());
 
@@ -413,19 +415,21 @@ Ext.define('IM.view.chat.ChatInput', {
     onFilesAdded(fileUploader, files) {
         const me = this;
         if (files.length > 0) {
-            var picInfo = [],
-                fileInfo = [];
+            // var picInfo = [],
+            //     fileInfo = [];
+            var fileInfo = [];
             for (var i = 0; i < files.length; i++) {
-                if (files[i].type == 'image/png') {
-                    picInfo.push(files[i].getNative());
-                } else {
-                    fileInfo.push(files[i]);
-                }
+                // if (files[i].type == 'image/png') {
+                //     picInfo.push(files[i].getNative());
+                // } else {
+                //     fileInfo.push(files[i]);
+                // }
+                fileInfo.push(files[i]);
             }
 
-            if (picInfo.length > 0) {
-                me.down('#richEditor').uploadPic(picInfo);
-            }
+            // if (picInfo.length > 0) {
+            //     me.down('#richEditor').uploadPic(picInfo);
+            // }
 
             if (fileInfo.length > 0) {
                 me.down('#richEditor').uploadFile(fileInfo);
@@ -435,6 +439,6 @@ Ext.define('IM.view.chat.ChatInput', {
     onFilesUploadError(fileUploader, err) {
         console.log('onUploadError', arguments);
 
-        Ext.Msg.alert('上传失败', '上传失败');
+        Ext.Msg.alert('上传失败', err);
     }
 });

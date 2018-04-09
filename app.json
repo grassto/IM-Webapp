@@ -18,12 +18,18 @@
      *      ]
      */
     "requires": [
+        "package-loader", //动�?�加载包
         "font-awesome",
         "theme-default",
         "modern-locale",
         "MX",
         "Common",
-        "IM"
+        "IMCommon"
+    ],
+
+    "uses": [
+        "IM",
+        "IMMobile"
     ],
 
     "locale": "zh_CN",
@@ -296,7 +302,8 @@
         },
         // "compressor": null
         "compressor": {
-            "type": "yui"
+            // "type": "yui",
+        "polyfills": "all" 
         }
     },
 
@@ -433,7 +440,8 @@
          */
         "cache": [
             "index.html",
-            "resources/images/file.png"
+            "resources/images/file.png",
+            "resources/images/loading.gif"
         ],
         /**
          * List of items in the NETWORK section

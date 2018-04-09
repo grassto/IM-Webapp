@@ -36,7 +36,12 @@
 
     //显示图片
     function checkimg(obj, imgid) {
-        document.getElementById(imgid).style.cssText = "";
-        document.getElementById(imgid).src = obj.src;
+        var img = document.getElementById(imgid);
+        if(img) {
+            img.style.cssText = "";
+            img.src = obj.src;
+        }
+        // document.getElementById(imgid).style.cssText = "";
+        // document.getElementById(imgid).src = obj.src;
     }
 })();

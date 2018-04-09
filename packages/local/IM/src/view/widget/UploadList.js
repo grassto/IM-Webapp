@@ -46,21 +46,21 @@ Ext.define('IM.widget.UploadList', {
             '<a href="{[AttachHelper.buildDocSrc(values.AttType, values.ID, values.FileName)]}" target="_blank" class="black name ellipsis">{FileName}</a>',
             '</tpl>',
             '</div>',
-                '<div style="display:none">',
-                    '<tpl if="values.FileID != values.ID">', // 本地文件
-                    '<div class="status">',
-                    '<tpl if="values.Status == 0">',
-                    '<div class="result-icon wait">等待上传</div>',
-                    '<tpl elseif="values.Status == 1">', // 上传中
-                    '<div class="progress-wrap">',
-                    '<div class="progressbar" style="width:{Progress}%"></div>',
-                    '</div>',
-                    '<tpl elseif="values.Status == 2">', // 上传成功
-                    '<div class="result-icon done">上传成功</div>',
-                    '<tpl elseif="values.Status == 3">', // 上传失败
-                    '<div class="result-icon failed"><span class="ellipsis">{Error}</span></div>',
-                    '</tpl>',
-                '</div>',
+            '<div style="display:none">',
+            '<tpl if="values.FileID != values.ID">', // 本地文件
+            '<div class="status">',
+            '<tpl if="values.Status == 0">',
+            '<div class="result-icon wait">等待上传</div>',
+            '<tpl elseif="values.Status == 1">', // 上传中
+            '<div class="progress-wrap">',
+            '<div class="progressbar" style="width:{Progress}%"></div>',
+            '</div>',
+            '<tpl elseif="values.Status == 2">', // 上传成功
+            '<div class="result-icon done">上传成功</div>',
+            '<tpl elseif="values.Status == 3">', // 上传失败
+            '<div class="result-icon failed"><span class="ellipsis">{Error}</span></div>',
+            '</tpl>',
+            '</div>',
             '</div>',
             '</tpl>',
             '<div class="size" style="width:5rem">{Size:fileSize}</div>',
@@ -113,69 +113,100 @@ Ext.define('IM.widget.UploadList', {
     // 这个在其他地方处理了
     onBeforeHide() {
         this.down('#attList').getStore().removeAll();
+        User.files = [];
     },
 
     /**
      * 文件上传，显示进度条。入口只有这里
+     * 更换了显示的位置，本来是在
      */
     onUploadFile() {
         const me = this,
             files = User.files;
         me.hide();
+        debugger;
 
         if (files.length > 0) {
             var chatView = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'),
-            store = chatView.getStore();
+                store = chatView.getStore();
             for (var i = 0; i < files.length; i++) {
+                var record;
+
                 // 页面显示上传中
-                var record = store.add({
-                    msg_type: MsgType.FileMsg,
-                    fileID: User.files[i].id,
-                    fileName: User.files[i].name,
-                    fileSize: User.files[i].size,
-                    fileStatus: 1,
-                    senderName: ChatHelper.getName(User.ownerID),
-                    ROL: 'right',
-                    updateTime: new Date()
-                });
-                ChatHelper.onScroll(chatView);
-                SocketEventHelper.isShowTime(store, record);
+                if (files.type == 'image/png') {
+                    // 图片
 
-                // 文件分开上传
-                var formData = new FormData();
-                formData.append('files', files[i].getNative());
-                formData.append('chat_id', User.crtChannelId);
-                var ajax = $.ajax({
-                    url: Config.httpUrlForGo + 'files',
-                    type: 'post',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    // async: false,
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    xhr: function () { // 不能加async：false，否则不会走progress这个方法
-                        var xhr = $.ajaxSettings.xhr();
-                        if (me.onprogress && xhr.upload) {
-                            xhr.upload.fileID = User.files[i].id;
-                            xhr.upload.addEventListener('progress', me.onprogress, false);
-                            return xhr;
-                        }
-                    },
-                    success: function (data) {
-                        record[0].set('fileStatus', 2);
-                    },
-                    failure: function() {
-                        record[0].set('fileStatus', 3);
-                    }
-                });
+                    record = store.add({
+                        msg_type: MsgType.ImgMsg,
+                        text: '',
+                        senderName: ChatHelper.getName(User.ownerID),
+                        ROL: 'right',
+                        updateTime: new Date()
+                    });
+                } else {
+                    // 先在页面上展示出来
+                    record = store.add({
+                        msg_type: MsgType.FileMsg,
+                        fileID: files[i].id,
+                        fileName: files[i].name,
+                        fileSize: files[i].size,
+                        fileStatus: 1,
+                        senderName: ChatHelper.getName(User.ownerID),
+                        ROL: 'right',
+                        updateTime: new Date()
+                    });
+                    ChatHelper.onScroll(chatView);
+                    SocketEventHelper.isShowTime(store, record);
 
-                record[0].set('ajax', ajax); // 存在record中，方便去终止
+                    // 文件不分开上传
+                    me.doUploadToServer(files[i], record[0]);
+                }
 
             }
 
         }
+    },
+
+    /**
+     * 单个文件上传
+     * @param {*} file 
+     * @param {*} record 
+     */
+    doUploadToServer(file, record) {
+        const me = this;
+        var formData = new FormData();
+        formData.append('files', file.getNative());
+        formData.append('chat_id', User.crtChannelId);
+        var ajax = $.ajax({
+            url: Config.httpUrlForGo + 'files',
+            type: 'post',
+            data: formData,
+            contentType: false,
+            processData: false,
+            // async: false,
+            xhrFields: {
+                withCredentials: true
+            },
+            xhr: function () { // 不能加async：false，否则不会走progress这个方法
+                var xhr = $.ajaxSettings.xhr();
+                if (me.onprogress && xhr.upload) {
+                    xhr.upload.fileID = file.id;
+                    xhr.upload.addEventListener('progress', me.onprogress, false);
+                    return xhr;
+                }
+            },
+            success: function (data) {
+                record.set('fileStatus', 2);
+                record.set('file_id', data.files[0].file_id);
+                // 成功后调用发送方法
+                Ext.Viewport.lookup('IM').lookup('im-main').getController().onSend(data.files[0].file_id);
+            },
+            failure: function () {
+                record.set('fileStatus', 3);
+            }
+        });
+
+        record.set('ajax', ajax); // 存在record中，方便去终止
     },
 
     // 上传进度
@@ -185,9 +216,9 @@ Ext.define('IM.widget.UploadList', {
         var per = Math.floor(100 * loaded / tot); // 已经上传的百分比.
 
         var store = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView').getStore();
-        if(store) {
+        if (store) {
             var index = store.find('fileID', evt.currentTarget.fileID),
-            record = store.getAt(index);
+                record = store.getAt(index);
             record.set('fileProgress', per);
         }
     }

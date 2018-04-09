@@ -8,27 +8,8 @@ Ext.define('IM.model.Chat', {
             type: 'date',
             convert: function (value) {
                 return Utils.datetime2Ago(value, true);
-                // debugger;
-                // if (typeof(value) == 'object') {
-                //     var now = new Date(),
-                //         nowYear = now.getFullYear(),
-                //         nowMonth = now.getMonth() + 1,
-                //         nowDate = now.getDate();
-                //     if (nowYear == value.getFullYear()) {
-                //         if (nowMonth == value.getMonth() + 1) {
-                //             if (nowDate == value.getDate()) {
-                //                 return Ext.Date.format(value, 'H:i');
-                //             }
-                //         }
-                //     }
-
-                //     var createTime = Ext.Date.format(value, 'Y-m-d H:i');
-                //     return createTime;
-                // }
-                // return value;
             }
         },
-        'isMine',
         'file',
         'ROL', // right or left
         { // 显示时间？
@@ -46,6 +27,8 @@ Ext.define('IM.model.Chat', {
 
         // 处理文件
         'msg_type',
+        'file_id', // 上传后返回的服务端的id
+        'fileID', // 上传前本地的文件id
         'fileName',
         'fileSize',
         'fileIcon',

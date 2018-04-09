@@ -108,7 +108,7 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                             resizable: {
                                 edges: 'n'
                             },
-                            minHeight: 170,
+                            minHeight: 120,
                             layout: 'vbox',
                             items: [
                                 {

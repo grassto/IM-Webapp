@@ -89,17 +89,19 @@ Ext.define('IM.view.chat.ChatView', {
                         '<div class="fileMsg">' +
                             '<div class="fileWrapper">' +
                                 '<div class="fileIcon"></div>' +
-                                '<div>{fileName}</div>' +
+                                '<div class="fileName">{fileName}</div>' +
                                 '<div>{fileSize:fileSize}</div>' +
                             '</div>' +
-                            '<div>' +
+                            '<div>' + // 分为两块
                                 '<tpl if="values.fileStatus == 1">' +
                                     '<div class="fileProgress">' +
                                         '<div style="width:{fileProgress}%;" class="fileLoaded">{fileProgress}%</div>' +
                                     '</div>' +
                                     '<div class="fileClose">取消</div>' +
                                 '<tpl elseif="values.fileStatus == 2">' +
-                                    '<div class="fileDone">上传成功</div>' +
+                                    // '<p class="fileDone">上传成功</p>' +
+                                    '<a class="fileDone">预览</a>' + // 之后支持
+                                    '<a class="fileDone" target="_blank" href="{[ParseHelper.appendFilePrefix(values.file_id)]}">下载</a>' +
                                 '<tpl elseif="values.fileStatus == 3">' +
                                     '<div class="fileDone">上传失败</div>' +
                                 '</tpl>' +

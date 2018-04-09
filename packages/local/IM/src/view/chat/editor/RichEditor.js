@@ -379,7 +379,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
             success: function (data) {
                 // var text, url, id;
                 for (var i = 0; i < data.files.length; i++) {
-                    // User.files.push(data.files[i]);
+                    User.files.push(data.files[i]);
 
                     me.bindPicByID(data.files[i].file_id);
                 }

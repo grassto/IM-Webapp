@@ -146,7 +146,13 @@ Ext.define('IM.utils.ParseHelper', {
 
             if (message.msg_type == MsgType.TextMsg) {
                 text = window.minEmoji(message.message); // emoji解析
-
+                result = {
+                    msg_id: message.msg_id,
+                    senderName: userName,
+                    sendText: text,
+                    ROL: ROL,
+                    updateTime: new Date(message.update_at)
+                };
             } else if (message.msg_type == MsgType.ImgMsg) {
                 text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';;
 
@@ -154,15 +160,27 @@ Ext.define('IM.utils.ParseHelper', {
                 var url = Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail';
                 // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
                 window.imagess(url, message.attach_id);
+                result = {
+                    msg_id: message.msg_id,
+                    senderName: userName,
+                    sendText: text,
+                    ROL: ROL,
+                    updateTime: new Date(message.update_at)
+                };
+            } else if (message.msg_type == MsgType.FileMsg) {
+                result = {
+                    msg_type: MsgType.FileMsg,
+                    file_id: message.attach_id,
+                    fileName: '服务端之后做',
+                    fileSize: '服务端之后做',
+                    fileStatus: 2,
+                    senderName: userName,
+                    ROL: ROL,
+                    updateTime: new Date(message.update_at)
+                };
             }
 
-            result = {
-                msg_id: text,
-                senderName: userName,
-                sendText: text,
-                ROL: ROL,
-                updateTime: new Date(message.update_at)
-            };
+
         }
 
         return result;
@@ -183,5 +201,10 @@ Ext.define('IM.utils.ParseHelper', {
         }
 
         return ids;
+    },
+
+
+    appendFilePrefix(fileID) {
+        return Config.httpUrlForGo + 'files/' + fileID;
     }
 });

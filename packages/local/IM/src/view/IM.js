@@ -15,7 +15,13 @@ Ext.define('IM.view.IM', {
         'Ext.tab.Panel',
         'Ext.panel.Resizer',
         'IM.view.leftTool.leftTool',
-        'IM.view.middlePanel.MiddlePanel'
+        'IM.view.middlePanel.MiddlePanel',
+
+        'IMCommon.enumType.ChatType',
+        'IMCommon.enumType.MsgType',
+        'IMCommon.enumType.MsgWrapperType',
+        'IMCommon.enumType.NoticeType',
+        'IMCommon.enumType.SocketEventType'
     ],
 
     uses: [
@@ -25,7 +31,7 @@ Ext.define('IM.view.IM', {
         'IM.view.msgManager.MsgManager',
         'IM.view.groupSel.GroupSel',
         'IM.view.favorite.Favorite',
-        'IM.view.leftTab.setting.setting'
+        'IM.view.leftTab.setting.setting',
     ],
 
 

@@ -1,4 +1,4 @@
-Ext.define('IM.enumType.MsgType', {
+Ext.define('IMCommon.enumType.MsgType', {
     singleton: true,
     alternateClassName: 'MsgType',
 

@@ -1,6 +1,10 @@
 Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.IMMobileChatController',
+
+    uses: [
+        'IMMobile.view.chatView.IMMobileChatView'
+    ],
     /**
      * Called when the view is created
      */
@@ -25,8 +29,6 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
             success: function (data) {
                 console.log('所有频道：', data);
 
-                // CEFHelper.initNotice(data);
-
                 // me.pushChatToCache(data);
 
                 // BindHelper.loadRecentChat(recView);
@@ -34,6 +36,16 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
 
                 Utils.unMask(view);
             }
+        });
+    },
+
+    onSelChatList(view, location) {
+        User.crtChannelId = location.record.data.chat.chat_id;
+
+        const imMobile = Ext.Viewport.lookup('IMMobile');
+
+        imMobile.push({
+            xtype: 'IMMobile-chatView'
         });
     }
 

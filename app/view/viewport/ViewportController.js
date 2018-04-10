@@ -61,8 +61,8 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
 
     onLogin() {
         if(Ext.os.is.Desktop) {
-            // this.dynamicPkgLoad('IM');
-            this.dynamicPkgLoad('IMMobile');
+            this.dynamicPkgLoad('IM');
+            // this.dynamicPkgLoad('IMMobileNavigation');
         } else if(Ext.os.is.Phone) {
             this.dynamicPkgLoad('IMMobile');
         } else if(Ext.os.is.Tablet) {
@@ -119,7 +119,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
             });
         }
 
-        viewport.setActiveItem(view);
+        // viewport.setActiveItem(view);
 
         return view;
     },

@@ -1,4 +1,4 @@
-Ext.define('IM.enumType.SocketEventType', {
+Ext.define('IMCommon.enumType.SocketEventType', {
     singleton: true,
     alternateClassName: 'SocketEventType',
 
@@ -8,4 +8,4 @@ Ext.define('IM.enumType.SocketEventType', {
     memRemove: 'member_removed',
     chgManager: 'change_manager',
     updateChat: 'chat_updated'
-})
+});

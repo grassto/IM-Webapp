@@ -1,6 +1,9 @@
-Ext.define('IMMobile.view.IMMobileMain.IMMobileMain', {
+/**
+ * 一个tabpanel，作为主页面
+ */
+Ext.define('IMMobile.view.IMMobileMain.IMMobileMainTabPanel', {
     extend: 'Ext.tab.Panel',
-    xtype: 'IMMobileMain',
+    xtype: 'IMMobile-MainTabPanel',
 
     requires: [
         'IMMobile.view.IMMobileMain.tabPanel.IMMobileChat',
@@ -25,12 +28,14 @@ Ext.define('IMMobile.view.IMMobileMain.IMMobileMain', {
         title: '消息',
         iconAlign: 'top',
         iconCls: 'x-fa fa-comment',
-        xtype: 'IMMobile-Chat'
+        xtype: 'IMMobile-Chat',
+        itemId: 'IMMobile_Chat'
     }, {
         title: '通讯录',
         iconAlign: 'top',
         iconCls: 'x-fa fa-list-alt',
-        xtype: 'IMMobile-Org'
+        xtype: 'IMMobile-Org',
+        itemId: 'IMMobile_Org'
     }, {
         title: '工作台',
         iconAlign: 'top',

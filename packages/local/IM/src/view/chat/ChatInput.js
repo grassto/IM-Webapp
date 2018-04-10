@@ -3,7 +3,8 @@ Ext.define('IM.view.chat.ChatInput', {
     xtype: 'chatInput',
 
     requires: [
-        'IM.view.chat.editor.RichEditor'
+        'IM.view.chat.editor.RichEditor',
+        'MX.util.FileUtil'
     ],
 
     uses: [

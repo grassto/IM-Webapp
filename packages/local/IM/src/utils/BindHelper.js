@@ -61,7 +61,7 @@ Ext.define('IM.utils.BindHelper', {
                 target.data.id = orgs[i].org_id;
                 target.data.iconCls = 'x-fa fa-folder';
 
-                orgs.splice(i, 1);
+                orgs.splice(i, 1); // 从数组中将其剔除
                 nodes.push(target);
 
                 // 递归创建子节点

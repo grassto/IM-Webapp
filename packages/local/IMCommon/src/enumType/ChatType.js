@@ -1,4 +1,4 @@
-Ext.define('IM.enumType.ChatType', {
+Ext.define('IMCommon.enumType.ChatType', {
     singleton: true,
     alternateClassName: 'ChatType',
 

@@ -37,7 +37,7 @@
          *
          *    "toolkit": "classic",
          */
-        "toolkit": "classic",
+        "toolkit": "modern",
 
          /**
           * The author of the package.
@@ -264,6 +264,10 @@
          *          }
          *      }
          */
-        "requires": []
+        "requires": [
+            "IMCommon",
+            "MX",
+            "Common"
+        ]
     }
 }

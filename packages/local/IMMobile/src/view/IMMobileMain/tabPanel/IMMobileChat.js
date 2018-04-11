@@ -4,13 +4,15 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
 
     requires: [
         'IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController',
-        'IMMobile.store.RecentChatList',
+        // 'IMMobile.store.RecentChatList',
+        'IMCommon.model.ChatOld',
         'IMMobile.view.widget.Navbar' // 含有返回按钮的头
     ],
 
     controller: 'IMMobileChatController',
 
     layout: 'vbox',
+    cls: 'IMMobile-chat-container',
 
     items: [{
         xtype: 'IMMobile-Navbar',
@@ -20,12 +22,27 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
     }, {
         xtype: 'list',
         itemId: 'ChatList',
+        cls: 'IMMobile-RecentChat',
         flex: 1,
         store: {
-            type: 'RecentChatList'
+            model: 'IMCommon.model.ChatOld'
         },
         itemTpl: [
-            '<div class="">{chat.chat_name}</div>'
+            '<div toTop="{toTop}" chat_id="{id}" class="itemRight" style="line-height:38px;white-space:nowrap;cursor:default;overflow:hidden;text-overflow:ellipsis;">',
+        '<tpl if="values.type == \'D\'">',
+        '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]} " style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
+        '<tpl else>',
+        '<div class="mergeAvatar" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
+        '{[AvatarMgr.getMergeDiv(values.name)]}',
+        '</div>',
+        '</tpl>',
+        '<a class="RecentUnRead" unRead="{unReadNum}" style="cursor:default;display:{[values.isUnRead?"block":"none"]}"></a>',
+        // '<div style="white-space:nowrap;cursor:default;overflow:hidden;text-overflow:ellipsis;{[values.type=="D"?"float:left;":""]}">{name}</div>',
+        '{name}',
+        '<div style="float:right;display:{[values.type=="D"?"block":"none"]};">',
+        '{status}',
+        '</div>',
+        '</div>'
         ].join(''),
 
         listeners: {

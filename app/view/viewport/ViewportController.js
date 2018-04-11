@@ -79,7 +79,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     dynamicPkgLoad(pkg) {
         const me = this,
             view = me.getView();
-            // debugger;
+
         if(Ext.Package.isLoaded(pkg)) {
             me.showView(pkg);
         } else {

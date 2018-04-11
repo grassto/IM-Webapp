@@ -2,7 +2,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     extend: 'MX.field.RichTextArea',
     xtype: 'richEditor',
     requires: [
-        'IM.model.Mention',
+        'IMCommon.model.Mention',
         'Ext.drag.Target'
     ],
 

@@ -124,16 +124,17 @@ Ext.define('IM.widget.UploadList', {
         const me = this,
             files = User.files;
         me.hide();
-        debugger;
+        // debugger;
 
         if (files.length > 0) {
             var chatView = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'),
                 store = chatView.getStore();
             for (var i = 0; i < files.length; i++) {
-                var record;
+                var record,
+                type = files[i].type.substr(files[i].type.indexOf('/') + 1);
 
                 // 页面显示上传中
-                if (files.type == 'image/png') {
+                if (FileUtil.imageFilter.extensions.indexOf(type) > -1) {
                     // 图片
 
                     record = store.add({

@@ -264,6 +264,10 @@
          *          }
          *      }
          */
-        "requires": []
+        "requires": [
+            "IMCommon",
+            "MX",
+            "Common"
+        ]
     }
 }

@@ -25,7 +25,7 @@
                     // callback(img, imgid);
                     checkimg(img, imgid);
                     // debugger;
-                    ChatHelper.onScroll(Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'));
+                    
                 }
             }
         }
@@ -40,6 +40,11 @@
         if(img) {
             img.style.cssText = "";
             img.src = obj.src;
+            if(Ext.Viewport.lookup('IM')) {
+                ChatHelper.onScroll(Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'));
+            } else if(Ext.Viewport.lookup('IMMobile')) {
+                AddDataUtil.onScroll(Ext.Viewport.lookup('IMMobile').down('#IMMobile-chatView').down('#IMMobileChatView'));
+            }
         }
         // document.getElementById(imgid).style.cssText = "";
         // document.getElementById(imgid).src = obj.src;

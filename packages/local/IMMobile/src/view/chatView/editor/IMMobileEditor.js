@@ -6,13 +6,23 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
         'IMMobile.view.chatView.editor.RichEditor'
     ],
 
+    uses: [
+        'Common.field.comment.EmojiPanel'
+    ],
+
     layout: 'hbox',
 
     initialize() {
         const me = this,
-            btn = me.down('#sendBtn');
+            btn = me.down('#sendBtn'),
+            btnEmoji = me.down('#btnEmoji');
         btn.on({
             tap: 'onSendMsg',
+            scope: me
+        });
+
+        btnEmoji.on({
+            tap: 'onShowEmoji',
             scope: me
         });
     },
@@ -23,11 +33,15 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
         flex: 1
     }, {
         xtype: 'button',
+        iconCls: 'x-fa fa-smile-o',
+        itemId: 'btnEmoji'
+    }, {
+        xtype: 'button',
         itemId: 'sendBtn',
         text: '发送'
     }],
 
-    // 纯文本发送
+    // 表情、文本发送
     onSendMsg() {
         const me = this,
             editor = me.down('#MobileEditor'),
@@ -35,6 +49,7 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
             chatViewStore = chatView.getStore();
 
         var text = editor.getSubmitValue();
+        text = window.minEmoji(text);
 
         if (text) {
             var message = {
@@ -65,5 +80,37 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
 
             editor.clear();
         }
+    },
+
+    // emoji展示
+    onShowEmoji(btn) {
+        const me = this;
+        let panel = Ext.getCmp('global-emojipanel');
+        if (!panel) {
+            panel = Ext.widget('emojipanel', {
+                id: 'global-emojipanel'
+            });
+        }
+        panel.on({
+            ok: 'onChooseEmj',
+            hide: 'onHideEmjPanel',
+            scope: me
+        });
+
+        // me.up('IMMobile-chatView').add(panel);
+
+        panel.showBy(btn, 'tl-bl?');
+    },
+
+    onChooseEmj(panel, ch) {
+        this.down('#MobileEditor').insertObject(`<span class="em emj${window.minEmojiIdx(ch)}"></span>`, ch);
+    },
+
+    onHideEmjPanel(panel) {
+        panel.un({
+            ok: 'onChooseEmj',
+            hide: 'onHideEmjPanel',
+            scope: this
+        });
     }
 });

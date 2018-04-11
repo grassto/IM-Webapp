@@ -14,16 +14,17 @@ Ext.define('Common.field.comment.EmojiPanel', {
     cls: 'emj-panel',
 
     width: 381,
-    maxWidth: '100vw',
+    maxWidth: '100%',
     height: 300,
-    maxHeight: '100vh',
-    floated: true,
+    maxHeight: '130px',
+    // floated: true,
     bodyPadding: 15,
-    hidden: true,
+    // hidden: true,
 
     //anchor: true,
 
-    scrollable: false,
+    // scrollable: false,
+    scrollable: true,
 
     tpl: [
         '<ul class="faces">',

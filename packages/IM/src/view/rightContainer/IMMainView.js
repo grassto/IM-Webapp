@@ -113,6 +113,7 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                             items: [
                                 {
                                     xtype: 'chatInput',
+                                    itemId: 'chatInput',
                                     userCls: 'editor-Ct',
                                     flex: 1
                                 },

@@ -12,7 +12,8 @@ Ext.define('IMMobile.view.chatDetail.memDetail', {
     viewModel: {},
 
     items: [{
-        xtype: 'IMMobile-Navbar'
+        xtype: 'IMMobile-Navbar',
+        titleMsg: '个人信息'
     }, {
         xtype: 'panel',
         flex: 1,

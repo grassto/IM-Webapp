@@ -126,6 +126,23 @@ Ext.define('IMCommon.utils.AddDataUtil', {
 
         return result;
     },
+    
+    /**
+    * 获取被操作者，返回数组
+    * @param {string} opID 创建者id
+    * @param {string} memsIdStr 参与者的id
+    */
+   getNoticeMemsByContent(opID, memsIdStr) {
+       var ids = memsIdStr.split(',');
+       for (var i = 0; i < ids.length; i++) {
+           if (ids[i] == opID) {
+               ids.splice(i, 1);
+               break;
+           }
+       }
+
+       return ids;
+   },
 
     onScroll(chatView) {
         var sc = chatView.getScrollable(),
@@ -154,7 +171,6 @@ Ext.define('IMCommon.utils.AddDataUtil', {
         Utils.ajaxByZY('get', 'users/' + User.ownerID + '/chats/' + cid, {
             async: false,
             success: function (data) {
-                User.allChannels.push(data); // 处理内存
                 var uid = '',
                     nickname = '';
                 if (data.chat.chat_type == ChatType.Direct) {
@@ -163,12 +179,16 @@ Ext.define('IMCommon.utils.AddDataUtil', {
                         if (ids[i] !== User.ownerID) {
                             uid = ids[i];
                             nickname = me.getName(ids[i]);
+                            data.chat.channelname = nickname;
                             break;
                         }
                     }
                 } else if (data.chat.chat_type == ChatType.Group) {
                     nickname = data.chat.header;
+                    data.chat.channelname = data.chat.header;
                 }
+
+                User.allChannels.push(data); // 处理内存
                 // 数据绑定至页面
                 me.bindChatToRecent(data.chat, uid, nickname);
             }

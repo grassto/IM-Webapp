@@ -12,16 +12,30 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         'IMCommon.utils.AvatarUtil'
     ],
 
+    uses: [
+        'MX.util.ImgUtil'
+    ],
+
+    cls: 'IMMobile-ChatViewWrp',
+
     layout: 'vbox',
+    viewModel: {
+        data: {
+            title: '测试'
+        }
+    },
 
     items: [{
         xtype: 'IMMobile-Navbar',
         items: [{
             xtype: 'component',
-            html: '<div class="imMobile-nav-title">测试</div>'
+            align: 'left',
+            bind: {
+                html: '<div class="imMobile-nav-title">{title}</div>'
+            }
         }, {
-            align: 'right',
-            iconCls: 'x-fa fa-user'
+            iconCls: 'x-fa fa-user',
+            align: 'right'
         }]
     }, {
         xtype: 'dataview',
@@ -88,12 +102,36 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
 
     initialize() {
         const me = this;
+
+        me.down('#IMMobileChatView').on({
+            childlongpress: 'onLongPress',
+            childTap: 'onChildTap',
+            scope: me
+        });
+
         me.down('#IMMobileChatView').getStore().on({
             add: 'onAdd',
             destroyable: true,
             scope: me
         });
         me.openChat();
+    },
+
+    onChildTap(view, location) {
+        const record = location.record;
+        if (!record) return;
+
+        const e = location.event,
+            t = Ext.fly(e.target);
+        if (t.hasCls('viewPic')) {
+            var thumbSrc = t.dom.src;
+            // 请求原图浏览
+            ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
+        }
+    },
+
+    onLongPress(view, location) {
+        alert(234)
     },
 
     // store调用add方法后调用
@@ -118,6 +156,14 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
             me.getMsgs(User.crtChannelId);
         }
 
+        me.setTitle();
+
+    },
+
+    setTitle() {
+        this.getViewModel().set({
+            title: User.crtChatName
+        });
     },
 
     getChatID(uid) {
@@ -156,9 +202,9 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         Utils.ajaxByZY('post', 'chats/direct', {
             params: JSON.stringify([User.ownerID, userID]),
             success: function (data) {
-                User.chatMemID = '';
+                User.chatMemID = ''; // 清空缓存
 
-                AddDataUtil.addChatToRecent(data.chat_id);
+                AddDataUtil.addChatToRecent(data.chat_id); // 最近会话列表添加
 
                 me.getMsgs(data.chat_id); // 打开频道
             },

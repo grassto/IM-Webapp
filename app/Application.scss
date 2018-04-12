@@ -124,3 +124,8 @@ a.link-avatar {
     $hovered-background-color: red,
     $pressed-background-color:red
   );
+
+  @include button-ui(
+      $ui: 'back',
+      $background-color: $base-color
+  );

@@ -16,7 +16,8 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
 
     items: [{
         xtype: 'IMMobile-Navbar',
-        backBtn: false
+        backBtn: false,
+        titleMsg: '消息'
     }, {
         xtype: 'component' // 留一块位置来放其他的东西
     }, {
@@ -30,10 +31,10 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
         itemTpl: [
             '<div toTop="{toTop}" chat_id="{id}" class="itemRight" style="line-height:38px;white-space:nowrap;cursor:default;overflow:hidden;text-overflow:ellipsis;">',
         '<tpl if="values.type == \'D\'">',
-        '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]} " style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
+        '<a class="avatar link-avatar firstletter " letter="{[AvatarUtil.getFirstLetter(values.name)]} " style="float:left;{[AvatarUtil.getColorStyle(values.name)]}">',
         '<tpl else>',
-        '<div class="mergeAvatar" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
-        '{[AvatarMgr.getMergeDiv(values.name)]}',
+        '<div class="mergeAvatar" style="float:left;{[AvatarUtil.getColorStyle(values.name)]}">',
+        '{[AvatarUtil.getMergeDiv(values.name)]}',
         '</div>',
         '</tpl>',
         '<a class="RecentUnRead" unRead="{unReadNum}" style="cursor:default;display:{[values.isUnRead?"block":"none"]}"></a>',

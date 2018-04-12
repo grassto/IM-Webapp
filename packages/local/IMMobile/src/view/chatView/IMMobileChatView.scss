@@ -1,49 +1,55 @@
-.imMobile-nav-title{
-    margin-left: 15px;
-}
 
-.IMMobile-chatView{
-    .x-dataview-item{
-        margin-top: 10px;
-    }
-    .evAvatar{
-        float: left;
-    }
+.IMMobile-ChatViewWrp{
 
-    .bubble {
-        background-color: #b2e281;
-        max-width: 80%;
-        // min-height: 1em;
-        // min-height: 60px;
-        display: inline-block;
-        vertical-align: top;
-        position: relative;
-        text-align: left;
-        font-size: 14px;
-        border-radius: 3px;
-        -moz-border-radius: 3px;
-        -webkit-border-radius: 3px;
-        margin: 0 10px;
+    .IMMobile-chatView{
+        .grpChangeNote{
+            text-align: center;
+            max-width: 80%;
+            margin: auto;
+        }
 
-        .plain{
-            padding: 9px 13px;
-            word-break: break-all;
-            .viewPic{
-                cursor: pointer;
-                height: 60px;
+        .x-dataview-item{
+            margin-top: 10px;
+        }
+        .evAvatar{
+            float: left;
+        }
+
+        .bubble {
+            background-color: #b2e281;
+            max-width: 80%;
+            // min-height: 1em;
+            // min-height: 60px;
+            display: inline-block;
+            vertical-align: top;
+            position: relative;
+            text-align: left;
+            font-size: 14px;
+            border-radius: 3px;
+            -moz-border-radius: 3px;
+            -webkit-border-radius: 3px;
+            margin: 0 10px;
+
+            .plain{
+                padding: 9px 13px;
+                word-break: break-all;
+                .viewPic{
+                    cursor: pointer;
+                    height: 60px;
+                }
             }
         }
-    }
-    .bubble:after, .bubble:before {
-        position: absolute;
-        top: 14px;
-        border: 6px solid transparent;
-    }
-    .bubble.right:after, .bubble.right:before {
-        left: 100%;
-    }
-    .bubble.bubble_primary.right:after {
-        border-left-color: #b2e281;
-        border-left-width: 4px;
+        .bubble:after, .bubble:before {
+            position: absolute;
+            top: 14px;
+            border: 6px solid transparent;
+        }
+        .bubble.right:after, .bubble.right:before {
+            left: 100%;
+        }
+        .bubble.bubble_primary.right:after {
+            border-left-color: #b2e281;
+            border-left-width: 4px;
+        }
     }
 }

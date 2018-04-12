@@ -170,10 +170,9 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             success: function (data) {
                 var order = data.order,
                     posts = data.messages;
-                User.posts = [];
                 for (var i = order.length - 1; i >= 0; i--) {
                     posts[order[i]].username = ChatHelper.getName(posts[order[i]].user_id);
-                    User.posts.push(posts[order[i]]);
+
                     message = posts[order[i]].message;
 
                     message = window.minEmoji(message); // emoji解析
@@ -336,8 +335,10 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 fileIds = []; // 附件id
 
             if (files) {
-                fileIds.push(files);
-                sendText = '[' + files + ']';
+                if (files.length == 26) {
+                    fileIds.push(files);
+                    sendText = '[' + files + ']';
+                }
             } else { // 原先的处理方式，只考虑图片的
                 for (var i = 0; i < User.files.length; i++) {
                     fileIds.push(User.files[i].file_id);

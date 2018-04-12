@@ -1,0 +1,18 @@
+.imMobile-nav-title{
+    margin-left: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 150px;
+}
+@media screen and (max-width: 300px) {
+    .imMobile-nav-title{
+        max-width: 100px;
+    }
+}
+
+.nav-title{
+    font-size: 13px;
+    color: #f0f0f0;
+    margin-left: 10px;
+}

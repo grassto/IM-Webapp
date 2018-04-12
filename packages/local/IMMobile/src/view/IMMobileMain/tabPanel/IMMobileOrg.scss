@@ -1,0 +1,21 @@
+.IMMobile-Nested-Wrapper {
+    .nested-org{
+        line-height: 38px;
+        white-space: nowrap;
+        cursor: default;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        .nested-org-avatar{
+            float: left;
+            background-image: url(get-resource-path('images/orgIcon.png'));
+            background-size: 30px;
+            width: 38px;
+            height: 38px;
+            margin-right: .4em;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    }
+
+}

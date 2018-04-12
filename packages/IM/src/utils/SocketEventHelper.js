@@ -97,41 +97,55 @@ Ext.define('IM.utils.SocketEventHelper', {
 
 
         /* ****************************************** 当前频道，消息展示 ********************************************************************/
-        if (data.msg_type == 'I') {
-            text = '[' + data.attach_id + ']';
-            fileIDs.push(data.attach_id);
-        }
+
         // 若选中的是当前频道，则在聊天区展示数据
         if (User.crtChannelId == data.chat_id) {
-            data.username = userName;
-            User.posts.push(data);
-            text = window.minEmoji(text);
-            text = ParseHelper.parsePic(text, fileIDs);
+            var ROL = '',
+                afterAdd = true;
+            if (User.ownerID == data.user_id) {
+                ROL = 'right';
+                afterAdd = false;
+            }
 
-            // var chatView = Ext.app.Application.instance.viewport.getController().getView().down('main #chatView');
             var chatView = IMView.lookup('im-main').down('#chatView'),
                 chatStore = chatView.getStore(),
                 record;
-
-            if (User.ownerID == data.user_id) {
-                record = chatStore.add({ ROL: 'right', senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
+            if (data.msg_type == 'F') {
+                if (User.ownerID !== data.user_id) {
+                    record = chatStore.add({
+                        msg_type: MsgType.FileMsg,
+                        fileID: data.attach_id,
+                        fileName: data.name,
+                        fileSize: data.size,
+                        fileStatus: 2,
+                        senderName: userName,
+                        updateTime: new Date(data.update_at)
+                    });
+                }
+            } else {
+                if (data.msg_type == 'T') {
+                    text = window.minEmoji(text);
+                } else if (data.msg_type == 'I') {
+                    text = '<img id="' + data.attach_id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail">';
+                }
+                record = chatStore.add({ ROL: ROL, senderName: userName, sendText: text, updateTime: new Date(data.update_at) });
+                if (data.msg_type == 'I') {
+                    var url = Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail';
+                    // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
+                    window.imagess(url, data.attach_id);
+                }
             }
-            else {
-                record = chatStore.add({ senderName: data.username, sendText: text, updateTime: new Date(data.update_at) });
+
+
+            if (afterAdd) {
+                /* ****************************************************** 滚动条 ******************************************************************************************************/
+                ChatHelper.onScroll(chatView);
+
+                // 根据store的最后一个时间来判断新的时间是否需要展示
+                me.isShowTime(chatStore, record);
             }
 
-            /* ****************************************************** 滚动条 ******************************************************************************************************/
-            ChatHelper.onScroll(chatView);
 
-            // 根据store的最后一个时间来判断新的时间是否需要展示
-            me.isShowTime(chatStore, record);
-
-            if (data.msg_type == 'I') {
-
-                var url = Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail';
-                // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
-                window.imagess(url, data.attach_id);
-            }
         }
         /* ****************************************************** 最近会话重新排序 ******************************************************************************************************/
         me.reSortRecentList(IMView, data);
@@ -144,7 +158,7 @@ Ext.define('IM.utils.SocketEventHelper', {
      */
     notify(senderName, sendText) {
         // this.showNewMsgByTitle(); // web版新消息提示
-        if(!window.cefMain) {
+        if (!window.cefMain) {
 
             if (!window.Notification) {
                 console.log('浏览器不支持通知！');
@@ -569,18 +583,18 @@ Ext.define('IM.utils.SocketEventHelper', {
         }
     },
 
-/* *********************************** 更换管理员 **********************************************************/
+    /* *********************************** 更换管理员 **********************************************************/
 
     handleMgrChgEvent(msg) {
         var data = msg.data;
         var chgMgrMsg = '';
-        if(data.new_manager == User.ownerID) {
+        if (data.new_manager == User.ownerID) {
             chgMgrMsg = this.meChgMgrToSB(data.new_manager);
 
             if (User.crtChannelId == data.chat_id) {
                 this.showgrpMsgInChat(chgMgrMsg, new Date());
             }
-        } else if(data.old_manager == User.ownerID) {
+        } else if (data.old_manager == User.ownerID) {
             chgMgrMsg = this.sbChgMgrToMe(data.old_manager);
 
             if (User.crtChannelId == data.chat_id) {
@@ -606,8 +620,8 @@ Ext.define('IM.utils.SocketEventHelper', {
 
     // 缓存中更新管理员
     chgMgrToCahe(chatID, newMgr) {
-        for(var i = 0; i < User.allChannels.length; i++) {
-            if(chatID == User.allChannels[i].chat.chat_id) {
+        for (var i = 0; i < User.allChannels.length; i++) {
+            if (chatID == User.allChannels[i].chat.chat_id) {
                 User.allChannels[i].chat.manager_id == newMgr;
                 break;
             }
@@ -618,18 +632,18 @@ Ext.define('IM.utils.SocketEventHelper', {
 
     handleChgChatHeader(msg) {
         var me = this,
-        data = msg.data,
-        opID = data.operator_id,
-        chatInfo = JSON.stringify(data.chat),
-        chgHeaderMsg = '';
+            data = msg.data,
+            opID = data.operator_id,
+            chatInfo = JSON.stringify(data.chat),
+            chgHeaderMsg = '';
 
-        if(User.ownerID == opID) {
+        if (User.ownerID == opID) {
             chgHeaderMsg = me.createMeChgHeaderMsg(chatInfo.header);
         } else {
             chgHeaderMsg = me.createSBChgHeaderMsg(chatInfo.header, opID);
         }
 
-        if(User.crtChannelId == chatInfo.chat_id) {
+        if (User.crtChannelId == chatInfo.chat_id) {
             me.showgrpMsgInChat(chgHeaderMsg, new Date());
             Ext.Viewport.lookup('IM').getViewModel().set('sendoName', chatInfo.header);
         }

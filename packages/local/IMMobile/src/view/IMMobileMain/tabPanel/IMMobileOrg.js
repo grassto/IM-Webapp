@@ -19,12 +19,19 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
 
         config = Ext.apply({
             layout: 'vbox',
+            cls: 'IMMobile-Nested-Wrapper',
 
             items: [{
                 xtype: 'nestedlist',
                 itemId: 'OrgNestedList',
                 fullscreen: true,
                 displayField: 'text',
+
+                useTitleAsBackText: false,
+                updateTitleText: false,
+                emptyText: '加载中',
+                backText: '返回',
+
                 store: store
             }]
         }, config);
@@ -44,16 +51,24 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
      * 叶节点的点击事件，只负责跳转
      */
     onLeafItemTap(nestedlist, list, index, target, record) {
-        User.crtSelMemId = record.data.user_id;
+        const id = record.data.user_id;
+        if (id !== User.ownerID) {
+            User.crtSelMemId = record.data.user_id; // 根据user_id来判断是否存在频道
 
-        const imMobile = Ext.Viewport.lookup('IMMobile');
+            User.crtChatName = record.data.user_name; // chatView标题头修改
 
-        imMobile.push({
-            xtype: 'IMMobile-memDetail',
-            itemId: 'IMMobile-memDetail'
-        });
+            const imMobile = Ext.Viewport.lookup('IMMobile');
+
+            imMobile.push({
+                xtype: 'IMMobile-memDetail',
+                itemId: 'IMMobile-memDetail'
+            });
+        }
     },
 
+    /**
+     * 绑定组织结构树信息
+     */
     getOrgRoot() {
         const me = this;
 
@@ -76,11 +91,12 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
     },
 
     imitateOrgData(users, orgs) {
+        const me = this;
         // 先把人给加到组织上，然后再搞组织
         for (var i = 0; i < orgs.length; i++) {
             for (var j = 0; j < users.length; j++) {
                 if (users[j].org_ids == orgs[i].org_id) {
-                    users[j].text = users[j].user_name;
+                    users[j].text = me.paintUserText(users[j].user_name);
                     users[j].leaf = true;
 
                     if (!orgs[i].items) {
@@ -96,7 +112,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
         var item = [];
         for (var i = 0; i < orgs.length; i++) {
             if (orgs[i].parent_id === '') {// 根节点
-                orgs[i].text = orgs[i].org_name;
+                orgs[i].text = me.paintText(orgs[i].org_name);
                 item.items = [];
                 item.items.push(orgs[i]);
                 // item = orgs[i];
@@ -116,7 +132,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
         // var pItem;
         for (var i = 0; i < orgs.length; i++) {
             if (parentItem.org_id == orgs[i].parent_id) {
-                orgs[i].text = orgs[i].org_name;
+                orgs[i].text = me.paintText(orgs[i].org_name);
 
                 if (!parentItem.items) {
                     parentItem.items = [];
@@ -130,5 +146,24 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
                 me.createItems(orgs[i], orgs);
             }
         }
+    },
+
+    // 初始化的时候就将text给做成div，渲染好
+    paintUserText(text) {
+        return [
+            '<div class="nested-org">',
+            '<a class="avatar link-avatar firstletter " letter="' + AvatarUtil.getFirstLetter(text) + '" style="float:left;' + AvatarUtil.getColorStyle(text) + '">',
+            '</a>',
+            text,
+            '</div>'
+        ].join('');
+    },
+    paintText(text) {
+        return [
+            '<div class="nested-org">',
+            '<div class="nested-org-avatar"></div>',
+            text,
+            '</div>'
+        ].join('');
     }
 });

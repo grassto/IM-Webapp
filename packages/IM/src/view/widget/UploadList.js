@@ -98,13 +98,13 @@ Ext.define('IM.widget.UploadList', {
 
         var records = [];
 
-        for (var i = 0; i < User.files.length; i++) {
+        for (var i = 0; i < User.localFiles.length; i++) {
             records.push({
-                FileID: User.files[i].id,
-                FileName: User.files[i].name,
-                Size: User.files[i].size,
+                FileID: User.localFiles[i].id,
+                FileName: User.localFiles[i].name,
+                Size: User.localFiles[i].size,
                 Status: 0,
-                Icon: FileUtil.getExtension(User.files[i].name)
+                Icon: FileUtil.getExtension(User.localFiles[i].name)
             });
         }
         store.add(records);
@@ -113,7 +113,7 @@ Ext.define('IM.widget.UploadList', {
     // 这个在其他地方处理了
     onBeforeHide() {
         this.down('#attList').getStore().removeAll();
-        User.files = [];
+        User.localFiles = [];
     },
 
     /**
@@ -122,27 +122,47 @@ Ext.define('IM.widget.UploadList', {
      */
     onUploadFile() {
         const me = this,
-            files = User.files;
+            files = User.localFiles;
         me.hide();
         // debugger;
 
         if (files.length > 0) {
-            var chatView = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'),
+            var mainView = Ext.Viewport.lookup('IM').lookup('im-main'),
+                chatView = mainView.down('#chatView'),
                 store = chatView.getStore();
             for (var i = 0; i < files.length; i++) {
                 var record,
-                type = files[i].type.substr(files[i].type.indexOf('/') + 1);
+                    type = files[i].type.substr(files[i].type.indexOf('/') + 1);
 
                 // 页面显示上传中
                 if (FileUtil.imageFilter.extensions.indexOf(type) > -1) {
-                    // 图片
+                    // 图片，现在是在websocket返回处理的
 
-                    record = store.add({
-                        msg_type: MsgType.ImgMsg,
-                        text: '',
-                        senderName: ChatHelper.getName(User.ownerID),
-                        ROL: 'right',
-                        updateTime: new Date()
+                    // record = store.add({
+                    //     msg_type: MsgType.ImgMsg,
+                    //     text: '',
+                    //     senderName: ChatHelper.getName(User.ownerID),
+                    //     ROL: 'right',
+                    //     updateTime: new Date()
+                    // });
+
+                    var formData = new FormData();
+                    formData.append('files', files[i].getNative());
+                    formData.append('chat_id', User.crtChannelId);
+                    var ajax = $.ajax({
+                        url: Config.httpUrlForGo + 'files',
+                        type: 'post',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        // async: false,
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        success: function(data) {
+                            // 发送
+                            Ext.Viewport.lookup('IM').lookup('im-main').getController().onSend(data.files[0].file_id);
+                        }
                     });
                 } else {
                     // 先在页面上展示出来

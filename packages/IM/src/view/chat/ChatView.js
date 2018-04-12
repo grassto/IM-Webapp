@@ -9,7 +9,8 @@ Ext.define('IM.view.chat.ChatView', {
     ],
 
     uses: [
-        'IM.view.chat.AvatarDetailPanel'
+        'IM.view.chat.AvatarDetailPanel',
+        'MX.util.ImgUtil'
     ],
 
     viewModel: {
@@ -100,7 +101,7 @@ Ext.define('IM.view.chat.ChatView', {
                                     '<div class="fileClose">取消</div>' +
                                 '<tpl elseif="values.fileStatus == 2">' +
                                     // '<p class="fileDone">上传成功</p>' +
-                                    '<a class="fileDone">预览</a>' + // 之后支持
+                                    // '<a class="fileDone">预览</a>' + // 之后支持
                                     '<a class="fileDone" target="_blank" href="{[ParseHelper.appendFilePrefix(values.file_id)]}">下载</a>' +
                                 '<tpl elseif="values.fileStatus == 3">' +
                                     '<div class="fileDone">上传失败</div>' +

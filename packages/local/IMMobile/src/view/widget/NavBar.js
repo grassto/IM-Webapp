@@ -5,7 +5,16 @@ Ext.define('IMMobile.view.widget.Navbar', {
         /**
          * 顶栏是否显示"返回"按钮
          */
-        backBtn: true
+        backBtn: true,
+        /**
+        * 顶栏是否展示标题头
+        */
+        // showTitle: false,
+
+        /**
+         * 顶栏标题头内容
+         */
+        titleMsg: ''
     },
 
     constructor: function (config) {
@@ -43,6 +52,56 @@ Ext.define('IMMobile.view.widget.Navbar', {
         var me = this;
         if (b) {
             me.insert(0, b); // 插入到顶栏第一个位置
+        }
+    },
+
+    // applyShowTitle: function(config) {
+    //     const me = this;
+        
+    //     if (config === true) {
+    //         config = {};
+    //     }
+    //     if (config) {
+    //         const title = me.getTitleMsg();
+    //         Ext.applyIf(config, {
+    //             itemId: 'title',
+    //             html: title,
+    //             cls: 'nav-title',
+    //             $initParent: me
+    //         });
+    //     }
+    //     return Ext.factory(config, Ext.Component, me.getShowTitle());
+    // },
+    // updateShowTitle(v) {
+    //     var me = this;
+    //     if(v) {
+    //         me.insert(0, v);
+    //     }
+    // }
+
+    applyTitleMsg: function(config) {
+        const me = this,
+        title = config;
+
+        if (title) {
+            config = {};
+            Ext.applyIf(config, {
+                itemId: 'title',
+                html: title,
+                cls: 'nav-title',
+                $initParent: me
+            });
+        }
+        return Ext.factory(config, Ext.Component, me.getTitleMsg());
+    },
+    updateTitleMsg(v) {
+        var me = this;
+        if(v) {
+            if(me.getBackBtn()) {
+                me.insert(1, v);
+            } else {
+                me.insert(0, v);
+            }
         }
     }
 });

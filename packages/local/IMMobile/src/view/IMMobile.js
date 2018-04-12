@@ -7,13 +7,17 @@ Ext.define('IMMobile.view.IMMobile', {
 
     requires: [
         'IMMobile.view.IMMobileMain.IMMobileMainTabPanel',
-        'IMCommon.utils.WebSocketUtil',
-
+        
         'IMCommon.enumType.ChatType',
         'IMCommon.enumType.MsgType',
         'IMCommon.enumType.MsgWrapperType',
         'IMCommon.enumType.NoticeType',
         'IMCommon.enumType.SocketEventType',
+        'IMCommon.utils.WebSocketUtil'
+    ],
+
+    uses: [
+        'IMCommon.utils.AvatarUtil',
         'IMCommon.utils.ParseUtil'
     ],
 

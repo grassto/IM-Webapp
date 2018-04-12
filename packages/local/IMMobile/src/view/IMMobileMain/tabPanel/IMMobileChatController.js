@@ -95,6 +95,8 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
 
         User.crtChannelId = location.record.data.id;
 
+        User.crtChatName = location.record.data.name;
+
         const imMobile = Ext.Viewport.lookup('IMMobile');
 
         imMobile.push({

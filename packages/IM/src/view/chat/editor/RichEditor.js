@@ -410,7 +410,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
 
 
     uploadFile(fileInfo) {
-        User.files = fileInfo; // 通过缓存来存储
+        User.localFiles = fileInfo; // 通过缓存来存储
         // 显示上传页面
         const me = this;
         if(!me.uploadList) {

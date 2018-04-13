@@ -3,7 +3,8 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     alias: 'controller.im-right-main',
 
     requires: [
-        'MX.util.Utils'
+        'MX.util.Utils',
+        'IMCommon.utils.ChatUtil'
     ],
 
     listen: {
@@ -343,10 +344,10 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 for (var i = 0; i < User.files.length; i++) {
                     fileIds.push(User.files[i].file_id);
                 }
-                var sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
-                    sendHtml = ParseHelper.onParseMsg(sendPicHtml); // img标签解析
-                sendText = ParseHelper.htmlToText(sendHtml);// 内容
             }
+            var sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
+                sendHtml = ParseHelper.onParseMsg(sendPicHtml); // img标签解析
+            sendText = ParseHelper.htmlToText(sendHtml);// 内容
 
             // 判断是否有内容或文件
             if (fileIds.length > 0 || sendText) {
@@ -360,16 +361,17 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     files: fileIds
                 };
 
+                ChatUtil.onSend(JSON.stringify(message), me.onSendSuccess);
 
-                Utils.ajaxByZY('post', 'posts', {
-                    params: JSON.stringify(message),
-                    success: function (data) {
-                        // 将选中的人移至最上方
-                        // me.fireEvent('listToTop', data.user_id);
-                        console.log('发送成功', data);
-                        User.files = [];
-                    }
-                });
+                // Utils.ajaxByZY('post', 'posts', {
+                //     params: JSON.stringify(message),
+                //     success: function (data) {
+                //         // 将选中的人移至最上方
+                //         // me.fireEvent('listToTop', data.user_id);
+                //         console.log('发送成功', data);
+                //         User.files = [];
+                //     }
+                // });
 
                 textAreaField.clear(); // 清空编辑框
 
@@ -383,6 +385,11 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         }
 
 
+    },
+
+    onSendSuccess(data) {
+        console.log('发送成功', data);
+        User.files = [];
     },
 
     // 消息解析

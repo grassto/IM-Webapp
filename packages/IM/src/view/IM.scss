@@ -166,6 +166,7 @@ $left-tab-color: black;
         margin: 0 10px;
 
         .plain{
+            word-wrap: break-word;
             padding: 9px 13px;
             .viewPic{
                 cursor: pointer;

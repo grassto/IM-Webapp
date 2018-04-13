@@ -17,7 +17,12 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
     items: [{
         xtype: 'IMMobile-Navbar',
         backBtn: false,
-        titleMsg: '消息'
+        titleMsg: '消息',
+        items: [{
+            iconCls: 'x-fa fa-plus',
+            align: 'right',
+            handler: 'onTapPlus'
+        }]
     }, {
         xtype: 'component' // 留一块位置来放其他的东西
     }, {

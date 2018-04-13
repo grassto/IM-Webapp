@@ -29,6 +29,17 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
             contextmenu: 'onContextmenu',
             scope: me
         });
+
+        me.getStore().on({
+            add : 'onStoreChg',
+            update : 'onStoreChg',
+            destroyable: true,
+            scope: me
+        });
+    },
+    onStoreChg(store, records, index, eOpts) {
+        // debugger;
+        store.sort();
     },
 
 

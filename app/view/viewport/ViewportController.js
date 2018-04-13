@@ -119,7 +119,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
             });
         }
 
-        // viewport.setActiveItem(view);
+        viewport.setActiveItem(view);
 
         return view;
     },

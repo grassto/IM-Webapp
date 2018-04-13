@@ -2,7 +2,7 @@
  * Navigation容器，隐藏原本的头，自己写
  */
 Ext.define('IMMobile.view.IMMobile', {
-    extend: 'Ext.NavigationView',
+    extend: 'Ext.Container',
     xtype: 'IMMobile',
 
     requires: [
@@ -21,12 +21,19 @@ Ext.define('IMMobile.view.IMMobile', {
         'IMCommon.utils.ParseUtil'
     ],
 
-    fullscreen: true,
-    navigationBar: null,
-
+    // 套上一层container是为了在页面跳转的时候不出错
     items: [{
-        xtype: 'IMMobile-MainTabPanel'
+        xtype: 'navigationview',
+        itemId: 'navView',
+        fullscreen: true,
+        navigationBar: null,
+
+        items: [{
+            xtype: 'IMMobile-MainTabPanel'
+        }]
     }],
+
+    
 
     initialize() {
         this.openConnection();

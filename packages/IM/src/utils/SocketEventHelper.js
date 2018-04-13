@@ -10,7 +10,7 @@ Ext.define('IM.utils.SocketEventHelper', {
      * websocket接收请求后执行，将数据绑定至页面
      * @param {object} msg 服务器返回的数据
      */
-    handleNewPostEvent(msg) {
+    handleNewPostEvent1(msg) {
         var me = this,
             data = JSON.parse(msg.data.message),
             cName = msg.data.chat_name,
@@ -152,6 +152,103 @@ Ext.define('IM.utils.SocketEventHelper', {
     },
 
     /**
+     * websocket接收请求后执行，将数据绑定至页面
+     * @param {object} msg 服务器返回的数据
+     */
+    handleNewPostEvent(msg) {
+        const me = this,
+            data = JSON.parse(msg.data.message);
+
+        // 自己发送的就在本地展示,并且不给消息提醒
+        if (data.user_id != User.ownerID) {
+            // 区分一个在当前会话，和不在当前会话
+            const view = Ext.Viewport.lookup('IM'), // 总容器
+                recentChat = view.down('#recentChat'),
+                chatView = view.lookup('im-main').down('#chatView'); // 聊天展示页面
+            if (chatView && User.crtChannelId == data.chat_id) { // 有这个页面并且是当前会话
+
+                var store = chatView.getStore();
+
+                switch(data.msg_type) {
+                    case MsgType.TextMsg:
+                        me.addTextMsg(store, data);
+                        break;
+                    case MsgType.ImgMsg:
+                        me.addImgMsg(store, data);
+                        break;
+                    case MsgType.FileMsg:
+                        me.addFileMsg(store, data);
+                        break;
+                    default:
+                        alert('暂未支持改类型：', data.msg_type);
+
+                me.promptFakeRead(data, store);
+                }
+            } else { // 不在当前会话
+                // 判断频道，没有，加(最近会话列表)
+                var has = me.hasChat(data.chat_id);
+                if(!has) {
+                    ChatHelper.addChatToRecent(data.chat_id);
+                }
+
+                var store = recentChat.getStore();
+                // 最近会话提示未读
+                me.promptUnRead(data, store);
+            }
+
+            me.notifyWrapper(msg.data);
+        }
+    },
+
+    addTextMsg(store, data) {
+        const text = window.minEmoji(data.message);
+        store.add({
+            senderName: ChatHelper.getName(data.user_id),
+            sendText: text,
+            updateTime: new Date(data.update_at),
+            last_post_at: new Date(data.update_at)
+        });
+    },
+    addImgMsg(store, data) {
+        const text = ParseHelper.parseToPic(data.message, data.attach_id);
+        store.add({
+            senderName: ChatHelper.getName(data.user_id),
+            sendText: text,
+            updateTime: new Date(data.update_at),
+            last_post_at: new Date(data.update_at)
+        });
+
+        var url = Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail';
+        // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
+        window.imagess(url, data.attach_id);
+    },
+    addFileMsg(store, data) {
+        store.add({
+            msg_type: MsgType.FileMsg,
+            fileID: data.attach_id,
+            fileName: data.name,
+            fileSize: data.size,
+            fileStatus: 2,
+            senderName: ChatHelper.getName(data.user_id),
+            updateTime: new Date(data.update_at),
+            last_post_at: new Date(data.update_at)
+        });
+    },
+
+    notifyWrapper(dataWrapper) {
+        var me = this,
+        data = JSON.parse(dataWrapper.message),
+        userName = ChatHelper.getName(data.chat_id);
+        if(dataWrapper.chat_type == ChatType.Direct) { // 单人
+            me.notify(dataWrapper.sender_name, data.message);
+            CEFHelper.addNotice(data, userName);
+        } else if(dataWrapper.chat_type == ChatType.Group) { // 多人
+            me.notify('多人会话：' + userName, data.message);
+            CEFHelper.addNotice(data, '多人会话：' + userName);
+        }
+    },
+
+    /**
      * 消息通知
      * @param {string} senderName 发送者姓名
      * @param {string} sendText 发送的内容
@@ -212,19 +309,23 @@ Ext.define('IM.utils.SocketEventHelper', {
      * 提示未读
      * @param {string} cid 用户id
      */
-    promptUnRead(cid, IMView) {
-        var store = IMView.down('#recentChat').getStore(),
-            record = store.getById(cid);
-        record.set('isUnRead', true);
-        record.set('unReadNum', record.get('unReadNum') + 1);
+    promptUnRead(data, store) {
+        var record = store.getById(data.chat_id);
+        record.set({
+            isUnRead: true,
+            unReadNum: record.get('unReadNum') + 1,
+            last_post_at: new Date(data.update_at)
+        });
     },
 
     // 在当前频道，有未读数量，但是不展示
-    promptFakeRead(cid, IMView) {
-        var store = IMView.down('#recentChat').getStore(),
-            record = store.getById(cid);
-        record.set('isUnRead', false);
-        record.set('unReadNum', record.get('unReadNum') + 1);
+    promptFakeRead(data, store) {
+        var record = store.getById(data.chat_id);
+        record.set({
+            isUnRead: false,
+            unReadNum: record.get('unReadNum') + 1,
+            last_post_at: new Date(data.update_at)
+        });
     },
 
     // 最近会话重新排序

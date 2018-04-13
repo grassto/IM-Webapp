@@ -42,7 +42,7 @@ Ext.define('IMMobile.view.widget.Navbar', {
                 $initParent: me,
                 handler: function (btn) {
                     // navigationview.pop();
-                    Ext.Viewport.lookup('IMMobile').pop();
+                    Ext.Viewport.lookup('IMMobile').down('#navView').pop();
                 }
             });
         }

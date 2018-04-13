@@ -52,6 +52,17 @@ Ext.define('IM.view.chat.ChatView', {
             scope: me
         });
 
+        me.getStore().on({
+            add: 'onAddData',
+            destroyable: true,
+            scope: me
+        });
+
+    },
+
+    // store添加数据后调用，统一的滚动条操作和时间的展示在这儿做
+    onAddData() {
+
     },
 
     /**

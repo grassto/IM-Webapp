@@ -29,7 +29,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
 
                 useTitleAsBackText: false,
                 updateTitleText: false,
-                emptyText: '加载中',
+                emptyText: '加载中...',
                 backText: '返回',
 
                 store: store
@@ -57,7 +57,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
 
             User.crtChatName = record.data.user_name; // chatView标题头修改
 
-            const imMobile = Ext.Viewport.lookup('IMMobile');
+            const imMobile = Ext.Viewport.lookup('IMMobile').down('#navView');
 
             imMobile.push({
                 xtype: 'IMMobile-memDetail',

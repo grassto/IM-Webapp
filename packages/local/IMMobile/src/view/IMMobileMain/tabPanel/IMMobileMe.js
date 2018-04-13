@@ -22,6 +22,12 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileMe', {
     }, {
         xtype: 'panel'
     }, {
-        xtype: 'panel'
+        xtype: 'panel',
+        items: [{
+            xtype: 'button',
+            text: '注销',
+            ui: 'action',
+            handler: 'onLogout'
+        }]
     }]
 });

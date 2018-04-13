@@ -58,6 +58,13 @@ Ext.define('IM.utils.ParseHelper', {
         return result;
     },
 
+    parseToPic(message, fileId) {
+        if(fileId) {
+            return '<img id="' + fileId + '" style="background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + fileId + '/thumbnail">';
+        }
+        return message;
+    },
+
     // 替换字符串中的回车
     textToHtml(text) {
         return text.replace(/\n/g, '<br/>').replace(/\r/g, '<br/>').replace(/\r\n/g, '<br/>');

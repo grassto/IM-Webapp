@@ -39,7 +39,7 @@ Ext.define('IMMobile.view.chatDetail.memDetail', {
 
     onSend() {
         User.chatMemID = User.crtSelMemId; // 解决跳转问题
-        const imMobile = Ext.Viewport.lookup('IMMobile');
+        const imMobile = Ext.Viewport.lookup('IMMobile').down('#navView');
 
         imMobile.push({
             xtype: 'IMMobile-chatView',

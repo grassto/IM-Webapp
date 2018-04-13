@@ -97,7 +97,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
 
         User.crtChatName = location.record.data.name;
 
-        const imMobile = Ext.Viewport.lookup('IMMobile');
+        const imMobile = Ext.Viewport.lookup('IMMobile').down('#navView');
 
         imMobile.push({
             xtype: 'IMMobile-chatView',
@@ -121,6 +121,11 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
             }
         });
 
+    },
+
+
+    onTapPlus() {
+        alert(123);
     }
 
 });

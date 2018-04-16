@@ -1,4 +1,4 @@
-Ext.define('IMMobile.view.chatDetail.memDetail', {
+Ext.define('IMMobile.view.details.memDetail', {
     extend: 'Ext.Container',
     xtype: 'IMMobile-memDetail',
 

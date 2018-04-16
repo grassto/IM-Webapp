@@ -4,7 +4,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
 
     requires: [
         'Ext.dataview.NestedList',
-        'IMMobile.view.chatDetail.memDetail'
+        'IMMobile.view.details.memDetail'
     ],
 
     constructor(config) {

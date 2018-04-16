@@ -325,7 +325,7 @@ Ext.define('IM.view.chat.ChatInput', {
     onPicUploadError(uploader, err) {
         console.log('onUploadError', arguments);
 
-        Ext.Msg.alert('上传失败', '上传失败');
+        Ext.Msg.alert('上传失败', '上传失败：' + err);
     },
 
 
@@ -434,6 +434,7 @@ Ext.define('IM.view.chat.ChatInput', {
 
             if (fileInfo.length > 0) {
                 me.down('#richEditor').uploadFile(fileInfo);
+                // me.uploadInInput(fileInfo);
             }
         }
     },
@@ -441,5 +442,39 @@ Ext.define('IM.view.chat.ChatInput', {
         console.log('onUploadError', arguments);
 
         Ext.Msg.alert('上传失败', err);
+    },
+
+    uploadInInput(fileInfo) {
+        var me = this,
+            formData = new FormData();
+        for(var i = 0; i < fileInfo.length; i++) {
+            formData.append('files', fileInfo[i].getNative());
+        }
+        formData.append('chat_id', User.crtChannelId);
+        $.ajax({
+            url: Config.httpUrlForGo + 'files',
+            type: 'post',
+            data: formData,
+            contentType: false,
+            processData: false,
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data) {
+                 // 图片格式
+                var imgType = FileUtil.imageFilter.extensions,
+                    type = '';
+                for (var i = 0; i < data.files.length; i++) {
+                    type = data.files[i].file_name.substr(data.files[i].file_name.indexOf('.') + 1);
+                    if(imgType.indexOf(type) > -1) { // 图片
+                        me.down('#richEditor').bindPicByID(data.files[i].file_id);
+                    } else { // 其他
+                        me.down('#richEditor').bindFile(data.files[i]);
+                    }
+
+                    User.files.push(data.files[i].file_id);
+                }
+            }
+        });
     }
 });

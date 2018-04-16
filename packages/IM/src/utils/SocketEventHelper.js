@@ -164,58 +164,72 @@ Ext.define('IM.utils.SocketEventHelper', {
             // 区分一个在当前会话，和不在当前会话
             const view = Ext.Viewport.lookup('IM'), // 总容器
                 recentChat = view.down('#recentChat'),
-                chatView = view.lookup('im-main').down('#chatView'); // 聊天展示页面
-            if (chatView && User.crtChannelId == data.chat_id) { // 有这个页面并且是当前会话
-
-                var store = chatView.getStore();
-
-                switch(data.msg_type) {
-                    case MsgType.TextMsg:
-                        me.addTextMsg(store, data);
-                        break;
-                    case MsgType.ImgMsg:
-                        me.addImgMsg(store, data);
-                        break;
-                    case MsgType.FileMsg:
-                        me.addFileMsg(store, data);
-                        break;
-                    default:
-                        alert('暂未支持改类型：', data.msg_type);
-
-                me.promptFakeRead(data, store);
-                }
-            } else { // 不在当前会话
-                // 判断频道，没有，加(最近会话列表)
-                var has = me.hasChat(data.chat_id);
-                if(!has) {
-                    ChatHelper.addChatToRecent(data.chat_id);
-                }
-
+                mainView = view.lookup('im-main');
+            if (!mainView) { // 不存在mainView
+                ChatHelper.addChatToRecent(data.chat_id);
                 var store = recentChat.getStore();
                 // 最近会话提示未读
                 me.promptUnRead(data, store);
+                me.notifyWrapper(msg.data);
+            } else {
+                var chatView = mainView.down('#chatView'); // 聊天展示页面
+                if (chatView && User.crtChannelId == data.chat_id) { // 有这个页面并且是当前会话
+
+                    var store = chatView.getStore();
+
+                    switch (data.msg_type) {
+                        case MsgType.TextMsg:
+                            me.addTextMsg(store, data);
+                            break;
+                        case MsgType.ImgMsg:
+                            me.addImgMsg(store, data);
+                            break;
+                        case MsgType.FileMsg:
+                            me.addFileMsg(store, data);
+                            break;
+                        default:
+                            alert('暂未支持该类型：', data.msg_type);
+                    }
+                    store = recentChat.getStore();
+                    me.promptFakeRead(data, store);
+                } else { // 不在当前会话
+                    // 判断频道，没有，加(最近会话列表)
+                    var has = me.hasChat(data.chat_id);
+                    if (!has) {
+                        ChatHelper.addChatToRecent(data.chat_id);
+                    }
+
+                    var store = recentChat.getStore();
+                    // 最近会话提示未读
+                    me.promptUnRead(data, store);
+                }
+
+                me.notifyWrapper(msg.data);
             }
 
-            me.notifyWrapper(msg.data);
         }
     },
 
     addTextMsg(store, data) {
         const text = window.minEmoji(data.message);
         store.add({
+            msg_id: data.msg_id,
             senderName: ChatHelper.getName(data.user_id),
             sendText: text,
             updateTime: new Date(data.update_at),
-            last_post_at: new Date(data.update_at)
+            last_post_at: new Date(data.update_at),
+            ROL: data.ROL
         });
     },
     addImgMsg(store, data) {
         const text = ParseHelper.parseToPic(data.message, data.attach_id);
         store.add({
+            msg_id: data.msg_id,
             senderName: ChatHelper.getName(data.user_id),
             sendText: text,
             updateTime: new Date(data.update_at),
-            last_post_at: new Date(data.update_at)
+            last_post_at: new Date(data.update_at),
+            ROL: data.ROL
         });
 
         var url = Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail';
@@ -224,6 +238,7 @@ Ext.define('IM.utils.SocketEventHelper', {
     },
     addFileMsg(store, data) {
         store.add({
+            msg_id: data.msg_id,
             msg_type: MsgType.FileMsg,
             fileID: data.attach_id,
             fileName: data.name,
@@ -231,18 +246,19 @@ Ext.define('IM.utils.SocketEventHelper', {
             fileStatus: 2,
             senderName: ChatHelper.getName(data.user_id),
             updateTime: new Date(data.update_at),
-            last_post_at: new Date(data.update_at)
+            last_post_at: new Date(data.update_at),
+            ROL: data.ROL
         });
     },
 
     notifyWrapper(dataWrapper) {
         var me = this,
-        data = JSON.parse(dataWrapper.message),
-        userName = ChatHelper.getName(data.chat_id);
-        if(dataWrapper.chat_type == ChatType.Direct) { // 单人
+            data = JSON.parse(dataWrapper.message),
+            userName = ChatHelper.getName(data.chat_id);
+        if (dataWrapper.chat_type == ChatType.Direct) { // 单人
             me.notify(dataWrapper.sender_name, data.message);
             CEFHelper.addNotice(data, userName);
-        } else if(dataWrapper.chat_type == ChatType.Group) { // 多人
+        } else if (dataWrapper.chat_type == ChatType.Group) { // 多人
             me.notify('多人会话：' + userName, data.message);
             CEFHelper.addNotice(data, '多人会话：' + userName);
         }
@@ -515,7 +531,7 @@ Ext.define('IM.utils.SocketEventHelper', {
 
         var removeMemMsg = '';
         // 分三种情况，移除者，被移除者，其余人
-        if (data.remover_id == User.ownerID) { // 移除者
+        if (data.remover_id == User.ownerID) { // 移除者, 自己的信息在本地就展示，暂时没做
             removeMemMsg = me.createMeRemoveSBMsg(data.remover_id, data.user_id);
 
             if (User.crtChannelId == data.chat_id) { // 在当前频道,展示
@@ -523,7 +539,7 @@ Ext.define('IM.utils.SocketEventHelper', {
                 me.removeChatMem(data.user_id);
             }
 
-            me.addInfoToCache(data.chat_id, removeMemMsg);
+            // me.addInfoToCache(data.chat_id, removeMemMsg);
 
         } else if (data.user_id == User.ownerID) { // 被移除者
             removeMemMsg = me.createSBRemoveMeMsg(data.remover_id, data.user_id);
@@ -545,8 +561,15 @@ Ext.define('IM.utils.SocketEventHelper', {
     },
 
     createMeRemoveSBMsg(removerID, userID) {
-        var userName = ChatHelper.getName(userID);
-        return '你将' + userName + '移出了群聊';
+        var result = '';
+        if (removerID == userID) {
+            result = '你退出了群聊';
+        } else {
+            var userName = ChatHelper.getName(userID);
+            result = '你将' + userName + '移出了群聊';
+        }
+
+        return result;
     },
     createSBRemoveMeMsg(removerID, userID) {
         var removerName = ChatHelper.getName(removerID),
@@ -689,13 +712,13 @@ Ext.define('IM.utils.SocketEventHelper', {
     handleMgrChgEvent(msg) {
         var data = msg.data;
         var chgMgrMsg = '';
-        if (data.new_manager == User.ownerID) {
+        if (data.old_manager == User.ownerID) {
             chgMgrMsg = this.meChgMgrToSB(data.new_manager);
 
             if (User.crtChannelId == data.chat_id) {
                 this.showgrpMsgInChat(chgMgrMsg, new Date());
             }
-        } else if (data.old_manager == User.ownerID) {
+        } else if (data.new_manager == User.ownerID) {
             chgMgrMsg = this.sbChgMgrToMe(data.old_manager);
 
             if (User.crtChannelId == data.chat_id) {
@@ -703,7 +726,7 @@ Ext.define('IM.utils.SocketEventHelper', {
             }
         }
 
-        this.chgMgrToCahe(data.chat_id, data.new_manager);
+        this.chgMgrToCahe(data.chat_id, data.new_manager, data.old_manager);
 
     },
 
@@ -720,10 +743,16 @@ Ext.define('IM.utils.SocketEventHelper', {
     },
 
     // 缓存中更新管理员
-    chgMgrToCahe(chatID, newMgr) {
+    chgMgrToCahe(chatID, newMgr, oldMgr) {
         for (var i = 0; i < User.allChannels.length; i++) {
             if (chatID == User.allChannels[i].chat.chat_id) {
                 User.allChannels[i].chat.manager_id == newMgr;
+                for (var j = 0; j < User.allChannels[i].members.length; j++) {
+                    if (User.allChannels[i].members[j].user_id == oldMgr) {
+                        User.allChannels[i].members.splice(j, 1);
+                        break;
+                    }
+                }
                 break;
             }
         }

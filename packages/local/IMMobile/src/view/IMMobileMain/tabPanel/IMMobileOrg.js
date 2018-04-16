@@ -1,5 +1,5 @@
 Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
-    extend: 'Ext.Panel',
+    extend: 'Ext.Container',
     xtype: 'IMMobile-Org',
 
     requires: [

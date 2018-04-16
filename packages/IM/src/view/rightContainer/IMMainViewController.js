@@ -50,7 +50,9 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         var manager = PreferenceHelper.getManagerFromCache(chatID),
             isHideChgMgr = true;
         if (manager == User.ownerID) {
-            isHideChgMgr = false;
+            if (User.ownerID !== userID) {
+                isHideChgMgr = false;
+            }
         }
 
         var menu = Ext.create('Ext.menu.Menu', {
@@ -70,7 +72,11 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 handler: function () {
                     var grpWarnMsg = PreferenceHelper.preGrpChat(); // 在多人会话中进行操作，提前需要的判断
                     if (grpWarnMsg == '') { // 可以执行操作
-                        PreferenceHelper.chgManager(chatID, userID);
+                        Ext.Msg.confirm('管理员更换', '确认更换管理员？', function(ok) {
+                            if(ok === 'yes') {
+                                PreferenceHelper.chgManager(chatID, userID, store);
+                            }
+                        });
                     } else {
                         PreferenceHelper.warnGrpMem(grpWarnMsg);
                     }
@@ -120,7 +126,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     onViewTap() {
         var view = this.getView().up('IM'),
             recentChat = view.down('#recentChat'),
-            lastSel = recentChat.getSelectable().getLastSelected();
+            lastSel = recentChat.getSelectable().getLastSelected();// list的最后选中
         var data = '';
         if (lastSel) { // 是否点击过
             data = lastSel.data;
@@ -344,10 +350,13 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 for (var i = 0; i < User.files.length; i++) {
                     fileIds.push(User.files[i].file_id);
                 }
-            }
-            var sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
+
+                var sendPicHtml = textAreaField.getSubmitValue(), // 图片表情解析
                 sendHtml = ParseHelper.onParseMsg(sendPicHtml); // img标签解析
-            sendText = ParseHelper.htmlToText(sendHtml);// 内容
+                sendText = ParseHelper.htmlToText(sendHtml);// 内容
+                // sendText = ParseHelper.onParseFile(sendText); // 附件解析
+            }
+           
 
             // 判断是否有内容或文件
             if (fileIds.length > 0 || sendText) {
@@ -360,6 +369,16 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     },
                     files: fileIds
                 };
+
+
+                // 将数据添加至页面
+                // var store = me.getView().down('#chatView').getStore();
+                // store.add({
+                //     senderName: User.crtUser.user_name,
+                //     sendText: sendText,
+                //     last_post_at: new Date(),
+                //     sendStatus: 1, // 发送态
+                // });
 
                 ChatUtil.onSend(JSON.stringify(message), me.onSendSuccess);
 
@@ -390,6 +409,28 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
     onSendSuccess(data) {
         console.log('发送成功', data);
         User.files = [];
+
+        if (User.crtChannelId == data[0].chat_id) {
+            var mainView = Ext.Viewport.lookup('IM').lookup('im-main'),
+                store = mainView.down('#chatView').getStore();
+            // 发送成功后处理数据
+            for (var i = 0; i < data.length; i++) {
+                data[i].ROL = 'right';
+                switch (data[i].msg_type) {
+                    case MsgType.TextMsg:
+                        SocketEventHelper.addTextMsg(store, data[i]);
+                        break;
+                    case MsgType.ImgMsg:
+                        SocketEventHelper.addImgMsg(store, data[i]);
+                        break;
+                    // case MsgType.FileMsg:
+                    //     SocketEventHelper.addFileMsg(store, data);
+                    //     break;
+                    default:
+                        console.log('消息类型类型：', data[i].msg_type);
+                }
+            }
+        }
     },
 
     // 消息解析

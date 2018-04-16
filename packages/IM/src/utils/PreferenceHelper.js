@@ -99,7 +99,7 @@ Ext.define('IM.utils.PreferenceHelper', {
 
                             store.remove(record);
 
-                            // 处理内存数据，之后做
+                            // 处理内存数据
                             me.hChatCheAfterHideChatMem(chatID, userID);
                         } else {
                             Utils.toastShort('你没有权限踢出用户');
@@ -121,8 +121,10 @@ Ext.define('IM.utils.PreferenceHelper', {
                 for (var j = 0; j < User.allChannels[i].members.length; j++) {
                     if (User.allChannels[i].members[j].user_id == userID) {
                         User.allChannels[i].members.splice(j, 1);
+                        break;
                     }
                 }
+                break;
             }
         }
     },
@@ -132,13 +134,14 @@ Ext.define('IM.utils.PreferenceHelper', {
      * @param {string} chatID
      * @param {string} userID 新的管理员
      */
-    chgManager(chatID, userID) {
+    chgManager(chatID, userID, store) {
         var me = this;
         Utils.ajaxByZY('PUT', 'chats/' + chatID + '/manager', {
             params: JSON.stringify([userID]),
             success: function(data) {
                 if(data.status == 'OK') {
                     console.log('更换管理员成功，处理内存数据');
+
                     me.cacheChgMgr(chatID, userID);
                 }
             }
@@ -160,7 +163,19 @@ Ext.define('IM.utils.PreferenceHelper', {
     // 更新缓存数据
     cacheChgMgr(chatID, userID) {
         var chat = this.getChatFromCacheByID(chatID);
-        chat.chat.chat_id = userID;
+        for(var i = 0; i < User.allChannels.length; i++) {
+            if (User.allChannels[i].chat.chat_id == chatID) {
+                chat.chat.manager_id = userID; // 管理员更换
+                // 将自己移出群
+                for (var j = 0; j < User.allChannels[i].members.length; j++) {
+                    if (User.allChannels[i].members[j].user_id == User.ownerID) {
+                        User.allChannels[i].members.splice(j, 1);
+                        break;
+                    }
+                }
+                break;
+            }
+        }
     },
 
     /* ************************************** @相关 ***************************************/

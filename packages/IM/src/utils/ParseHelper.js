@@ -30,6 +30,12 @@ Ext.define('IM.utils.ParseHelper', {
         return result;
     },
 
+    onParseFile(text) {
+        var result = '';
+        
+        return result;
+    },
+
     /**
      * 将文本消息转为图片
      * @param {string} message 纯文本消息
@@ -176,6 +182,7 @@ Ext.define('IM.utils.ParseHelper', {
                 };
             } else if (message.msg_type == MsgType.FileMsg) {
                 result = {
+                    msg_id: message.msg_id,
                     msg_type: MsgType.FileMsg,
                     file_id: message.attach_id,
                     fileName: '服务端之后做',

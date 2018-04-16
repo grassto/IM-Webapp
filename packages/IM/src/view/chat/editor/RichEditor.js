@@ -11,6 +11,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     // minHeight: 80,
     // maxHeight: 300,
     id: 'editor',
+    cls: 'IM-richEditor',
 
     initialize() {
         var me = this;
@@ -178,6 +179,12 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         me.callParent([
             config
         ]);
+    },
+
+    onPickerHide() {
+        var me = this;
+        me.callParent(arguments);
+        delete me._lastTerm;
     },
 
     privates: {
@@ -425,6 +432,41 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     destory() {
         Ext.destroy(this.uploadList);
         this.callParent();
-    }
+    },
+
+
+
+
+    bindFile(file) {
+        const me = this;
+        var html = [
+            '<div class="fileMsg">',
+                '<div class="fileWrapper">',
+                    '<div class="fileIcon"></div>',
+                    '<div class="fileName">' + file.file_name + '</div>',
+                    '<div>' + me.bytesToSize(file.size) + '</div>',
+                '</div>',
+            '</div>',
+            '&#8203'
+        ].join('');
+
+
+        me.inputElement.dom.focus();
+        if (document.queryCommandSupported('insertHTML')) {
+            document.execCommand('insertHTML', false, html);
+        } else {
+            document.execCommand('paste', false, html);
+        }
+    },
+
+    bytesToSize(bytes) {
+        if (bytes === 0) return '0 B';
+        var k = 1000, // or 1024
+            sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+            i = Math.floor(Math.log(bytes) / Math.log(k));
+
+       return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+    },
+
 
 });

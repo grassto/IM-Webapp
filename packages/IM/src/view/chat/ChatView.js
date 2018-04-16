@@ -21,13 +21,14 @@ Ext.define('IM.view.chat.ChatView', {
         type: 'chatView'
     },
 
+    // emptyText: '暂无会话',
+
     itemsFocusable: false,
+    selectable: false,
 
     classCls: 'chatVeiw-list',
 
     hoveredCls: 'hovered', // 去掉鼠标悬浮的背景色样式
-
-    selectable: false,
 
     // items: [{
     //     xtype: 'button',
@@ -43,6 +44,7 @@ Ext.define('IM.view.chat.ChatView', {
 
         me.on({
             childtap: 'onTapChild',
+            // focus : 'onFocus',
             scope: me
         });
 
@@ -62,7 +64,11 @@ Ext.define('IM.view.chat.ChatView', {
 
     // store添加数据后调用，统一的滚动条操作和时间的展示在这儿做
     onAddData() {
+        const me = this,
+        store = me.getStore();
+        ChatHelper.onScroll(me);
 
+        ChatHelper.onShowChatTime(store);
     },
 
     /**

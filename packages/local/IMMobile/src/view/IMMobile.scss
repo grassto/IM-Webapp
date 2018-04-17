@@ -1,3 +1,5 @@
+$mobile-base-background-color: rgb(242,243,245);
+
 .imMobile-nav-title{
     margin-left: 15px;
     overflow: hidden;
@@ -15,4 +17,9 @@
     font-size: 13px;
     color: #f0f0f0;
     margin-left: 10px;
+}
+
+
+.mobileMain {
+    background: $mobile-base-background-color;
 }

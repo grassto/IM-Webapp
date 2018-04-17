@@ -1,5 +1,5 @@
 Ext.define('PushIM.Webapp.view.login.Login', {
-    extend:'Ext.Container',
+    extend: 'Ext.Container',
     xtype: 'authlogin',
     controller: 'authlogin',
     requires: [
@@ -12,23 +12,29 @@ Ext.define('PushIM.Webapp.view.login.Login', {
     viewModel: {
         data: {
             version: 'v2.0.0.101',
-            loginIsHideBrowseTitle: true
+            loginIsHideBrowseTitle: true,
+            isHideLoginSet: false
         }
     },
 
     initialize() {
         var form = this.lookup('form');
-        
+
         form.setValues({
-            userId:localStorage.getItem('USERID'),
-            password:localStorage.getItem('PASSWORD'),
+            userId: localStorage.getItem('USERID'),
+            password: localStorage.getItem('PASSWORD'),
             remember: true
         });
 
         this.getViewModel().set('version', Config.version);
 
-        if(window.cefMain) {
+        if (window.cefMain) {
             this.getViewModel().set('loginIsHideBrowseTitle', false);
+        }
+
+        
+        if(Ext.os.is.Desktop) {
+            this.getViewModel().set('isHideLoginSet', true);
         }
     },
 
@@ -46,7 +52,7 @@ Ext.define('PushIM.Webapp.view.login.Login', {
         items: [{
             xtype: 'component',
             cls: 'loginDrag',
-            flex:1
+            flex: 1
         }, {
             xtype: 'button',
             ui: 'cefClose',
@@ -101,9 +107,23 @@ Ext.define('PushIM.Webapp.view.login.Login', {
                     disabled: '{!password.value||!userId.value}'
                 }
             }, {
-                xtype: 'checkbox',
-                boxLabel: '记住密码',
-                name: 'remember'
+                xtype: 'container',
+                layout: 'hbox',
+                items: [{
+                    xtype: 'checkbox',
+                    boxLabel: '记住密码',
+                    name: 'remember',
+                    flex: 1
+                }, {
+                    xtype: 'button',
+                    iconCls: 'x-fa fa-wrench',
+                    ui: 'flat',
+                    text: '账套设置',
+                    bind: {
+                        hidden: '{isHideLoginSet}'
+                    },
+                    handler: 'onSet'
+                }]
             }]
         }, {
             xtype: 'component',

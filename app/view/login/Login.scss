@@ -11,6 +11,8 @@ $auth-form-bgImg: url(get-resource-path('images/formBG.jpg'));
     $body-color: $auth-color,
     $body-padding: 24px
 );
+
+
 .login-body {
     @include background-size(cover);
     background-image: $auth-background-image;
@@ -49,6 +51,18 @@ $auth-form-bgImg: url(get-resource-path('images/formBG.jpg'));
     
                 // 复选框文字：白色
                 label{
+                    color: $auth-color;
+                }
+
+                .x-checkboxfield.x-checked .x-icon-el:before {
+                    color: $auth-color;
+                }
+
+                .fa-wrench:before {
+                    color: $auth-color;
+                }
+
+                .x-button-flat {
                     color: $auth-color;
                 }
             }
@@ -93,7 +107,10 @@ $auth-form-bgImg: url(get-resource-path('images/formBG.jpg'));
                 font-weight: bold;
             }
         }
+        
+        
     }
+
 
 }
 

@@ -1,0 +1,50 @@
+
+.acSetting {
+    .support-select {
+
+        .Content {
+            line-height: 26px;
+        }
+        .select {
+            width: 24px;
+            height: 24px;
+            @include border-radius(12px);
+            background: transparent;
+            border: 1px solid black;
+            margin-right:.3em;
+            position: relative;
+            
+            &:after
+            {   
+                content: '';
+                position: absolute;
+                top: 6px;
+                left: 5px;
+                width: 14px;
+                height: 8px;
+                background: transparent;
+                border: 2px solid #fff;
+                border-top: none;
+                border-right: none;
+                -webkit-transform: rotate(-45deg);
+                -ms-transform: rotate(-45deg);
+                transform: rotate(-45deg);
+                opacity: 0;
+            }
+        }
+
+        .x-selected
+        {
+            .select {
+                background: $base-color;
+                color: #fff;
+                border: none;
+                
+                &:after
+                {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}

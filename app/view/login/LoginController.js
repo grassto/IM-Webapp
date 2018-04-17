@@ -5,6 +5,10 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
         'PushIM.Webapp.util.User'
     ],
 
+    uses: [
+        'PushIM.Webapp.view.setting.AccountSetting'
+    ],
+
     init() {
         var me = this;
         me.callParent(arguments);
@@ -19,6 +23,7 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
             },
             scope: me
         });
+
     },
 
     /**
@@ -100,5 +105,10 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
         if(window.cefMain) {
             window.cefMain.min();
         }
+    },
+
+
+    onSet() {
+        Ext.Viewport.getController().showView('acSetting');
     }
 });

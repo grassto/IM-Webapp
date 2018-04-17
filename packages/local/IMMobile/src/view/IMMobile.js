@@ -21,6 +21,8 @@ Ext.define('IMMobile.view.IMMobile', {
         'IMCommon.utils.ParseUtil'
     ],
 
+    cls: 'mobileMain',
+
     // 套上一层container是为了在页面跳转的时候不出错
     items: [{
         xtype: 'navigationview',

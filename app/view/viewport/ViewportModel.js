@@ -13,5 +13,6 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportModel', {
     },
     data: {
         /* This object holds the arbitrary data that populates the ViewModel and is then available for binding. */
+        
     }
 });

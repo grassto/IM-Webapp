@@ -7,6 +7,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
         'IMMobile.view.details.memDetail'
     ],
 
+
     constructor(config) {
         // 需要自己拼的
         var root = this.getOrgRoot();
@@ -23,8 +24,10 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
 
             items: [{
                 xtype: 'nestedlist',
+                cls: 'mobileNestList',
                 itemId: 'OrgNestedList',
-                fullscreen: true,
+                flex: 1,
+                // fullscreen: true,
                 displayField: 'text',
 
                 useTitleAsBackText: false,

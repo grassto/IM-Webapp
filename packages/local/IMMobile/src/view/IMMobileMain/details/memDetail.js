@@ -3,7 +3,8 @@ Ext.define('IMMobile.view.details.memDetail', {
     xtype: 'IMMobile-memDetail',
 
     requires: [
-        'IMMobile.view.widget.Navbar'
+        'IMMobile.view.widget.Navbar',
+        'IMMobile.view.base.Container'
     ],
 
     layout: 'vbox',
@@ -15,7 +16,7 @@ Ext.define('IMMobile.view.details.memDetail', {
         xtype: 'IMMobile-Navbar',
         titleMsg: '个人信息'
     }, {
-        xtype: 'panel',
+        xtype: 'baseBackcolor',
         flex: 1,
         itemId: 'memDetail',
         layout: {

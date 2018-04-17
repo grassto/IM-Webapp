@@ -55,30 +55,6 @@ Ext.define('IMMobile.view.widget.Navbar', {
         }
     },
 
-    // applyShowTitle: function(config) {
-    //     const me = this;
-        
-    //     if (config === true) {
-    //         config = {};
-    //     }
-    //     if (config) {
-    //         const title = me.getTitleMsg();
-    //         Ext.applyIf(config, {
-    //             itemId: 'title',
-    //             html: title,
-    //             cls: 'nav-title',
-    //             $initParent: me
-    //         });
-    //     }
-    //     return Ext.factory(config, Ext.Component, me.getShowTitle());
-    // },
-    // updateShowTitle(v) {
-    //     var me = this;
-    //     if(v) {
-    //         me.insert(0, v);
-    //     }
-    // }
-
     applyTitleMsg: function(config) {
         const me = this,
         title = config;

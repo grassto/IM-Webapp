@@ -3,7 +3,8 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
     alias: 'controller.IMMobileChatController',
 
     uses: [
-        'IMMobile.view.chatView.IMMobileChatView'
+        'IMMobile.view.chatView.IMMobileChatView',
+        'IMMobile.view.group.GroupSelList'
     ],
     /**
      * Called when the view is created
@@ -124,8 +125,13 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
     },
 
 
-    onTapPlus() {
-        alert(123);
+    onStartGrpChat() {
+        const imMobile = Ext.Viewport.lookup('IMMobile').down('#navView');
+
+        imMobile.push({
+            xtype: 'IMMobile-grpSelList',
+            itemId: 'IMMobile-grpSelList'
+        });
     }
 
 });

@@ -64,12 +64,48 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
             this.dynamicPkgLoad('IM');
             // this.dynamicPkgLoad('IMMobileNavigation');
         } else if(Ext.os.is.Phone) {
+            this.listenPhoneBack();
             this.dynamicPkgLoad('IMMobile');
+            // 监听手机的返回键
         } else if(Ext.os.is.Tablet) {
             alert('屏幕未适配');
         } else {
             alert('屏幕未适配');
         }
+    },
+
+    // 监听手机的返回键
+    listenPhoneBack () {
+        document.addEventListener('backbutton', Ext.Function.bind(this.onBackButton, this), false);
+    },
+
+    onBackButton: function() {
+        const me = this;
+        // 1. 隐藏picker overlay等悬浮在view上的层
+        var done = me.backOneFloating();
+        if (done) return;
+        //2.回退view
+        Ext.Viewport.lookup('IMMobile').down('#navView').pop();
+    },
+
+    // 隐藏悬浮层
+    backOneFloating() {
+        var done = false;
+        Ext.each((Ext.floatRoot || Ext).query('.x-floated:not(.x-tooltip)'),function(el, idx) {
+            const cmp = Ext.getCmp(el.id);
+            if(cmp) {
+                if(cmp.onBack) { // 这个是弹出层自己的返回
+                    cmp.onBack();
+                } else {
+                    cmp.hide();
+                }
+                done = true;
+
+                return false; // 退出
+            }
+        });
+
+        return done;
     },
 
     /**

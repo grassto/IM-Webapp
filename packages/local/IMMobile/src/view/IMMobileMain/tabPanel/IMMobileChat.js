@@ -21,7 +21,14 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
         items: [{
             iconCls: 'x-fa fa-plus',
             align: 'right',
-            handler: 'onTapPlus'
+            arrow: false,
+            menu: {
+                items: [{
+                    text: '发起群聊',
+                    // iconCls: 'x-fa fa-comment',
+                    handler: 'onStartGrpChat'
+                }]
+            }
         }]
     }, {
         xtype: 'component' // 留一块位置来放其他的东西

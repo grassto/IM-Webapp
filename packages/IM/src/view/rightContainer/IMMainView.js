@@ -63,6 +63,7 @@ Ext.define('IM.view.rightContainer.IMMainView', {
                     handler: 'changeChatHeader'
                 }, */{
                         xtype: 'textfield',
+                        width: '100%',
                         itemId: 'btnEdit',
                         userCls: 'rightTitle',
                         bind: {

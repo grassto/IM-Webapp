@@ -3,6 +3,7 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
     xtype: 'IMMobile-chatView',
 
     requires: [
+        'IMMobile.view.base.Container',
         'IMMobile.view.widget.Navbar',
         'Ext.dataview.DataView',
         'IMMobile.view.chatView.editor.IMMobileEditor',
@@ -53,7 +54,7 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         '<tpl else>' + // 正常的消息
             '<tpl if="values.ROL!==\'right\'">' + // 头像是否展示
                 '<div class="evAvatar" style="float:{ROL};">' +
-                '<a class="avatar link-avatar firstletter " letter="{[AvatarUtil.getFirstLetter(values.senderName)]} " style="margin:0;float:{ROL};{[AvatarUtil.getColorStyle(values.senderName)]}">' +
+                '<a class="avatar link-avatar firstletter " letter="{[AvatarUtil.getFirstLetter(values.senderName)]} " style="margin:0 0 0 10px;float:{ROL};{[AvatarUtil.getColorStyle(values.senderName)]}">' +
                 '</a>' +
                 '</div>' +
             '</tpl>' +
@@ -166,6 +167,7 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         });
     },
 
+    // 根据userid来判断是否存在chat
     getChatID(uid) {
         var chatName = '',
             userIds = '';
@@ -193,6 +195,8 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
                 AddDataUtil.addAllMsg(view, data);
 
                 Utils.unMask(me);
+
+                User.chatMemID = ''; // 应该放在这
             }
         });
     },
@@ -202,7 +206,7 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         Utils.ajaxByZY('post', 'chats/direct', {
             params: JSON.stringify([User.ownerID, userID]),
             success: function (data) {
-                User.chatMemID = ''; // 清空缓存
+                // User.chatMemID = ''; // 清空缓存
 
                 AddDataUtil.addChatToRecent(data.chat_id); // 最近会话列表添加
 

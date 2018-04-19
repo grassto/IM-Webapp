@@ -76,7 +76,8 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
 
     // 监听手机的返回键
     listenPhoneBack () {
-        document.addEventListener('backbutton', Ext.Function.bind(this.onBackButton, this), false);
+        const me = this;
+        document.addEventListener('backbutton', Ext.Function.bind(me.onBackButton, me), false);
     },
 
     onBackButton: function() {

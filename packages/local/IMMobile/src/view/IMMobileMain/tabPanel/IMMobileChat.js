@@ -38,7 +38,22 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
         cls: 'IMMobile-RecentChat',
         flex: 1,
         store: {
-            model: 'IMCommon.model.ChatOld'
+            model: 'IMCommon.model.ChatOld',
+            sorters: [{
+                property: 'toTop',
+                direction: 'DESC'
+            }, { // 按时间降序排序
+                property: 'last_post_at',
+                direction: 'DESC'
+            }],
+            listeners: {
+                add: 'onStoreChg',
+                update: 'onStoreChg'
+            },
+
+            onStoreChg(store, records, index, eOpts) {
+                store.sort();
+            }
         },
         itemTpl: [
             '<div toTop="{toTop}" chat_id="{id}" class="itemRight" style="line-height:38px;white-space:nowrap;cursor:default;overflow:hidden;text-overflow:ellipsis;">',

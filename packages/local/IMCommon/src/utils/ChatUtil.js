@@ -11,5 +11,15 @@ Ext.define('IMCommon.utils.ChatUtil', {
             params: params,
             success: success
         });
+    },
+
+    createGrpChat(params, success) {
+        Utils.ajaxByZY('post', 'chats/group', {
+            params: JSON.stringify(params),
+            success: success,
+            failure: function (data) {
+                console.log('创建多人会话失败', data);
+            }
+        });
     }
 });

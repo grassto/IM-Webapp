@@ -38,7 +38,7 @@ Ext.define('IMCommon.view.list.GroupedList', {
         config = Ext.applyIf({
             store: {
                 model: 'IMCommon.model.PersonList',
-                // data: User.allUsers, 这样也不行
+                // data: User.allUsers, 这样也不行(写在外面的)
                 grouper: {
                     groupFn: function(record) {
                         // 根据首字母排序
@@ -46,7 +46,7 @@ Ext.define('IMCommon.view.list.GroupedList', {
                         // return record.get('firstName')[0];
                     }
                 },
-                data: User.allUsers
+                data: User.allOthers
             }
         });
 
@@ -63,7 +63,7 @@ Ext.define('IMCommon.view.list.GroupedList', {
     // },
 
     // 选择
-    onSelChild(view, location) {
+    onSelChild(view, location) { // 继承的类，需要将childTap写在initialize里才能用
         var target = location.event.currentTarget,
         div = Ext.fly(target);
 

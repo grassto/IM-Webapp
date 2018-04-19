@@ -34,11 +34,13 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
     }, {
         xtype: 'button',
         iconCls: 'x-fa fa-smile-o',
-        itemId: 'btnEmoji'
+        itemId: 'btnEmoji',
+        hidden: true
     }, {
         xtype: 'button',
         itemId: 'sendBtn',
-        text: '发送'
+        text: '发送',
+        ui: 'action'
     }],
 
     // 表情、文本发送
@@ -58,6 +60,10 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
                     message: text
                 }
             };
+            
+            // 最近会话最后发送时间更新，方便排序
+            var recChatStore = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-Chat').down('#ChatList').getStore();
+            recChatStore.getById(User.crtChannelId).set('last_post_at', new Date());
 
             // 给正在发送的圈圈
             chatViewStore.add({

@@ -63,6 +63,10 @@ Ext.define('IMMobile.view.group.GroupSelList', {
                 itemTpl: '<a class="avatar link-avatar firstletter " letter="{[AvatarUtil.getFirstLetter(values.user_name)]} " style="float:left;{[AvatarUtil.getColorStyle(values.user_name)]}"></a>',
                 store: {
                     model: 'IMCommon.model.PersonList'
+                },
+
+                listeners: {
+                    childTap: 'onRemoveGrpMem'
                 }
                 // tpl: [
                 //     '<tpl for=".">',

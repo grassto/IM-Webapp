@@ -38,7 +38,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileMe', {
         items: [{
             xtype: 'arrButton',
             arrText: '设置',
-            // handler: 'onLogout'
+            handler: 'onOpenSetting'
         }]
     }]
 });

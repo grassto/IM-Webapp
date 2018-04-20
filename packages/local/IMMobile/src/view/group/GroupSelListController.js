@@ -92,5 +92,32 @@ Ext.define('IMMobile.view.group.GroupSelListController', {
              xtype: 'IMMobile-chatView',
              itemId: 'IMMobile-chatView'
          });
+    },
+
+    // 点解选中的人，取消选中
+    onRemoveGrpMem(view, location) {
+        var store = view.getStore(),
+        record = location.record;
+        // list取消选中
+        var userID = record.data.user_id,
+        listStore = this.getView().down('groupedList').getStore(),
+        listRecord = listStore.getById(userID);
+
+        // debugger;
+        var items = this.getView().down('groupedList').getItems();
+        for(var i = 0; i < items.length; i++) {
+            //  字符串                                        数字
+            if(items.items[i].el.dom.dataset.recordid == listRecord.internalId) {
+                // items.items[i].el.removeCls('selList');
+                items.items[i].el.dom.classList.remove('selList');
+                break;
+            }
+        }
+
+        // 选中列表移除
+        store.remove(record);
+
+        // 确定后面的数字减一
+        this.getViewModel().set('personNum', this.getViewModel().get('personNum') - 1);
     }
 });

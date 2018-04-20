@@ -6,6 +6,7 @@ Ext.define('IMMobile.view.IMMobile', {
     xtype: 'IMMobile',
 
     requires: [
+        'Ext.navigation.View',
         'IMMobile.view.IMMobileMain.IMMobileMainTabPanel',
         
         'IMCommon.enumType.ChatType',

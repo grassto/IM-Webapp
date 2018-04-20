@@ -5,13 +5,13 @@ $mobile-base-background-color: rgb(242,243,245);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 150px;
+    // max-width: 150px;
 }
-@media screen and (max-width: 300px) {
-    .imMobile-nav-title{
-        max-width: 100px;
-    }
-}
+// @media screen and (max-width: 300px) {
+//     .imMobile-nav-title{
+//         max-width: 100px;
+//     }
+// }
 
 .nav-title{
     font-size: 13px;

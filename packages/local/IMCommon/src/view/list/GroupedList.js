@@ -46,7 +46,14 @@ Ext.define('IMCommon.view.list.GroupedList', {
                         // return record.get('firstName')[0];
                     }
                 },
-                data: User.allOthers
+                data: User.allOthers,
+                // listeners: {
+                //     update: 'onChgCss',
+                //     destroyable: true
+                // },
+                // onChgCss(store, records, index, eOpts) {
+                //     debugger;
+                // }
             }
         });
 

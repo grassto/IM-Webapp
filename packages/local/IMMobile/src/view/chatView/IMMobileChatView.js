@@ -28,9 +28,11 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
 
     items: [{
         xtype: 'IMMobile-Navbar',
+        itemId: 'chatViewNav',
         items: [{
             xtype: 'component',
-            align: 'left',
+            // align: 'left',
+            flex: 1,
             bind: {
                 html: '<div class="imMobile-nav-title">{title}</div>'
             }
@@ -115,6 +117,8 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
             destroyable: true,
             scope: me
         });
+
+        // 初始化页面相关信息
         me.openChat();
     },
 
@@ -131,8 +135,9 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         }
     },
 
+    // 长按事件
     onLongPress(view, location) {
-        alert(234)
+        alert(234);
     },
 
     // store调用add方法后调用
@@ -161,10 +166,13 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
 
     },
 
+    // 设置标题头
     setTitle() {
         this.getViewModel().set({
             title: User.crtChatName
         });
+
+        // this.down('#chatViewNav').setTitleMsg(User.crtChatName);
     },
 
     // 根据userid来判断是否存在chat

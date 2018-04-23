@@ -50,17 +50,17 @@ Ext.define('IMMobile.view.group.GroupSelList', {
         }, {
             xtype: 'baseBackcolor',
             docked: 'bottom',
-            scrollable: {
-                x: true
-            },
+            // scrollable: {
+            //     x: true
+            // },
             items: [{// 给dataview，用样式来解决
                 xtype: 'dataview',
                 maxHeight: 40,
-                scrollable: {
-                    x: true
-                },
                 itemId: 'grpMems',
-                itemTpl: '<a class="avatar link-avatar firstletter " letter="{[AvatarUtil.getFirstLetter(values.user_name)]} " style="float:left;{[AvatarUtil.getColorStyle(values.user_name)]}"></a>',
+                itemsFocusable: false,
+                selectable: false,
+
+                itemTpl: '<a class="avatar link-avatar firstletter " letter="{[AvatarUtil.getFirstLetter(values.user_name)]} " style="display:{[values.selList?\'inline-block\':\'none\']};float:left;{[AvatarUtil.getColorStyle(values.user_name)]}"></a>',
                 store: {
                     model: 'IMCommon.model.PersonList'
                 },
@@ -68,11 +68,6 @@ Ext.define('IMMobile.view.group.GroupSelList', {
                 listeners: {
                     childTap: 'onRemoveGrpMem'
                 }
-                // tpl: [
-                //     '<tpl for=".">',
-                //     '<a class="avatar link-avatar firstletter " letter="{[AvatarUtil.getFirstLetter(values.user_name)]} " style="float:left;{[AvatarUtil.getColorStyle(values.user_name)]}"></a>',
-                //     '</tpl>'
-                // ].join('')
             }, {
                 xtype: 'button',
                 docked: 'right',
@@ -98,27 +93,51 @@ Ext.define('IMMobile.view.group.GroupSelList', {
 
     onSelMem(view, location) {
         var record = location.record;
-
-        // 选中的是items而不是groups
         if (record) {
             const data = record.data,
                 me = this,
-                store = me.down('#grpMems').getStore(),
-                target = location.event.currentTarget,
-                div = Ext.fly(target);
+                viewModel = me.getViewModel(),
+                store = me.down('#grpMems').getStore();
 
-            // 选中了
-            if (div.hasCls('selList')) {
+            if (data.selList) {
                 store.add({
                     user_id: data.user_id,
-                    user_name: data.user_name
+                    user_name: data.user_name,
+                    selList: data.selList
                 });
-                me.getViewModel().set('personNum', me.getViewModel().get('personNum') + 1);
-            } else { // 取消选中
+
+                viewModel.set('personNum', viewModel.get('personNum') + 1);
+            } else {
                 record = store.getById(data.user_id);
                 store.remove(record);
-                me.getViewModel().set('personNum', me.getViewModel().get('personNum') - 1);
+                viewModel.set('personNum', viewModel.get('personNum') - 1);
             }
         }
     }
+
+    // onSelMem(view, location) {
+    //     var record = location.record;
+
+    //     // 选中的是items而不是groups
+    //     if (record) {
+    //         const data = record.data,
+    //             me = this,
+    //             store = me.down('#grpMems').getStore(),
+    //             target = location.event.currentTarget,
+    //             div = Ext.fly(target);
+
+    //         // 选中了
+    //         if (div.hasCls('selList')) {
+    //             store.add({
+    //                 user_id: data.user_id,
+    //                 user_name: data.user_name
+    //             });
+    //             me.getViewModel().set('personNum', me.getViewModel().get('personNum') + 1);
+    //         } else { // 取消选中
+    //             record = store.getById(data.user_id);
+    //             store.remove(record);
+    //             me.getViewModel().set('personNum', me.getViewModel().get('personNum') - 1);
+    //         }
+    //     }
+    // }
 });

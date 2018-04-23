@@ -8,9 +8,5 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileMeController', {
 
     onOpenSetting() {
         Redirect.redirectTo('IMMobile-Setting');
-    },
-
-    onLogout() {
-        this.fireEvent('logout');
     }
 });

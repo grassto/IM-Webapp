@@ -7,6 +7,8 @@ Ext.define('IMMobile.view.IMMobileMain.details.setting', {
         'IMMobile.view.widget.Navbar'
     ],
 
+    defaultListenerScope: true,
+
     layout: 'vbox',
 
     items: [{
@@ -27,8 +29,13 @@ Ext.define('IMMobile.view.IMMobileMain.details.setting', {
         }, {
             xtype: 'button',
             width: '100%',
-            text: '退出登录'
+            text: '退出登录',
+            handler: 'onLogout'
         }]
-    }]
+    }],
+
+    onLogout() {
+        this.fireEvent('logout');
+    }
 
 });

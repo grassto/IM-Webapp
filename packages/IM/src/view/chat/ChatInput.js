@@ -444,6 +444,7 @@ Ext.define('IM.view.chat.ChatInput', {
         Ext.Msg.alert('上传失败', err);
     },
 
+    // 将附件放入编辑框中上传
     uploadInInput(fileInfo) {
         var me = this,
             formData = new FormData();

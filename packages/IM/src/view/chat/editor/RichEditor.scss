@@ -1,4 +1,10 @@
 .IM-richEditor{
+    .x-body-wrap-el {
+        .x-input-el {
+            overflow: auto; // 编辑框加上滚动条
+        }
+    }
+
     .fileMsg {
         float: left;
         background: whitesmoke;

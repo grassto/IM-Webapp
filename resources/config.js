@@ -14,7 +14,9 @@ window.Config = {
     // wsPdcUrl: 'ws://10.0.10.33:17001/api/v1/websocket',
     // httpPdcGoUrl: 'http://10.0.10.33:17001/api/v1/',
 
-    wsPdcUrl: 'ws://218.4.111.6:17001/api/v1/websocket',
+    // wsPdcUrl: 'wss：//im.pusherp.com',
+    // httpPdcGoUrl: 'http://218.4.111.6:17001/api/v1/',
+    wsPdcUrl: 'ws：//218.4.111.6:17001/api/v1/websocket',
     httpPdcGoUrl: 'http://218.4.111.6:17001/api/v1/',
 
     // wsPdcUrl: 'ws://localhost:7001/api/v1/websocket',

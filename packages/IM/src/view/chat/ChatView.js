@@ -141,9 +141,10 @@ Ext.define('IM.view.chat.ChatView', {
         const e = location.event,
             t = Ext.fly(e.target);
         if (t.hasCls('viewPic')) {
-            var thumbSrc = t.dom.src;
+            var src = t.dom.src;
+            ImgUtil.viewImgs(src);
             // 请求原图浏览
-            ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
+            // ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
         }
         if (t.hasCls('avatar')) {
             this.setHisDetails(record);

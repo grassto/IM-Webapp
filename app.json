@@ -1,4 +1,22 @@
 {
+    "builds": {
+        "web": {"default": true},
+        "android": {
+            "packager": "cordova",
+            "cordova" : {
+                "config": {
+                    // Uncomment the line below and add the platforms you wish to build for
+                    //"platforms": "ios android",
+
+                    "id": "com.pushsoft.IM",
+                    "name": "IM",
+                    "platforms": "android"
+                }
+            }
+        }
+    },
+
+                
     "name": "PushIM.Webapp",
     "namespace": "PushIM.Webapp",
     "version": "1.0.0.0",
@@ -18,7 +36,7 @@
      *      ]
      */
     "requires": [
-        "package-loader", //动态加载包
+        "package-loader", //动�?�加载包
         "font-awesome",
         "theme-default",
         "modern-locale",

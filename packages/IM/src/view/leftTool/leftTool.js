@@ -50,10 +50,26 @@ Ext.define('IM.view.leftTool.leftTool', {
                 }
             ]
         }, {
+            xtype: 'component',
+            flex: 1,
+            cls: 'imitateLeftTitle'
+        }, {
+            xtype: 'button',
+            ui: 'leftTool-ui',
+            iconCls: 'x-fa fa-clock-o',
+            // docked: 'bottom',
+            handler: 'onShowMsgManger'
+        }, {
+            xtype: 'button',
+            ui: 'leftTool-ui',
+            iconCls: 'x-fa fa-star',
+            // docked: 'bottom',
+            handler: 'onShowFav'
+        }, {
             xtype: 'button',
             ui: 'leftTool-ui',
             iconCls: 'x-fa fa-list',
-            docked: 'bottom',
+            // docked: 'bottom',
             menu: [{
                 text: '设置',
                 // iconCls: 'x-fa fa-wrench'
@@ -65,24 +81,6 @@ Ext.define('IM.view.leftTool.leftTool', {
                 text: '关于',
                 // handler: 'onShowAbout'
             }]
-        }, {
-            xtype: 'button',
-            ui: 'leftTool-ui',
-            iconCls: 'x-fa fa-clock-o',
-            docked: 'bottom',
-            handler: 'onShowMsgManger'
-        }, {
-            xtype: 'button',
-            ui: 'leftTool-ui',
-            iconCls: 'x-fa fa-star',
-            docked: 'bottom',
-            handler: 'onShowFav'
-        }, {
-            xtype: 'button',
-            text: '测试',
-            docked: 'bottom',
-            handler: 'onTest',
-            hidden: true
         }]
     }]
 

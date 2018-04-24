@@ -6,6 +6,9 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         'Ext.drag.Target'
     ],
 
+    scrollable: {
+        y: true
+    },
     placeholder: 'Ctrl+Enter换行',
     clearable: false,
     // minHeight: 80,

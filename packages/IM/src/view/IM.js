@@ -47,6 +47,7 @@ Ext.define('IM.view.IM', {
         xtype: 'midPanel',
         itemId: 'middleView',
         minWidth: 200,
+        width: 240,
         resizable: {
             edges: 'east'
         }

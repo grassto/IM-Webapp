@@ -14,9 +14,9 @@ Ext.define('Common.field.comment.EmojiPanel', {
     cls: 'emj-panel',
 
     width: 381,
-    maxWidth: '100%',
+    maxWidth: '100vw',
     height: 300,
-    maxHeight: '130px',
+    maxHeight: '100vh',
     floated: true,
     bodyPadding: 15,
     hidden: true,

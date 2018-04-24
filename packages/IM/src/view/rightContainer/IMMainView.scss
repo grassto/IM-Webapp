@@ -3,6 +3,10 @@
         height: 47px;
         border-bottom:1px solid #d6d6d6; 
 
+        .titleNoDrag{
+            -webkit-app-region: no-drag;
+        }
+
         .addMem{
             float: right;
             background-image: $right-addMem-image;

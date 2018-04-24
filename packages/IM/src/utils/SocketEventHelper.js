@@ -222,7 +222,8 @@ Ext.define('IM.utils.SocketEventHelper', {
         });
     },
     addImgMsg(store, data) {
-        const text = ParseHelper.parseToPic(data.message, data.attach_id);
+        // const text = ParseHelper.parseToPic(data.message, data.attach_id);
+        var text = ImgMgr.parsePic(data.attach_id);
         store.add({
             msg_id: data.msg_id,
             senderName: ChatHelper.getName(data.user_id),
@@ -232,9 +233,9 @@ Ext.define('IM.utils.SocketEventHelper', {
             ROL: data.ROL
         });
 
-        var url = Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail';
-        // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
-        window.imagess(url, data.attach_id);
+        // var url = Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail';
+        // // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
+        // window.imagess(url, data.attach_id);
     },
     addFileMsg(store, data) {
         store.add({

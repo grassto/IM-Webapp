@@ -1,8 +1,8 @@
 @echo off
 title IM-android
 
-echo build android 只打包
+echo build android 
 
-call sencha app build android
+call sencha app build -uses android
 
 pause

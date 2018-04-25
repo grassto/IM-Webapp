@@ -5,4 +5,10 @@ modern.json*
 .vscode
 .xlsx
 *.log
-/cordova
+cordova/platforms/*
+cordova/www/*
+cordova/plugins/android.json
+cordova/plugins/ios.json
+cordova/package-lock.json
+node_modules
+cordova/plugins/cordova-plugin-crosswalk-webview/

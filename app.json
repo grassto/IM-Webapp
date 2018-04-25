@@ -9,7 +9,6 @@
                     //"platforms": "ios android",
 
                     "id": "com.pushsoft.IM",
-                    "name": "IM",
                     "platforms": "android"
                 }
             }
@@ -36,10 +35,10 @@
      *      ]
      */
     "requires": [
-        "package-loader", //动�?�加载包
+        "packageloader", //动态加载包
         "font-awesome",
+        "modern-locale_6_5_2",
         "theme-default",
-        "modern-locale",
         "MX",
         "Common",
         "IMCommon"
@@ -318,10 +317,9 @@
         "cache": {
             "enable": true
         },
-        // "compressor": null
         "compressor": {
-            // "type": "yui",
-        "polyfills": "all" 
+            "type": "none", //yui
+            "polyfills": "all" 
         }
     },
 
@@ -424,6 +422,9 @@
         "base": "${workspace.build.dir}/${build.environment}/${app.name}",
         "appCache": {
             "enable": false
+        },
+        "js": {
+            "optimize": false
         }
     },
 
@@ -445,7 +446,7 @@
 
     "cache": {
         "enable": false,
-        "deltas": true
+        "deltas": false
     },
 
     /**

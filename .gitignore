@@ -1,8 +1,11 @@
+.vscode
+.vs
 /build
 bootstrap.*
 classic.json*
 modern.json*
-.vscode
+packages/remote
+packages/**/build
 .xlsx
 *.log
 cordova/platforms/*
@@ -11,4 +14,3 @@ cordova/plugins/android.json
 cordova/plugins/ios.json
 cordova/package-lock.json
 node_modules
-cordova/plugins/cordova-plugin-crosswalk-webview/

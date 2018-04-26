@@ -79,7 +79,7 @@ Ext.define('IM.view.leftTool.leftTool', {
                 // iconCls: 'x-fa fa-times-rectangle-o'
             }, {
                 text: '关于',
-                // handler: 'onShowAbout'
+                handler: 'onShowAbout'
             }]
         }]
     }]

@@ -14,7 +14,9 @@ Ext.define('IMMobile.view.IMMobileMain.IMMobileMainTabPanel', {
 
     defaults: {
         scrollable: true,
-        // layout: 'center'
+        tab: {
+            flex: 1
+        }
     },
 
     tabBar: {

@@ -1,13 +1,12 @@
 Ext.define('IM.model.RecentSelMem', {
     extend: 'Ext.data.Model',
-    idProperty: 'id', // 组织结构
+    idProperty: 'id', // chat_id
     fields: [
         'id',
         'chat_name',
-        'notify',
         'userID',
         'type',
-        'isUnRead',
+        'isUnRead', // 加这个字段是为了当前页面未读，但是不显示未读条数
         {
             name: 'status',
             type: 'int',
@@ -22,16 +21,7 @@ Ext.define('IM.model.RecentSelMem', {
         },
         {
             name: 'name',
-            type: 'string' // 这个可以用css样式来替代
-            // convert: function (value, record) {
-            //     if (value) {
-            //         if (value.length > 8) {
-            //             return value.substr(0, 8) + '...';
-            //         }
-            //     }
-
-            //     return value;
-            // }
+            type: 'string'
         },
         { // 用于排序
             name: 'last_post_at',
@@ -42,9 +32,10 @@ Ext.define('IM.model.RecentSelMem', {
             type: 'int',
             defaultValue: 0
         },
-        {
+        { // 是否置顶
             name: 'toTop',
-            type: 'int'
-        }
+            type: 'bool'
+        },
+        'last_post_msg'
     ]
 });

@@ -11,6 +11,7 @@ Ext.define('IM.utils.BindHelper', {
 
     // 最近会话
     loadRecentChat(leftMembers) {
+        debugger;
         var me = this,
             store = leftMembers.getStore(),
             isUnRead = false,
@@ -444,11 +445,6 @@ Ext.define('IM.utils.BindHelper', {
             field.setEditable(true);
             field.setClearable(true);
         }
-    },
-
-
-    beforeFileUploaded(files) {
-
     }
 
 });

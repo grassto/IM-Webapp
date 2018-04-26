@@ -32,6 +32,7 @@ Ext.define('IM.view.IM', {
         'IM.view.groupSel.GroupSel',
         'IM.view.favorite.Favorite',
         'IM.view.leftTab.setting.setting',
+        'IMCommon.local.LocalDataMgr'
     ],
 
 
@@ -41,7 +42,13 @@ Ext.define('IM.view.IM', {
 
     layout: 'hbox',
 
-    items: [{ // 左侧工具条
+    items: [{
+        xtype: 'button',
+        text:'测试',
+        handler: function() {
+            LocalDataMgr.testCon();
+        }
+    }, { // 左侧工具条
         xtype: 'leftTool'
     }, {// 中部
         xtype: 'midPanel',

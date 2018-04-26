@@ -21,7 +21,7 @@ Ext.define('IM.view.IMController', {
             'im-right-main': {
                 grpSel: 'onShowGrpSel',
                 // antiParse: 'antiParse',
-                listToTop: 'doLeftListToTop'
+                // listToTop: 'doLeftListToTop'
             }
         }
     },
@@ -63,16 +63,17 @@ Ext.define('IM.view.IMController', {
     },
 
     /**
-     * 右侧的页面切换
-     * @param {string} xtype 需要展示的xtype
-     * @param {string} oldType 需要删除的xtype
-     */
+    * 右侧的页面切换
+    * @param {string} xtype 需要展示的xtype
+    * @param {string} oldType 需要删除的xtype
+    */
     showRightView(xtype, oldType) {
-        const me = this,
-            view = me.getView().down('#exceptTitle');
+        // debugger;
+        const view = Ext.Viewport.lookup('IM');
 
-        oldType = view.lookup(oldType);
+        // oldType = view.lookup(oldType);
         if (oldType) {
+            oldType = view.lookup(oldType);
             view.remove(oldType, true);
         }
         let rightView = view.lookup(xtype); // 需要添加的
@@ -83,29 +84,10 @@ Ext.define('IM.view.IMController', {
                 reference: xtype
             });
         }
-        // view.setActiveItem(rightView);
 
         return rightView;
     },
 
-
-    /**
-     * 最近会话移至最上方（不要）
-     */
-    doLeftListToTop(id) {
-        const me = this,
-            list = me.getView().down('#recentChat'),
-            listStore = list.getStore(),
-            record = listStore.getById(id);
-        // listItem = list.getItem(record);
-
-        if (record) {
-            record.set('last_post_at', new Date());
-            list.setSelection(record); // 设置选中
-            listStore.sort('last_post_at', 'DESC'); // 动态排序
-            // listStore.sort();
-        }
-    },
 
 
     /* *************************************处理Websocket请求**************************************************/
@@ -269,7 +251,7 @@ Ext.define('IM.view.IMController', {
     },
 
     onShowAbout() {
-        Ext.Msg.alert('版本号', 'IM 2.0.0.100');
+        Ext.Msg.alert('版本号', 'IM ' + Config.version);
     },
 
 
@@ -277,15 +259,5 @@ Ext.define('IM.view.IMController', {
 
     onLogout() {
         this.fireEvent('logout');
-    },
-
-    /* **************************************** 测试连接 ***********************************/
-    onTest() {
-        // Utils.ajaxByZY('get', 'users/C1064/status', {
-        //     success: function (data) {
-        //         debugger;
-        //     }
-        // });
-        Ext.Viewport.getController().showView('testView');
     }
 });

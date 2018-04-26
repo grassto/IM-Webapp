@@ -44,20 +44,25 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
 
 
     itemTpl: [
-        '<div toTop="{toTop}" chat_id="{id}" class="itemRight" style="line-height:38px;white-space:nowrap;cursor:default;overflow:hidden;text-overflow:ellipsis;">',
-        '<tpl if="values.type == \'D\'">',
-        '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]} " style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
-        '<tpl else>',
-        '<div class="mergeAvatar" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
-        '{[AvatarMgr.getMergeDiv(values.name)]}',
-        '</div>',
-        '</tpl>',
-        '<a class="RecentUnRead" unRead="{unReadNum}" style="cursor:default;display:{[values.isUnRead?"block":"none"]}"></a>',
-        // '<div style="white-space:nowrap;cursor:default;overflow:hidden;text-overflow:ellipsis;{[values.type=="D"?"float:left;":""]}">{name}</div>',
-        '{name}',
-        '<div style="float:right;display:{[values.type=="D"?"block":"none"]};">',
-        '{status}',
-        '</div>',
+        '<div class="itemRight">',
+            '<div class="wrapAva">',
+                '<tpl if="values.type == \'D\'">', // 头像
+                    '<a class="avatar link-avatar firstletter " letter="{[AvatarMgr.getFirstLetter(values.name)]} " style="{[AvatarMgr.getColorStyle(values.name)]}"></a>',
+                '<tpl else>',
+                    '<div class="mergeAvatar" style="float:left;{[AvatarMgr.getColorStyle(values.name)]}">',
+                    '{[AvatarMgr.getMergeDiv(values.name)]}',
+                    '</div>',
+                '</tpl>',
+                '<a class="RecentUnRead" unRead="{unReadNum}" style="cursor:default;display:{[values.isUnRead?"block":"none"]}"></a>', // 未读
+            '</div>',
+            '<div class="evt">',
+                '<p>{[Utils.datetime2Ago(values.last_post_at,true)]}</p></br>', // 最后发送时间
+                '<p style="display:{[values.type=="D"?"block":"none"]};">{status}</p>', // 状态（不需要了吧）
+            '</div>',
+            '<div class="displayInfo">',
+                '<div class="displayName">{name}</div>', // 会话标题
+                '<div>{last_post_msg}</div>', // 内容
+            '</div>',
         '</div>'
     ].join(''),
 

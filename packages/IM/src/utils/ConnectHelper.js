@@ -82,10 +82,16 @@ Ext.define('IM.utils.ConnectHelper', {
             success: function (data) {
                 console.log('所有频道：', data);
 
+                // web版的提示,不要也罢
+                // me.initNotify(data);
+
                 CEFHelper.initNotice(data);
 
                 me.pushChatToCache(data);
 
+                // 同步本地数据库，
+                LocalDataMgr.initUpdateChats(data);
+                // 展示最新的数据
                 BindHelper.loadRecentChat(recView);
 
                 Utils.unMask(recView);
@@ -105,6 +111,7 @@ Ext.define('IM.utils.ConnectHelper', {
                 for (let j = 0; j < User.allOthers.length; j++) {
                     if (data[i].chat.chat_name.indexOf(User.allOthers[j].user_id) > -1) {
                         data[i].chat.channelname = User.allOthers[j].user_name;
+                        data[i].chat.header = User.allOthers[j].user_name;
                         User.allChannels.push(data[i]);
                         break;
                     }
@@ -132,5 +139,10 @@ Ext.define('IM.utils.ConnectHelper', {
         });
         // 处理最近会话列表数据
         StatusHelper.handleRecentList();
+    },
+
+
+    initNotify(data) {
+
     }
 });

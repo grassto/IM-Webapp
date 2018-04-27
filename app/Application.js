@@ -47,6 +47,11 @@ Ext.define('PushIM.Webapp.Application', {
             Config.httpUrlForGo = Config.httpDevGoUrl;
         }
 
+        // cef版桌面程序
+        if(window.cefMain) {
+            Config.isPC = true;
+        }
+
         me.hideAvaDetail(); // 监听document的单击事件
         // me.preventRightClick(); // 禁用页面原本右击事件
 

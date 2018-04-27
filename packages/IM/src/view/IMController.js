@@ -8,6 +8,9 @@ Ext.define('IM.view.IMController', {
         'IM.utils.BindHelper',
         'MX.util.Utils'
     ],
+    uses: [
+        'IMCommon.local.LocalDataMgr'
+    ],
 
     listen: {
         controller: {
@@ -30,18 +33,53 @@ Ext.define('IM.view.IMController', {
         var me = this;
         me.callParent(arguments);
 
-        me.handleCEF();
+        me.handleCEF(); // 是否展示关闭、最大化、最小化按钮
 
-        // 打开连接
-        me.mounted();
+        // me.showLocalData();// 展示本地数据
 
-        // 设置当前用户头像
-        var viewmodel = me.getViewModel();
+        me.mounted();// 打开连接
+
+        // me.handleAvatar();// 设置当前用户头像
+
+        me.handleSearch();// 左侧搜索框，快速搜索联系人
+
+        ChatHelper.showRightView('pageblank');// 右侧页面展示
+    },
+
+    // 之后再改
+    showLocalData() {
+        if (Config.isPC) {
+            var me = this,
+            ownData = LocalDataMgr.getOwnInfo(User.ownerID, me.bindLocalAva);
+            chatData = LocalDataMgr.getRecentChat();
+        }
+    },
+
+    bindLocalAva(trans, resultSet) {
+        debugger;
+        var rows = resultSet.rows,
+        len = rows.length;
+        if(len > 0) {
+            
+        }
+    },
+
+    // 是否展示关闭头
+    handleCEF() {
+        if (window.cefMain) {
+            this.getViewModel().set('isHideBrowseTitle', false);
+        }
+    },
+
+    handleAvatar() { // 这个在连接后就做了
+        var viewmodel = this.getViewModel();
         var avatar = AvatarMgr.getAvatarHtmlByName(viewmodel.get('ownerName'));
         viewmodel.set('avatar', avatar);
+    },
 
-        // 左侧搜索框，快速搜索联系人
-        var form = me.lookup('searchForm');
+    handleSearch() {
+        var me = this,
+            form = me.lookup('searchForm');
         var map = new Ext.util.KeyMap({
             target: form.element,
             key: 13, // or Ext.event.Event.ENTER
@@ -50,16 +88,6 @@ Ext.define('IM.view.IMController', {
             },
             scope: me
         });
-
-        // 右侧页面展示
-        ChatHelper.showRightView('pageblank');
-    },
-
-    // 是否展示关闭头
-    handleCEF() {
-        if(window.cefMain) {
-            this.getViewModel().set('isHideBrowseTitle', false);
-        }
     },
 
     /**
@@ -100,8 +128,10 @@ Ext.define('IM.view.IMController', {
      */
     mounted() {
         var me = this,
-            view = me.getView(),
-            viewModel = view.getViewModel();
+            view = me.getView();
+
+        ConnectHelper.getMe(view.getViewModel());
+        ConnectHelper.getMembers(view);
 
         WebSocketHelper.initialize(Config.wsGoUrl);
         WebSocketHelper.setEventCallback((msg) => {
@@ -127,6 +157,10 @@ Ext.define('IM.view.IMController', {
                 default:
                     break;
             }
+        });
+        WebSocketHelper.setReconnectCallback(function () {
+            ConnectHelper.getMe(view.getViewModel());
+            ConnectHelper.getMembers(view);
         });
     },
 

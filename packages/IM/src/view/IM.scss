@@ -314,6 +314,17 @@ $left-tab-color: black;
 }
 
 
+.x-button-cefClose {
+    .x-inner-el {
+        padding: 0 8px;
+    }
+}
+.x-button-cef {
+    .x-inner-el {
+        padding: 0 8px;
+    }
+}
+
 .imitateBrowse{
     -webkit-app-region: drag;
 }

@@ -19,7 +19,8 @@ Ext.define('IMMobile.view.IMMobile', {
 
     uses: [
         'IMCommon.utils.AvatarUtil',
-        'IMCommon.utils.ParseUtil'
+        'IMCommon.utils.ParseUtil',
+        'IMCommon.local.LocalDataMgr'
     ],
 
     cls: 'mobileMain',
@@ -39,8 +40,8 @@ Ext.define('IMMobile.view.IMMobile', {
     
 
     initialize() {
-        this.openConnection();
-        this.getMe();
+        // this.getMe(); 现在不需要个人信息
+        this.openConnection(); // 打开websocket连接
     },
     getMe() {
         Utils.ajaxByZY('GET', 'users/me', {

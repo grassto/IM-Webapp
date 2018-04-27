@@ -33,10 +33,6 @@ Ext.define('IMCommon.utils.WebSocketUtil', {
       this.connectionUrl = connectionUrl;
   
       this.conn.onopen = () => {
-        // websocket连接打开时，即进行数据绑定，考虑到重连
-        // ConnectUtil.getMe();
-        // ConnectUtil.getMembers(); // nestedlist不可用
-  
         this.eventSequence = 0;
         if (token) {
           // 还不知道token有啥用

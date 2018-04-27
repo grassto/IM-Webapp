@@ -44,10 +44,8 @@ Ext.define('IM.view.IM', {
 
     items: [{
         xtype: 'button',
-        text:'测试',
-        handler: function() {
-            LocalDataMgr.testCon();
-        }
+        text: '测试',
+        handler: 'showLocalData'
     }, { // 左侧工具条
         xtype: 'leftTool'
     }, {// 中部

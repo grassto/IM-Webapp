@@ -10,14 +10,17 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
      * Called when the view is created
      */
     init: function () {
-        // this.getView().down('#ChatList').getStore().load({
-        //     scope: this,
-        //     callback: function(records, operation, success) {
-        //         debugger;
-        //         console.log(records);
-        //     }
-        // });
+        // 先从本地数据库拉取数据
+        this.getLocalChats();
         this.getAllChats();
+    },
+
+    getLocalChats() {
+        LocalDataMgr.getRecentChat(this.bindLocalChats);
+    },
+
+    bindLocalChats(trans, resultSet) {
+        
     },
 
     getAllChats() {

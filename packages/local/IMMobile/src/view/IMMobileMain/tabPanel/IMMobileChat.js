@@ -76,5 +76,12 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
         listeners: {
             childTap: 'onSelChatList'
         }
+    }, {
+        xtype: 'button',
+        text: '测试',
+        height: '50',
+        handler: function() {
+            LocalDataMgr.testCon();
+        }
     }]
 });

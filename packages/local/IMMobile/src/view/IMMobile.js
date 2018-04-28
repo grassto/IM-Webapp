@@ -14,13 +14,13 @@ Ext.define('IMMobile.view.IMMobile', {
         'IMCommon.enumType.MsgWrapperType',
         'IMCommon.enumType.NoticeType',
         'IMCommon.enumType.SocketEventType',
-        'IMCommon.utils.WebSocketUtil'
+        'IMCommon.utils.WebSocketUtil',
+        'IMCommon.local.LocalDataMgr'
     ],
 
     uses: [
         'IMCommon.utils.AvatarUtil',
-        'IMCommon.utils.ParseUtil',
-        'IMCommon.local.LocalDataMgr'
+        'IMCommon.utils.ParseUtil'
     ],
 
     cls: 'mobileMain',

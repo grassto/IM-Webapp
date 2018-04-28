@@ -81,7 +81,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChat', {
         text: '测试',
         height: '50',
         handler: function() {
-            LocalDataMgr.testCon();
+            
         }
     }]
 });

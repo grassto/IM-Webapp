@@ -19,9 +19,29 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
         LocalDataMgr.getRecentChat(this.bindLocalChats);
     },
 
+    // 处理数据绑定，作用域不在当前
     bindLocalChats(trans, resultSet) {
-        
+        var rows = resultSet.rows,
+        len = rows.length;
+
+        var recentStore = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-Chat').down('#ChatList').getStore(),
+        datas = [],
+        row = {};
+        for(var i = 0; i < len; i++) {
+            row = rows.items(i);
+            datas.push({
+                id: row.ChatID,
+                name: row.DisplayName,
+                type: row.ChatType,
+                status: -2, // 不显示状态
+                isUnRead: row.UnreadCount > 0,
+                unReadNum: row.UnreadCount,
+                last_post_at: row.LastPostAt
+            });
+        }
+        recentStore.add(datas);
     },
+
 
     getAllChats() {
         const me = this,
@@ -61,20 +81,29 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
     },
 
     bindAllChats() {
+        var localDatas = []; // 用来存放本地所没有的会话
+
         var me = this,
             view = me.getView(),
             store = view.down('#ChatList').getStore(),
             isUnRead = false,
             status;
         for (let i = 0; i < User.allChannels.length; i++) {
+            // 本地数据，使用last_post_at来作为判断依据，不科学
+            // 还是使用unRead，让服务端去组织
+            
+
+            // 状态
             if (User.allChannels[i].chat.chat_type == ChatType.Direct) {
                 // status = StatusHelper.getStatus(StatusHelper.getUserIDByChatName(User.allChannels[i].chat.chat_name));
             } else {
                 status = '不显示';
             }
 
+            // 未读
             if (User.allChannels[i].chat.unread_count > 0) {
                 isUnRead = true;
+                localDatas.push(User.allChannels[i]);
             } else {
                 isUnRead = false;
             }
@@ -90,6 +119,9 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
                 last_post_at: new Date(User.allChannels[i].chat.last_post_at)
             });
         }
+
+        // 处理本地数据库数据
+        LocalDataMgr.updateRctChat(localDatas);
     },
 
     onSelChatList(view, location) {
@@ -101,12 +133,14 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
 
         User.crtChatName = location.record.data.name;
 
-        const imMobile = Ext.Viewport.lookup('IMMobile').down('#navView');
 
-        imMobile.push({
-            xtype: 'IMMobile-chatView',
-            itemId: 'IMMobile-chatView'
-        });
+        Redirect.redirectTo('IMMobile-chatView');
+        // const imMobile = Ext.Viewport.lookup('IMMobile').down('#navView');
+
+        // imMobile.push({
+        //     xtype: 'IMMobile-chatView',
+        //     itemId: 'IMMobile-chatView'
+        // });
     },
 
     /**
@@ -129,12 +163,13 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
 
 
     onStartGrpChat() {
-        const imMobile = Ext.Viewport.lookup('IMMobile').down('#navView');
+        Redirect.redirectTo('IMMobile-grpSelList');
+        // const imMobile = Ext.Viewport.lookup('IMMobile').down('#navView');
 
-        imMobile.push({
-            xtype: 'IMMobile-grpSelList',
-            itemId: 'IMMobile-grpSelList'
-        });
+        // imMobile.push({
+        //     xtype: 'IMMobile-grpSelList',
+        //     itemId: 'IMMobile-grpSelList'
+        // });
     }
 
 });

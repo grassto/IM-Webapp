@@ -19,13 +19,19 @@ Ext.define('IM.model.RecentSelMem', {
                 return '';
             }
         },
-        {
+        { // 会话展示的名称
             name: 'name',
             type: 'string'
         },
         { // 用于排序
             name: 'last_post_at',
-            type: 'date'
+            type: 'date',
+            convert: function(value) {
+                if(value == 0 || value == undefined || value == null) {
+                    return '';
+                }
+                return Utils.datetime2Ago(value, true);
+            }
         },
         {
             name: 'unReadNum',
@@ -36,6 +42,13 @@ Ext.define('IM.model.RecentSelMem', {
             name: 'toTop',
             type: 'bool'
         },
+        {
+            name: 'last_post_userName',
+            // convert: function(value) {
+            //     return ChatHelper.getName(value);
+            // }
+        },
+        'last_msg_type',
         'last_post_msg'
     ]
 });

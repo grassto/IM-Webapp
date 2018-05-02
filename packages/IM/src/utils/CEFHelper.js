@@ -64,11 +64,12 @@ Ext.define('IM.utils.CEFHelper', {
                     notices.push({
                         chat_id: data[i].chat.chat_id,
                         header: header,
-                        // message: data[i].chat.message,
+                        message: data[i].chat.last_message,
+                        message_type: data[i].chat.last_msg_type, // 这个应该需要的，cef还没
                         badge: data[i].chat.unread_count,
                         create_at: data[i].chat.last_post_at, // 这边就传这个吧
                         chat_type: data[i].chat.chat_type,
-                        // sender: 
+                        sender: data[i].chat.last_sender
                     });
                 }
             }

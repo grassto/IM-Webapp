@@ -47,6 +47,10 @@ Ext.define('PushIM.Webapp.util.User', {
     // memRemoveMsg: [],
 
     rightTitle: '',
+    
+    // 不需要，可以通过store的数据来查
+    // historyFrom: 0, // 历史记录分页，从哪开始
+    // historySet: 20, // 查询多少条
 
     clear() {
         User.ownerID = '';
@@ -69,6 +73,8 @@ Ext.define('PushIM.Webapp.util.User', {
         // User.memAddMsg = [];
         // User.memRemoveMsg = [];
         User.rightTitle = '';
+        // User.historyFrom = 0;
+        // User.historySet = 20;
     }
 
 });

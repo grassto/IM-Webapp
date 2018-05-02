@@ -45,7 +45,7 @@ Ext.define('IM.utils.ConnectHelper', {
                 for (let i = 0; i < usersInfo.length; i++) {
                     if (usersInfo[i].user_id !== User.ownerID) {
                         User.allOthers.push(usersInfo[i]); // 记录所有其他成员信息，用来匹配频道的展示名
-                        
+
                     }
                     ids.push(usersInfo[i].user_id);
                 }
@@ -61,12 +61,42 @@ Ext.define('IM.utils.ConnectHelper', {
                 }, 60 * 1000);
 
 
-                me.getChannels(view);
+                // me.getChannels(view);
+                me.getUnreadChats(view);
             }, callback() {
                 // Utils.unMask(orgTree);
             }
         });
 
+    },
+
+    // 从服务器端获取未读chats进行数据绑定
+    getUnreadChats(view) {
+        var me = this,
+            recView = view.down('#recentChat');
+
+        Utils.mask(recView);
+        Utils.ajaxByZY('GET', 'users/me/chats/unread', {
+            success: function (data) {
+                if (data) {
+                    console.log('未读会话：', data);
+
+                    CEFHelper.initNotice(data); // cef提示有未读
+
+                    me.pushChatToCache(data);
+
+                    if (Config.isPC) {
+                        // 同步本地数据库，
+                        LocalDataMgr.initUpdateChats(data);
+                    }
+
+                    // 将data的数据绑定至页面
+                    BindHelper.bindUnreadChats(data);
+                }
+
+                Utils.unMask(recView);
+            }
+        });
     },
 
     /**
@@ -82,7 +112,7 @@ Ext.define('IM.utils.ConnectHelper', {
             success: function (data) {
                 console.log('所有频道：', data);
 
-                // web版的提示,不要也罢
+                // web版的提示
                 // me.initNotify(data);
 
                 CEFHelper.initNotice(data);
@@ -108,20 +138,35 @@ Ext.define('IM.utils.ConnectHelper', {
         for (let i = 0; i < data.length; i++) {
             if (data[i].chat.chat_type == 'D') { // 单人会话
                 // chat_name为C1034__C1064这种，将其拼凑为姓名
-                for (let j = 0; j < User.allOthers.length; j++) {
-                    if (data[i].chat.chat_name.indexOf(User.allOthers[j].user_id) > -1) {
-                        data[i].chat.channelname = User.allOthers[j].user_name;
-                        data[i].chat.header = User.allOthers[j].user_name;
-                        User.allChannels.push(data[i]);
-                        break;
-                    }
-                }
+                data[i].chat.channelname = data[i].chat.header = this.parseDirectChatName(data[i], User.ownerID);
+
+                User.allChannels.push(data[i]);
+                // for (let j = 0; j < User.allOthers.length; j++) {
+                //     if (data[i].chat.chat_name.indexOf(User.allOthers[j].user_id) > -1) {
+                //         data[i].chat.channelname = User.allOthers[j].user_name;
+                //         data[i].chat.header = User.allOthers[j].user_name;
+                //         User.allChannels.push(data[i]);
+                //         break;
+                //     }
+                // }
             }
             else {
                 data[i].chat.channelname = data[i].chat.header;
                 User.allChannels.push(data[i]);
             }
         }
+    },
+
+    // 解析直接频道的chatName
+    parseDirectChatName(dataWrap, userID) {
+        var chatName = '';
+        if (dataWrap.members[0].user_id !== userID) {
+            chatName = dataWrap.members[0].user_id;
+        } else {
+            chatName = dataWrap.members[1].user_id;
+        }
+
+        return chatName;
     },
 
     /**

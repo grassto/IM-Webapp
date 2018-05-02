@@ -9,9 +9,51 @@ Ext.define('IM.utils.BindHelper', {
         viewModel.set('ownerMail', User.crtUser.email);
     },
 
-    // 最近会话
+    // 绑定服务端最近会话
+    bindUnreadChats(data) {
+        var store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
+            isUnRead = true,
+            status,
+            lastUserName,
+            datas = [];
+
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].chat.chat_type == ChatType.Direct) {
+                status = StatusHelper.getStatus(StatusHelper.getUserIDByChatName(data[i].chat.chat_name));
+            } else {
+                status = '不显示';
+            }
+
+            // if (data[i].chat.unread_count > 0) {
+            //     isUnRead = true;
+            // } else {
+            //     isUnRead = false;
+            // }
+            if(data[i].chat.chat_type == ChatType.Group) {
+                lastUserName = '服务端暂未提供';
+            }
+            
+
+            datas.push({
+                id: data[i].chat.chat_id,
+                name: data[i].chat.channelname,
+                type: data[i].chat.chat_type,
+                status: status,
+                chat_name: data[i].chat.chat_name,
+                isUnRead: isUnRead,
+                unReadNum: data[i].chat.unread_count,
+                last_post_at: data[i].chat.last_post_at,
+                last_post_userName: lastUserName,
+                last_msg_type: data[i].chat.last_msg_type,
+                last_post_msg: data[i].chat.last_message
+            });
+        }
+
+        store.add(datas);
+    },
+
+    // 最近会话，不用了
     loadRecentChat(leftMembers) {
-        debugger;
         var me = this,
             store = leftMembers.getStore(),
             isUnRead = false,
@@ -364,48 +406,6 @@ Ext.define('IM.utils.BindHelper', {
             }
 
             chatStore.add(records);
-
-            // var order = data.order,
-            //     posts = data.messages,
-            //     message,
-            //     fileIDs = [],
-            //     ROL = '';
-            // User.posts = [];
-            // for (var i = order.length - 1; i >= 0; i--) {
-            //     posts[order[i]].username = ChatHelper.getName(posts[order[i]].user_id);
-            //     User.posts.push(posts[order[i]]);
-            //     message = posts[order[i]].message;
-
-            //     if (posts[order[i]].msg_type == 'I') {
-            //         fileIDs = [];
-            //         message = '[' + posts[order[i]].attach_id + ']';
-            //         fileIDs.push(posts[order[i]].attach_id);
-            //     }
-
-            //     message = window.minEmoji(message); // emoji解析
-            //     message = ParseHelper.parsePic(message, fileIDs); // 图片解析
-            //     message = ParseHelper.parseURL(message); // URL解析
-
-            //     if (posts[order[i]].user_id == User.ownerID) {
-            //         ROL = 'right';
-            //     } else {
-            //         ROL = '';
-            //     }
-            //     chatStore.add({
-            //         msg_id: posts[order[i]].msg_id,
-            //         senderName: posts[order[i]].username,
-            //         sendText: message,
-            //         ROL: ROL,
-            //         updateTime: new Date(posts[order[i]].update_at)
-            //     });
-
-            //     if (posts[order[i]].msg_type == 'I') {
-
-            //         var url = Config.httpUrlForGo + 'files/' + posts[order[i]].attach_id + '/thumbnail';
-            //         // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
-            //         window.imagess(url, posts[order[i]].attach_id);
-            //     }
-            // }
         }
     },
 
@@ -438,7 +438,7 @@ Ext.define('IM.utils.BindHelper', {
         });
         var field = Ext.Viewport.lookup('IM').lookup('im-main').down('#btnEdit');
         // 是否可编辑
-        if (type == 'D') {
+        if (type == ChatType.Direct) {
             field.setEditable(false);
             field.setClearable(false);
         } else {

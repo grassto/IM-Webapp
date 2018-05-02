@@ -32,7 +32,9 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      */
     handleSql(trans, sql, success) {
         trans.executeSql(sql, null, function (trans, resultSet) {
-            success(trans, resultSet);
+            if (success) {
+                success(trans, resultSet);
+            }
         }, function (a, b) {
             alert('出错了', a, b);
         });
@@ -42,7 +44,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     // enSureTable中的transaction都先使用DB来创建，而不使用事务
 
     enSureUserTable(transaction) {
-        var sql = 'CREATE TABLE IF NOT EXISTS User (UserID TEXT PRIMARY KEY NOT NULL, UserName TEXT, Mobile TEXT, Email TEXT, Sex TEXT, Age INT, Notes TEXT, DefRolID TEXT, IsSupperUser BOOLEAN, IsClose BOOLEAN)';
+        var sql = 'CREATE TABLE IF NOT EXISTS User (UserID TEXT PRIMARY KEY NOT NULL, UserName TEXT, Mobile TEXT, Email TEXT, Sex TEXT, Age INT, Notes TEXT, DefRolID TEXT, IsSuperUser BOOLEAN, IsClose BOOLEAN)';
         transaction.executeSql(sql, null, function (trans, resultSet) {
             console.log('建表成功User');
             //sql执行成功
@@ -57,7 +59,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * @param  {[Object]} transaction sql事务
      */
     ensureRChatTable: function (transaction) {
-        var sql = 'CREATE TABLE IF NOT EXISTS IMRct (ChatID TEXT PRIMARY KEY NOT NULL, DisplayName TEXT, ChatType VAARCHAR(1), UnreadCount INT, LastPostAt BIGINT, LastUserID NVARCHAR(50), LastUserName TEXT, LastMsg TEXT, IsTop BOOLEAN, AtCount INT)';
+        var sql = 'CREATE TABLE IF NOT EXISTS IMRct (ChatID TEXT PRIMARY KEY NOT NULL, DisplayName TEXT, ChatType VARCHAR(1), UnreadCount INT, LastPostAt BIGINT, LastUserID NVARCHAR(50), LastUserName TEXT, LastMsgType VARCHAR(1), LastMsg TEXT, IsTop BOOLEAN, AtCount INT)';
         transaction.executeSql(sql, null, function (trans, resultSet) {
             console.log('建表成功Chat', resultSet);
             //sql执行成功
@@ -126,13 +128,6 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * 从本地获取最近会话
      */
     getRecentChat(success) {
-        // var me = this,
-        // db = me.getDB();
-        // me.ensureRChatTable(db);
-
-        // var sql = 'select * from Chat';
-        // me.handleSql(db, sql, success);
-
         var me = this;
         me.getDB().transaction(function (trans) {
             me.ensureRChatTable(trans);
@@ -156,8 +151,12 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     /**
      * 获取历史记录
      */
-    getHistory() {
-        return LocalTestData.history;
+    getHistory(success, pageFrom) {
+        var me = this;
+        me.getDB().transaction(function (trans) {
+            me.ensureMessageTable(trans);
+            var sql = 'select *from IMMessage limit ' + pageFrom + ',20';
+        });
     },
 
     /* ********************************************** 写 *********************************************/
@@ -167,12 +166,23 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * @param {Array} data 获取到的最新的最近会话数据
      */
     initUpdateChats(data) {
-        // 循环遍历是否有存在未读消息的最近回话
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].chat.unread_count > 0) { // 有，更新数据库数据
-                // 拼接sql语句
+        var me = this,
+            sqls = '',
+            sql = '';
+
+        me.getDB().transaction(function (trans) {
+            me.ensureRChatTable(trans);
+
+            for (var i = 0; i < data.length; i++) {
+                data[i].chat.last_sender_name = ConnectHelper.parseDirectChatName(data[i]);
+                // data[i].chat.last_sender_name = ChatHelper.getName(data[i].chat.last_sender);
+                // 这边先只用字符串的形式
+                sql = 'INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMsg, LastMsgType) VALUES ("' + data[i].chat.chat_id + '","' + data[i].chat.channelname + '","' + data[i].chat.chat_type + '",' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"' + data[i].chat.last_sender + '","' + data[i].chat.last_sender_name + '","' + data[i].chat.last_message + '","' + data[i].chat.last_msg_type + '");';
+                sqls += sql;
             }
-        }
+
+            me.handleSql(trans, sqls);
+        });
     },
 
     /**
@@ -181,18 +191,34 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * {chat:{},members:{}}
      */
     updateRctChat(data) {
-        var sqls = [],
-            sql = '';
-        for (var i = 0; i < data.length; i++) {
-            // 这边先只用字符串的形式
-            sql = ['INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMsg) VALUES (' + data[i].chat.chat_id + ',' + data[i].chat.channelname + ',' + data[i].chat.chat_type + ',' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"","","");'];
-            sqls.push(sql);
-        }
+        // var sqls = [],
+        //     sql = '';
+        // for (var i = 0; i < data.length; i++) {
+        //     // 这边先只用字符串的形式
+        //     sql = ['INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMsg) VALUES (' + data[i].chat.chat_id + ',' + data[i].chat.channelname + ',' + data[i].chat.chat_type + ',' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"","","");'];
+        //     sqls.push(sql);
+        // }
 
-        this.getDB().sqlBatch(sqls, function () {
-            console.log('最近会话同步成功');
-        }, function (err) {
-            console.log('最近会话同步失败', err);
+        // this.getDB().sqlBatch(sqls, function () {
+        //     console.log('最近会话同步成功');
+        // }, function (err) {
+        //     console.log('最近会话同步失败', err);
+        // });
+
+        var me = this,
+            sqls = '',
+            sql = '';
+
+        me.getDB().transaction(function (trans) {
+            me.ensureRChatTable(trans);
+
+            for (var i = 0; i < data.length; i++) {
+                // 这边先只用字符串的形式
+                sql = 'INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMsg) VALUES ("' + data[i].chat.chat_id + '","' + data[i].chat.channelname + '","' + data[i].chat.chat_type + '",' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"' + data[i].chat.last_sender + '","' + data[i].chat.last_sender_name + '","' + data[i].chat.last_message + '");';
+                sqls += sql;
+            }
+
+            me.handleSql(trans, sqls);
         });
     },
 });

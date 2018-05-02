@@ -56,12 +56,28 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
                 '<a class="RecentUnRead" unRead="{unReadNum}" style="cursor:default;display:{[values.isUnRead?"block":"none"]}"></a>', // 未读
             '</div>',
             '<div class="evt">',
-                '<p>{[Utils.datetime2Ago(values.last_post_at,true)]}</p></br>', // 最后发送时间
+                '<p>{last_post_at}</p></br>', // 最后发送时间
                 '<p style="display:{[values.type=="D"?"block":"none"]};">{status}</p>', // 状态（不需要了吧）
             '</div>',
             '<div class="displayInfo">',
                 '<div class="displayName">{name}</div>', // 会话标题
-                '<div>{last_post_msg}</div>', // 内容
+                '<tpl if="values.type == \'D\'">', // 显示会话内容
+                    '<tpl if="values.last_msg_type == \'T\'">',
+                        '<div>{last_post_msg}</div>', // 文字
+                    '<tpl elseif="values.last_msg_type == \'F\'">',
+                        '<div>[文件]</div>', // 文件
+                    '<tpl elseif="values.last_msg_type == \'I\'">',
+                        '<div>[图片]</div>', // 图片
+                    '</tpl>',
+                '<tpl else>',
+                    '<tpl if="values.last_msg_type == \'T\'">',
+                        '<div>{last_post_userName}：{last_post_msg}</div>', // 文字
+                    '<tpl elseif="values.last_msg_type == \'I\'">',
+                        '<div>{last_post_userName}：[图片]</div>', // 图片
+                    '<tpl elseif="values.last_msg_type == \'F\'">',
+                        '<div>{last_post_userName}：[文件]</div>', // 文件
+                    '</tpl>',
+                '</tpl>',
             '</div>',
         '</div>'
     ].join(''),

@@ -6,45 +6,20 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
         'IMCommon.local.LocalDataMgr'
     ],
 
-    init() {
-        // 先从本地拉取数据
-        var localChat = LocalDataMgr.getRecentChat();
-        // 绑定本地数据至页面
-        this.bindLocalData(localChat);
-    },
-    
-    bindLocalData(localChat) {
-        var store = this.getView().getStore();
-        store.add(localChat);
-    },
-
-
     /**
      * 最近会话选中事件
      * @param {Ext.dataview.List} me 对应的list
      * @param {Ext.list.Location} location
      */
     onSelRecentMem(view, location) {
-        const data = location.record.data;
-        if(data.id !== User.crtChannelId) {
-            if(data.type === 'D') {
-                ChatHelper.openDirectChat(data.id);
-            } else if(data.type === 'G') {
-                ChatHelper.openGroupChat(data.id);
-            }
+        const me = this,
+            data = location.record.data;
+
+        if(data.type === 'D') {
+            ChatHelper.openDirectChat(data.id);
+        } else if(data.type === 'G') {
+            ChatHelper.openGroupChat(data.id);
         }
-        // ChatHelper.chgToIMView();
-        
-        // debugger;
-        // me.onShowChatView();
-        // me.setRightTitle(location.record.data.name);
-        // me.fireEvent('openCnl', location.record.data.id);
-
-        // me.onShowGrpMem(location.record.data, view);
-
-        // me.setTitleStatus(location.record.data);
-        // me.onShowStatus(location.record.data);
-
     },
 
     /**

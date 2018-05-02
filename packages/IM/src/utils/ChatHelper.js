@@ -233,27 +233,16 @@ Ext.define('IM.utils.ChatHelper', {
 
     openChat(cid) {
         var me = this;
-        // 根据缓存中的数据判断
-        // for (var i = 0; i < User.allChannels.length; i++) {
-        //     if (User.allChannels[i].chat.chat_id == cid) {
-        //         if (User.allChannels[i].chat.chat_type == ChatType.Direct) {
-        //             me.openDirectChat(cid);
-        //         } else if (User.allChannels[i].chat.chat_type == ChatType.Group) {
-        //             me.openGroupChat(cid);
-        //         }
-        //         break;
-        //     }
-        // }
 
         // 根据store的数据判断
         var view = Ext.Viewport.lookup('IM').down('#recentChat'),
-        store = view.getStore(),
-        record = store.getById(cid);
-        if(record) {
+            store = view.getStore(),
+            record = store.getById(cid);
+        if (record) {
             view.setSelection(record);
-            if(record.data.type == ChatType.Direct) {
+            if (record.data.type == ChatType.Direct) {
                 me.openDirectChat(cid);
-            } else if(record.data.type == ChatType.Group) {
+            } else if (record.data.type == ChatType.Group) {
                 me.openGroupChat(cid);
             }
         }
@@ -337,10 +326,15 @@ Ext.define('IM.utils.ChatHelper', {
             chatView = Ext.Viewport.lookup('IM').down('#chatView'),
             chatStore = chatView.getStore();
 
-
         chatStore.removeAll(); // 清空聊天数据
 
-        // BindHelper.bindGrpMsg(cid, chatStore); // 绑定群聊提示信息
+        // 先从本地获取历史记录
+        if (Config.isPC) {
+            LocalDataMgr.getHistory(me.bindLocalHistory, chatStore.getData().length);
+        }
+
+        me.onScroll(chatView); // 滚动条滚动打最下方
+        me.onShowChatTime(chatStore);
 
         Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
             success: function (data) {
@@ -506,6 +500,38 @@ Ext.define('IM.utils.ChatHelper', {
                 chatStore.getAt(i).set('showTime', false);
             }
         }
+    },
+
+    // 本地拉取历史记录进行绑定
+    bindLocalHistory(trans, resultSet) {
+        var rows = resultSet.rows,
+            len = rows.length;
+
+        var store = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView').getStore(),
+            datas = [],
+            row = {};
+        for (var i = 0; i < len; i++) {
+            row = rows.items(i);
+            switch (row.MsgType) {
+                case MsgType.TextMsg:
+                    datas.push({
+                        msg_id: row.MsgID,
+                        senderName: row.SenderName,
+                        sendText: row.Content,
+                        ROL: row.SenderID == User.ownerID ? 'right' : 'left',
+                        updateTime: new Date(row.CreateAt)
+                    });
+                    break;
+                case MsgType.ImgMsg:
+                    break;
+                case MsgType.FileMsg:
+                    break;
+                default:
+                    break;
+            }
+
+        }
+        store.add(datas);
     }
 
 });

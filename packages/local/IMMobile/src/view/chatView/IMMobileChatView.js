@@ -118,6 +118,7 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
             scope: me
         });
 
+
         // 初始化页面相关信息
         me.openChat();
     },

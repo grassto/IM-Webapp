@@ -35,7 +35,7 @@ Ext.define('IM.view.IMController', {
 
         me.handleCEF(); // 是否展示关闭、最大化、最小化按钮
 
-        // me.showLocalData();// 展示本地数据
+        me.showLocalData();// 展示本地数据
 
         me.mounted();// 打开连接
 
@@ -46,23 +46,49 @@ Ext.define('IM.view.IMController', {
         ChatHelper.showRightView('pageblank');// 右侧页面展示
     },
 
-    // 之后再改
+    // 展示本地数据库数据
     showLocalData() {
         if (Config.isPC) {
             var me = this,
-            ownData = LocalDataMgr.getOwnInfo(User.ownerID, me.bindLocalAva);
-            chatData = LocalDataMgr.getRecentChat();
+            // ownData = LocalDataMgr.getOwnInfo(User.ownerID, me.bindLocalAva),
+            chatData = LocalDataMgr.getRecentChat(me.bindRecChats);
         }
     },
 
-    bindLocalAva(trans, resultSet) {
-        debugger;
+    // 初始化绑定本地最近会话数据
+    bindRecChats(trans, resultSet) {
         var rows = resultSet.rows,
         len = rows.length;
-        if(len > 0) {
-            
+
+        var recentStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
+        datas = [],
+        row = {};
+        for(var i = 0; i < len; i++) {
+            row = rows.items(i);
+            datas.push({
+                id: row.ChatID,
+                name: row.DisplayName,
+                type: row.ChatType,
+                status: -2, // 不显示状态
+                isUnRead: row.UnreadCount > 0,
+                unReadNum: row.UnreadCount,
+                last_post_at: row.LastPostAt,
+                last_post_userName: row.LastUserName,
+                last_msg_type: row.LastMsgType,
+                last_post_msg: row.LastMsg
+            });
         }
+        recentStore.add(datas);
     },
+
+
+    // bindLocalAva(trans, resultSet) {
+    //     debugger;
+    //     var rows = resultSet.rows,
+    //     len = rows.length;
+    //     if(len > 0) {
+    //     }
+    // },
 
     // 是否展示关闭头
     handleCEF() {
@@ -131,7 +157,8 @@ Ext.define('IM.view.IMController', {
             view = me.getView();
 
         ConnectHelper.getMe(view.getViewModel());
-        ConnectHelper.getMembers(view);
+        ConnectHelper.getUnreadChats(view);
+        // ConnectHelper.getMembers(view); // 延期到点击组织结构的tab的时候才去加载
 
         WebSocketHelper.initialize(Config.wsGoUrl);
         WebSocketHelper.setEventCallback((msg) => {

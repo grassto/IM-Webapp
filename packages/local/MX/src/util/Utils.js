@@ -457,7 +457,7 @@ Ext.define('MX.util.Utils', {
                 if (!Ext.isEmpty(result) && isJson) {
                     try {
                         result = Ext.decode(result);
-                    } catch (e) {}
+                    } catch (e) { }
                 }
                 if (result && result.hasOwnProperty('success')) { // 或者 result有success属性且为true时
                     succeed = result.success;
@@ -480,7 +480,7 @@ Ext.define('MX.util.Utils', {
                 if (!Ext.isEmpty(err)) {
                     try {
                         err = eval(`(${err})`);
-                    } catch (e) {}
+                    } catch (e) { }
                 } else {
                     err = r.statusText;
                 }
@@ -542,135 +542,138 @@ Ext.define('MX.util.Utils', {
     },
 
     ajaxByZY(method, api, options, modify) {
-        // debugger;
-        const me = this;
-        // <debug>
-        if (arguments.length == 0) {
-            me.alert('参数不正确!');
+        if (navigator.onLine) { // 只有在线情况下才会去请求服务端
+            // debugger;
+            const me = this;
+            // <debug>
+            if (arguments.length == 0) {
+                me.alert('参数不正确!');
 
-            return false;
-        }
-        // </debug>
+                return false;
+            }
+            // </debug>
 
-        // 改
-        var mmm, opt;
-        if(modify) {
-            mmm = me.getFullUrl2;
-            opt = me._handleOptions(options);
-        }else {
-            mmm = me.getFullUrl1;
-            opt = me._handleOptions1(options);
-        }
-        if (opt.maskTarget) {
-            this.mask(opt.maskTarget);
-        }
-        const btnState = [];
-        if (opt.button) {
-            Ext.each(opt.button, function (b) {
-                btnState.push(b.getDisabled());
-                b.setDisabled(true);
-            });
-        }
-        // debugger;
-        const request = Ext.Ajax.request(Ext.applyIf({
-            url: mmm(api),
-            method: method,
-            useDefaultXhrHeader: false, // 跨域
-            withCredentials: true, // 跨域时带上cookies
+            // 改
+            var mmm, opt;
+            if (modify) {
+                mmm = me.getFullUrl2;
+                opt = me._handleOptions(options);
+            } else {
+                mmm = me.getFullUrl1;
+                opt = me._handleOptions1(options);
+            }
+            if (opt.maskTarget) {
+                this.mask(opt.maskTarget);
+            }
+            const btnState = [];
+            if (opt.button) {
+                Ext.each(opt.button, function (b) {
+                    btnState.push(b.getDisabled());
+                    b.setDisabled(true);
+                });
+            }
+            // debugger;
+            const request = Ext.Ajax.request(Ext.applyIf({
+                url: mmm(api),
+                method: method,
+                useDefaultXhrHeader: false, // 跨域
+                withCredentials: true, // 跨域时带上cookies
 
-            success(r, op) {
-                if (opt.button) {
-                    Ext.each(opt.button, function (b, i) {
-                        if (!b.isDestroyed) b.setDisabled(btnState[i]);
-                    });
-                }
+                success(r, op) {
+                    if (opt.button) {
+                        Ext.each(opt.button, function (b, i) {
+                            if (!b.isDestroyed) b.setDisabled(btnState[i]);
+                        });
+                    }
 
-                const contentType = r.getResponseHeader('content-type'),
-                    isJson = /json/i.test(contentType);
-                let result = r.responseText,
-                    succeed = true; // 请求成功
-                if (!Ext.isEmpty(result) && isJson) {
-                    try {
-                        result = Ext.decode(result);
-                    } catch (e) {}
-                }
-                if (result && result.hasOwnProperty('success')) { // 或者 result有success属性且为true时
-                    succeed = result.success;
-                }
+                    const contentType = r.getResponseHeader('content-type'),
+                        isJson = /json/i.test(contentType);
+                    let result = r.responseText,
+                        succeed = true; // 请求成功
+                    if (!Ext.isEmpty(result) && isJson) {
+                        try {
+                            result = Ext.decode(result);
+                        } catch (e) { }
+                    }
+                    if (result && result.hasOwnProperty('success')) { // 或者 result有success属性且为true时
+                        succeed = result.success;
+                    }
 
-                if (succeed) { // result返回结果中success=true
-                    if (opt.success) opt.success.call(this, result);
-                } else {
-                    const msg = result.message || '',
-                        errcode = result.code;
-                    if (opt.failure) {
-                        opt.failure.call(this, msg, errcode);
-                    } else if (!Ext.isEmpty(msg)) {
+                    if (succeed) { // result返回结果中success=true
+                        if (opt.success) opt.success.call(this, result);
+                    } else {
+                        const msg = result.message || '',
+                            errcode = result.code;
+                        if (opt.failure) {
+                            opt.failure.call(this, msg, errcode);
+                        } else if (!Ext.isEmpty(msg)) {
+                            me.alert(msg);
+                        }
+                    }
+                },
+                failure(r, op) {
+                    if (opt.button) {
+                        Ext.each(opt.button, function (b, i) {
+                            if (!b.isDestroyed) b.setDisabled(btnState[i]);
+                        });
+                    }
+
+                    let err = r.responseText;
+                    if (!Ext.isEmpty(err)) {
+                        try {
+                            err = eval(`(${err})`);
+                        } catch (e) { }
+                    } else {
+                        err = r.statusText;
+                    }
+
+                    const msg = err.message || err;
+                    if (r.status == '0') {
+                        me.toastShort(msg || 'communication failure');
+                    } else if (r.status == '-1') { // ajax被中止
+                        // aborted
+                    } else if (me.isUnauthorized(r.status)) { // 未授权
+                        Ext.route.Router.resume(true);
+                        // 转到登录页
+                        this.getApp().fireEvent('needlogin');
+                        me.toastShort(msg);
+                    } else if (opt.failure) { // 普通异常
+                        opt.failure.call(this, msg, r.status);
+                    } else {
                         me.alert(msg);
                     }
-                }
-            },
-            failure(r, op) {
-                if (opt.button) {
-                    Ext.each(opt.button, function (b, i) {
-                        if (!b.isDestroyed) b.setDisabled(btnState[i]);
-                    });
-                }
+                    // <debug>
+                    console.log(r, op);
+                    // </debug>
+                },
+                callback(op, success, r) {
+                    if (opt.ajaxHost && opt.ajaxHost.ajaxRequests && !opt.ajaxHost.isDestroying) {
+                        delete opt.ajaxHost.ajaxRequests[r.requestId];
+                    }
 
-                let err = r.responseText;
-                if (!Ext.isEmpty(err)) {
-                    try {
-                        err = eval(`(${err})`);
-                    } catch (e) {}
-                } else {
-                    err = r.statusText;
-                }
+                    /* if (opt.loadTarget) {
+                        me.unLoop(opt.loadTarget);
+                    }*/
+                    if (opt.maskTarget) {
+                        me.unMask(opt.maskTarget);
+                    }
+                    if (opt.callback) {
+                        opt.callback.call(this, success, r);
+                    }
+                },
+                scope: opt.scope || me
+            }, opt));
 
-                const msg = err.message || err;
-                if (r.status == '0') {
-                    me.toastShort(msg || 'communication failure');
-                } else if (r.status == '-1') { // ajax被中止
-                    // aborted
-                } else if (me.isUnauthorized(r.status)) { // 未授权
-                    Ext.route.Router.resume(true);
-                    // 转到登录页
-                    this.getApp().fireEvent('needlogin');
-                    me.toastShort(msg);
-                } else if (opt.failure) { // 普通异常
-                    opt.failure.call(this, msg, r.status);
-                } else {
-                    me.alert(msg);
-                }
-                // <debug>
-                console.log(r, op);
-                // </debug>
-            },
-            callback(op, success, r) {
-                if (opt.ajaxHost && opt.ajaxHost.ajaxRequests && !opt.ajaxHost.isDestroying) {
-                    delete opt.ajaxHost.ajaxRequests[r.requestId];
-                }
+            // 与此component有关的ajax请求
+            const h = opt.ajaxHost;
+            if (h && !h.isDestroying) {
+                if (!h.ajaxRequests) h.ajaxRequests = {};
+                h.ajaxRequests[request.id] = request;
+            }
 
-                /* if (opt.loadTarget) {
-                    me.unLoop(opt.loadTarget);
-                }*/
-                if (opt.maskTarget) {
-                    me.unMask(opt.maskTarget);
-                }
-                if (opt.callback) {
-                    opt.callback.call(this, success, r);
-                }
-            },
-            scope: opt.scope || me
-        }, opt));
-
-        // 与此component有关的ajax请求
-        const h = opt.ajaxHost;
-        if (h && !h.isDestroying) {
-            if (!h.ajaxRequests) h.ajaxRequests = {};
-            h.ajaxRequests[request.id] = request;
+            return request;
         }
 
-        return request;
     },
 
     /**

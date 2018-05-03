@@ -86,7 +86,19 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
     // IMMessage
     ensureMessageTable: function (transaction) {
-        var sql = 'CREATE TABLE IF NOT EXISTS IMMessage (ID INTEGER PRIMARY KEY AUTOINCREMENT, MsgID NVARCHAR(50), ChatID NVARCHAR(50), MsgType VARCHAR(1), Content TEXT, FilePath TEXT, CreateAt BIGINT, SenderID NVARCHAR(50), SenderName TEXT, MsgSeq BIGINT, Status VARCHAR(1))';
+        var sql = 'CREATE TABLE IF NOT EXISTS IMMsg (' +
+            'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+            'MsgID NVARCHAR(50), ' +
+            'ChatID NVARCHAR(50), ' +
+            'MsgType CHAR(1), ' +
+            'Context TEXT, ' +
+            'FilePath TEXT, ' +
+            'CreateAt BIGINT,' +
+            'SenderID NVARCHAR(20), ' +
+            'SenderName NVARCHAR(30), ' +
+            'MsgSeq BIGINT, ' +
+            'Status CHAR(1) )';
+        // var sql = 'CREATE TABLE IF NOT EXISTS IMMessage (ID INTEGER PRIMARY KEY AUTOINCREMENT, MsgID NVARCHAR(50), ChatID NVARCHAR(50), MsgType VARCHAR(1), Content TEXT, FilePath TEXT, CreateAt BIGINT, SenderID NVARCHAR(50), SenderName TEXT, MsgSeq BIGINT, Status VARCHAR(1))';
         transaction.executeSql(sql, null, function (trans, resultSet) {
             console.log('建表成功Message');
             //sql执行成功
@@ -149,7 +161,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     },
 
     /**
-     * 获取历史记录
+     * 分页获取历史记录
      */
     getHistory(success, pageFrom) {
         var me = this;
@@ -157,6 +169,17 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             me.ensureMessageTable(trans);
             var sql = 'select *from IMMessage limit ' + pageFrom + ',20';
         });
+    },
+
+    // 本地查出最后一条消息的时间
+    getLastMsgTime(chatID, success) {
+        var result = 0;
+        var sql = 'select CreateAt from IMMessage where ChatID="' + chatID + '" order by CreateAt desc limit 0,1';
+        this.getDB().executeSql(sql, null, function (resultSet) {
+            success(resultSet);
+        });
+
+        return result;
     },
 
     /* ********************************************** 写 *********************************************/
@@ -221,4 +244,60 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             me.handleSql(trans, sqls);
         });
     },
+
+    insertToMsg(msgList) {
+        var me = this,
+            sqls = '',
+            sql = '';
+
+        me.getDB().transaction(function (trans) {
+            me.ensureMessageTable(trans);
+
+            var status = '0'; // 成功状态
+            var filePath = '',
+                userName = '';
+
+            for (var i = 0; i < msgList.length; i++) {
+                switch (msgList[i].wrapper_type) {
+                    case MsgWrapperType.Message:
+                        // filePath = ;
+                        // 这边先只用字符串的形式
+                        sql = [
+                            'INSERT INTO IMMsg (',
+                                'MsgID',
+                                'ChatID',
+                                'MsgType',
+                                'Content',
+                                'FilePath',
+                                'CreateAt',
+                                'SenderID',
+                                'SenderName',
+                                'Status', // 消息状态，标志发送成功与否，这边全标记为成功
+                            ') VALUES (',
+                                msgList[i].message.msg_id,
+                                msgList[i].message.chat_id,
+                                msgList[i].message.msg_type,
+                                msgList[i].message.message,
+                                filePath, // 这个放在外面组织好，然后拿进来
+                                msgList[i].message.create_at,
+                                msgList[i].message.user_id,
+                                userName, // 这个放在外面组织好，然后拿进来
+                                status,
+                            ')'
+                        ].join('');
+                        sqls += sql;
+                        break;
+                    case MsgWrapperType.Notice:
+                        // 组织一下content
+                        break;
+                    default:
+                        break;
+                }
+
+
+            }
+
+            me.handleSql(trans, sqls);
+        });
+    }
 });

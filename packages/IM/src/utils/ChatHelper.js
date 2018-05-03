@@ -328,24 +328,54 @@ Ext.define('IM.utils.ChatHelper', {
 
         chatStore.removeAll(); // 清空聊天数据
 
-        // 先从本地获取历史记录
+        // 从本地获取历史记录,若是web版，则不管它
         if (Config.isPC) {
-            LocalDataMgr.getHistory(me.bindLocalHistory, chatStore.getData().length);
+            var start = chatStore.getData().length;
+            // 分页查出20条数据
+            LocalDataMgr.getHistory(me.bindLocalHistory, start);
+            me.onScroll(chatView); // 滚动条滚动打最下方
+            me.onShowChatTime(chatStore);
+
+            // 获取最后更新时间的回调函数
+            var getTimeSuc = function (resultSet) {
+                var rows = resultSet.rows;
+                if (rows.length > 0) {
+                    var lastTime = rows.item(0).CreateAt;
+
+                    // 获取未读消息,(page默认为0，per_page默认为20)
+                    Utils.ajaxByZY('get', 'chats/' + cid + '/posts/unread?per_page=' + start + '&time=' + lastTime, {
+                        success: function(data) {
+                            var msgList = data.message_list;
+                            if(msgList.length > 0) {
+                                // 本地数据更新
+                                LocalDataMgr.insertToMsg(msgList);
+
+                                BindHelper.bindAllMsg(msgList, chatStore); // 绑定数据
+
+                                me.onScroll(chatView);// 可视区滚动到最下方
+                                me.onShowChatTime(chatStore);// 处理时间，一分钟内不显示
+                            }
+                        }
+                    });
+                }
+            };
+
+            LocalDataMgr.getLastMsgTime(cid, getTimeSuc);
+
+
         }
 
-        me.onScroll(chatView); // 滚动条滚动打最下方
-        me.onShowChatTime(chatStore);
 
-        Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
-            success: function (data) {
+        // Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
+        //     success: function (data) {
 
-                BindHelper.bindAllMsg(data, chatStore); // 绑定数据
+        //         BindHelper.bindAllMsg(data, chatStore); // 绑定数据
 
-                me.onScroll(chatView);// 可视区滚动到最下方
+        //         me.onScroll(chatView);// 可视区滚动到最下方
 
-                me.onShowChatTime(chatStore);// 处理时间，一分钟内不显示
-            }
-        });
+        //         me.onShowChatTime(chatStore);// 处理时间，一分钟内不显示
+        //     }
+        // });
     },
 
     /**

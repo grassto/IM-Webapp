@@ -54,12 +54,14 @@ Ext.define('IM.view.chat.ChatView', {
             scope: me
         });
 
-        me.getStore().on({
-            add: 'onAddData',
-            destroyable: true,
-            scope: me
-        });
+        // 不能在store中加数据之后进行滚动条滚动（下拉加载数据）
+        // me.getStore().on({
+        //     add: 'onAddData',
+        //     destroyable: true,
+        //     scope: me
+        // });
 
+        // 添加滚动条事件
         me.getScrollable().on('scroll', 'onChgScrl', me);
 
     },
@@ -236,7 +238,12 @@ Ext.define('IM.view.chat.ChatView', {
         this.callParent(arguments);
     },
 
-    onChgScrl(sender, value, oldValue, eOpts) {
-        debugger;
+    onChgScrl(scrol, x, y) {
+        if(y == 0) { // 需要加载历史记录
+            
+            if(Config.isPC) {
+
+            }
+        }
     }
 });

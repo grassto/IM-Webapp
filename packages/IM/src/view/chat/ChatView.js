@@ -60,6 +60,8 @@ Ext.define('IM.view.chat.ChatView', {
             scope: me
         });
 
+        me.getScrollable().on('scroll', 'onChgScrl', me);
+
     },
 
     // store添加数据后调用，统一的滚动条操作和时间的展示在这儿做
@@ -232,5 +234,9 @@ Ext.define('IM.view.chat.ChatView', {
     destory() {
         Ext.destroy(this.detailPanel);
         this.callParent(arguments);
+    },
+
+    onChgScrl(sender, value, oldValue, eOpts) {
+        debugger;
     }
 });

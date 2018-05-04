@@ -187,7 +187,9 @@ Ext.define('IM.view.IMController', {
         });
         WebSocketHelper.setReconnectCallback(function () {
             ConnectHelper.getMe(view.getViewModel());
-            ConnectHelper.getMembers(view);
+            User.isFirstCon = true;
+            // ConnectHelper.getMembers(view);
+            ConnectHelper.getUnreadChats(view);
         });
     },
 
@@ -206,6 +208,11 @@ Ext.define('IM.view.IMController', {
             xtype = 'recentChat';
         } else if (tab.iconCls == 'x-fa fa-user') {
             xtype = 'left-organization';
+            // 组织结构树第一次加载
+            if(User.isFirstCon) {
+                User.isFirstCon = false;
+                ConnectHelper.getMembers(me.getView());
+            }
         } else if (tab.iconCls == 'x-fa fa-th-large') {
             xtype = 'setting';
         }

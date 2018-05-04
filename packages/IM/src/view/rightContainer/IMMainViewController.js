@@ -358,7 +358,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
             // 判断是否有内容或文件
             if (fileIds.length > 0 || sendText) {
-                let message = {
+                var message = {
                     base_message: {
                         chat_id: User.crtChannelId,
                         // create_at: 0,
@@ -368,27 +368,57 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     files: fileIds
                 };
 
-
                 // 将数据添加至页面
-                // var store = me.getView().down('#chatView').getStore();
-                // store.add({
-                //     senderName: User.crtUser.user_name,
-                //     sendText: sendText,
-                //     last_post_at: new Date(),
-                //     sendStatus: 1, // 发送态
+                var store = me.getView().down('#chatView').getStore();
+                var msgRecord = store.add({
+                    senderName: User.crtUser.user_name,
+                    sendText: sendText,
+                    last_post_at: new Date(),
+                    sendStatus: 1, // 发送态
+                });
+
+                // 最近会话更改
+                var rctRecord = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(User.crtChannelId);
+                // rctRecord.set({
+                //     last_msg_type: ,
+                //     last_post_msg: ,
+                //     last_post_at: new Date()
                 // });
 
-                ChatUtil.onSend(JSON.stringify(message), me.onSendSuccess);
+                if (Config.isPC) { // 本地数据库保存
+                    var chatType = rctRecord.data.type;
+                    var data = {
+                        chatID: User.crtChannelId,
+                        chatType: chatType,
+                        content: sendText,
+                        filePath: '',
+                        createAt: new Date().getTime(),
+                        userID: User.ownerID,
+                        userName: User.crtUser.user_name
+                    };
+                    LocalDataMgr.meAddOffLineMsg(data);
+                }
 
-                // Utils.ajaxByZY('post', 'posts', {
-                //     params: JSON.stringify(message),
-                //     success: function (data) {
-                //         // 将选中的人移至最上方
-                //         // me.fireEvent('listToTop', data.user_id);
-                //         console.log('发送成功', data);
-                //         User.files = [];
-                //     }
-                // });
+                // ChatUtil.onSend(JSON.stringify(message), me.onSendSuccess);
+
+                Utils.ajaxByZY('post', 'posts', {
+                    params: JSON.stringify(message),
+                    success: function (data) {
+                        // 修改record的值
+                        msgRecord.set({
+                            msg_id: data[0].msg_id
+                        });
+
+                        // 本地数据处理
+                        if(Config.isPC) {
+                            LocalDataMgr.meUpdateLocMsg();
+                        }
+                        // 将选中的人移至最上方
+                        // me.fireEvent('listToTop', data.user_id);
+                        console.log('发送成功', data);
+                        User.files = [];
+                    }
+                });
 
                 textAreaField.clear(); // 清空编辑框
 
@@ -404,6 +434,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
     },
 
+    // 发送成功后，修改本地数据库和store的值
     onSendSuccess(data) {
         console.log('发送成功', data);
         User.files = [];
@@ -430,46 +461,6 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             }
         }
     },
-
-    // // 消息解析
-    // onParseMsg(sendPicHtml) {
-    //     var reg = /\<img[^\>]*src="([^"]*)"[^\>]*\>/g;
-    //     // var imgs = sendPicHtml.match(reg);
-    //     // for(var i=0;i<imgs.length;i++) {
-    //     //     $(imgs[i]).attr('id');
-    //     // }
-    //     var result = sendPicHtml.replace(reg, function (str) {
-    //         var out = '',
-    //             id = $(str).attr('id');
-    //         return '[' + id + ']';
-    //     });
-    //     return result;
-    // },
-
-
-    // changeChatHeader() {
-    //     Ext.Msg.prompt('修改标题', '请输入新标题', function (ok, title) {
-    //         if (ok == 'ok') {
-    //             Utils.ajaxByZY('PUT', 'chats/' + User.crtChannelId, {
-    //                 params: JSON.stringify({
-    //                     chat_id: User.crtChannelId,
-    //                     header: title
-    //                 }),
-    //                 success: function (data) {
-    //                     // 页面数据
-    //                     BindHelper.setRightTitle(title);
-    //                     var store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
-    //                         record = store.getById(User.crtChannelId);
-    //                     record.set({ name: title });
-
-    //                     // 缓存数据
-    //                     ChatHelper.handleHeaderCache(User.crtChannelId, title);
-    //                 }
-    //             });
-
-    //         }
-    //     });
-    // },
 
     // 修改群名
     onTextBlur(field) {

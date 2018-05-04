@@ -255,11 +255,17 @@ Ext.define('IM.utils.ChatHelper', {
     openDirectChat(cid) {
         this.chgToIMView(); // 先跳转
 
+        if(User.crtChannelId == cid) return;
+
         User.crtChannelId = cid;
         const me = this,
             chatView = Ext.Viewport.lookup('IM').down('#recentChat'),
             chatStore = chatView.getStore(),
             record = chatStore.getById(cid);
+
+        // 初始化分页数据
+        chatView.perPage = 0;
+        chatView.hasMore = true;
 
         if (record) { // 讲道理，这里肯定有这个record
             // chatView.setSelection(record); // 设置选中
@@ -341,14 +347,15 @@ Ext.define('IM.utils.ChatHelper', {
                 var rows = resultSet.rows;
                 if (rows.length > 0) {
                     var lastTime = rows.item(0).CreateAt;
+                    var perPage = 1000; // 这个先这样写
 
                     // 获取未读消息,(page默认为0，per_page默认为20)
-                    Utils.ajaxByZY('get', 'chats/' + cid + '/posts/unread?per_page=' + start + '&time=' + lastTime, {
-                        success: function(data) {
+                    Utils.ajaxByZY('get', 'chats/' + cid + '/posts/unread?per_page=' + perPage + '&time=' + lastTime, {
+                        success: function (data) {
                             var msgList = data.message_list;
-                            if(msgList.length > 0) {
+                            if (msgList.length > 0) {
                                 // 本地数据更新
-                                LocalDataMgr.insertToMsg(msgList);
+                                LocalDataMgr.initAddToMsg(msgList);
 
                                 BindHelper.bindAllMsg(msgList, chatStore); // 绑定数据
 
@@ -363,19 +370,21 @@ Ext.define('IM.utils.ChatHelper', {
             LocalDataMgr.getLastMsgTime(cid, getTimeSuc);
 
 
+        } else { // 获取20条历史消息，不管时间
+            Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
+                success: function (data) {
+
+                    BindHelper.bindAllMsg(data, chatStore); // 绑定数据
+
+                    me.onScroll(chatView);// 可视区滚动到最下方
+
+                    me.onShowChatTime(chatStore);// 处理时间，一分钟内不显示
+                }
+            });
         }
 
 
-        // Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
-        //     success: function (data) {
 
-        //         BindHelper.bindAllMsg(data, chatStore); // 绑定数据
-
-        //         me.onScroll(chatView);// 可视区滚动到最下方
-
-        //         me.onShowChatTime(chatStore);// 处理时间，一分钟内不显示
-        //     }
-        // });
     },
 
     /**

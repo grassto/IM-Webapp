@@ -409,6 +409,20 @@ Ext.define('IM.utils.BindHelper', {
         }
     },
 
+    // 下拉加载过去的数据
+    bindLastMsg(data, store) {
+        if(data.length > 0) {
+            var records = [];
+
+            for (var i = 0; i < data.length; i++) {
+                var record = ParseHelper.getMsgData(data[i]);
+                records.push(record);
+            }
+
+            store.insert(0, records);
+        }
+    },
+
     // 现在不需要了
     bindGrpMsg(cid, chatStore) {
         for (var i = 0; i < User.grpChgInfo.length; i++) {

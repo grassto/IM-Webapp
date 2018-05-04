@@ -245,7 +245,11 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         });
     },
 
-    insertToMsg(msgList) {
+    /**
+     * 初始化插入未读消息
+     * @param {json} msgList
+     */
+    initAddToMsg(msgList) {
         var me = this,
             sqls = '',
             sql = '';
@@ -299,5 +303,49 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
             me.handleSql(trans, sqls);
         });
+    },
+
+    /**
+     * 将数据组织成json，直接发过来保存本地
+     * @param {json} data
+     */
+    meAddOffLineMsg(data) {
+        var me = this,
+            status = '1'; // 默认失败状态
+
+        var sql = [
+            'INSERT INTO IMMsg (',
+                'ChatID',
+                'MsgType',
+                'Content',
+                'FilePath',
+                'CreateAt',
+                'SenderID',
+                'SenderName',
+                'Status', // 消息状态，标志发送成功与否，这边全标记为失败
+            ') VALUES (',
+                data.chatID,
+                data.chatType,
+                data.content,
+                data.filePath,
+                data.createAt,
+                data.userID,
+                data.userName,
+                status,
+            ')'
+        ].join('');
+
+        me.getDB().transaction(function (trans) {
+            me.ensureMessageTable(trans);
+
+            me.handleSql(trans, sql);
+        });
+    },
+
+    /**
+     * 发送成功后，更新本地MSG
+     */
+    meUpdateLocMsg() {
+        
     }
 });

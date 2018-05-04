@@ -21,6 +21,9 @@ Ext.define('IM.view.chat.ChatView', {
         type: 'chatView'
     },
 
+    hasMore: true, // 分页
+    perPage: 0, // 分页
+
     // emptyText: '暂无会话',
 
     itemsFocusable: false,
@@ -44,7 +47,7 @@ Ext.define('IM.view.chat.ChatView', {
 
         me.on({
             childtap: 'onTapChild',
-            // focus : 'onFocus',
+            beforehide: 'on',
             scope: me
         });
 
@@ -101,6 +104,7 @@ Ext.define('IM.view.chat.ChatView', {
                 '</div>' +
             '</tpl>' +
             '<div style="text-align:{ROL};/*min-height:60px;overflow:hidden;*/">' +
+                '<div class="loader-03"></div>' + // 发送中
                 '<tpl if="values.ROL==\'right\'">' +// 自己的，
                 '<div class="bubble">' +
                 '<tpl else>' + // 他人的
@@ -240,9 +244,67 @@ Ext.define('IM.view.chat.ChatView', {
 
     onChgScrl(scrol, x, y) {
         if(y == 0) { // 需要加载历史记录
-            
-            if(Config.isPC) {
+            var view = this,
+            store = view.getStore();
 
+            // 是否有更多的会话
+            if(view.hasMore) {
+                view.perPage += 1;
+
+                if(Config.isPC) {
+                    // 直接从本地加载数据
+                    var start = store.getData().length;
+                    var bindLastMsg = function(trans, resultSet) {
+                        var rows = resultSet.rows,
+                            len = rows.length,
+                            datas = [],
+                            row = {};
+
+                        if(len < 20) {
+                            view.hasMore = false; // 标记没有更多
+                        }
+
+                        for (var i = 0; i < len; i++) {
+                            row = rows.items(i);
+                            switch (row.MsgType) {
+                                case MsgType.TextMsg:
+                                    datas.push({
+                                        msg_id: row.MsgID,
+                                        senderName: row.SenderName,
+                                        sendText: row.Content,
+                                        ROL: row.SenderID == User.ownerID ? 'right' : 'left',
+                                        updateTime: new Date(row.CreateAt)
+                                    });
+                                    break;
+                                case MsgType.ImgMsg:
+                                    break;
+                                case MsgType.FileMsg:
+                                    break;
+                                default:
+                                    break;
+                            }
+                
+                        }
+    
+                        store.insert(0, datas);
+                    };
+                    // 分页查出20条数据
+                    LocalDataMgr.getHistory(bindLastMsg, start);
+                } else { // web
+                    // 加载20条记录
+                    Utils.ajaxByZY('get', 'chats/' + User.crtChannelId + '/posts?perPage=' + view.perPage, {
+                        success: function (data) {
+                            if(data.length < 20) {
+                                view.hasMore = false;
+                            }
+
+                            BindHelper.bindLastMsg(data, store);
+                        }
+                    });
+                }
+    
+                ChatHelper.onScroll(view);
+                ChatHelper.onShowChatTime(store);
             }
         }
     }

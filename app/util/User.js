@@ -52,6 +52,8 @@ Ext.define('PushIM.Webapp.util.User', {
     // historyFrom: 0, // 历史记录分页，从哪开始
     // historySet: 20, // 查询多少条
 
+    isFirstCon: true, // 是否是第一次加载，组织结构树
+
     clear() {
         User.ownerID = '';
         User.allUsers = [];
@@ -75,6 +77,7 @@ Ext.define('PushIM.Webapp.util.User', {
         User.rightTitle = '';
         // User.historyFrom = 0;
         // User.historySet = 20;
+        User.isFirstCon = true;
     }
 
 });

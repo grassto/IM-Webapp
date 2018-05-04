@@ -21,6 +21,7 @@ Ext.define('IMMobile.view.IMMobileMain.IMMobileMainTabPanel', {
 
     tabBar: {
         docked: 'bottom',
+        userCls: 'bottominset',
         defaults: { // 怎么没效果
             iconAlign: 'top'
         }

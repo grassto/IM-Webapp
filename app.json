@@ -5,11 +5,17 @@
             "packager": "cordova",
             "cordova" : {
                 "config": {
-                    // Uncomment the line below and add the platforms you wish to build for
-                    //"platforms": "ios android",
-
                     "id": "com.pushsoft.IM",
                     "platforms": "android"
+                }
+            }
+        },
+        "ios": {
+            "packager": "cordova",
+            "cordova" : {
+                "config": {
+                    "id": "com.pushsoft.IM",
+                    "platforms": "ios"
                 }
             }
         }
@@ -318,7 +324,7 @@
             "enable": true
         },
         "compressor": {
-            "type": "none", //yui
+            "type": "none", //none yui cmd
             "polyfills": "all" 
         }
     },
@@ -422,10 +428,10 @@
         "base": "${workspace.build.dir}/${build.environment}/${app.name}",
         "appCache": {
             "enable": false
-        },
+        }/*,
         "js": {
             "optimize": false
-        }
+        }*/
     },
 
     /**

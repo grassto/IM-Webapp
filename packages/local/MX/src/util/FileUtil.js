@@ -11,7 +11,11 @@ Ext.define('MX.util.FileUtil', {
 
     imageFilter: {
         title: '图片文件',
-        extensions: 'jpg,jpeg,gif,png,bmp'
+        extensions: 'jpg,jpeg,gif,png,bmp,webp'
+    },
+    videoFilter: {
+        title: '适配文件',
+        extensions: 'mp4,mpg,mpeg,avi,mov,ogv,webm'
     },
     archiveFilter: {
         title: '压缩文件',
@@ -32,7 +36,7 @@ Ext.define('MX.util.FileUtil', {
      * @return {Boolean}
      */
     isImgExtension(ext) {
-        if(!ext) return false;
+        if (!ext) return false;
 
         return this.imageFilter.extensions.indexOf(ext.toLowerCase()) >= 0;
     },
@@ -43,7 +47,7 @@ Ext.define('MX.util.FileUtil', {
      * @return {Boolean}
      */
     isDocExtension(ext) {
-        if(!ext) return false;
+        if (!ext) return false;
 
         return 'doc,docx,ppt,pptx,xls,xlsx,pdf'.indexOf(ext.toLowerCase()) >= 0;
     },
@@ -54,9 +58,19 @@ Ext.define('MX.util.FileUtil', {
      * @return {Boolean}
      */
     isArchiveExtension(ext) {
-        if(!ext) return false;
+        if (!ext) return false;
 
         return this.archiveFilter.extensions.indexOf(ext.toLowerCase()) >= 0;
+    },
+
+    /**
+     * 判断路径是否为完整 file uri
+     * @param {String} path
+     */
+    isFileUri(path) {
+        if (Ext.isEmpty(path)) return false;
+
+        return path.substr(0, 7).toLowerCase() == 'file://';
     },
 
     /**
@@ -79,7 +93,7 @@ Ext.define('MX.util.FileUtil', {
             fileName = fileName.substr(0, idx);
         }
 
-        return [dirName, fileName];
+        return [dirName, this.stripIllegalChars(fileName)];
     },
 
     /**
@@ -88,7 +102,7 @@ Ext.define('MX.util.FileUtil', {
      * @return {String}
      */
     getFileName(path) {
-        if(!path) return '';
+        if (!path) return '';
 
         return this.splitPath(path)[1];
     },
@@ -99,7 +113,7 @@ Ext.define('MX.util.FileUtil', {
      * @return {String}
      */
     getFileNameWoExt(fullName) {
-        if(!fullName) return '';
+        if (!fullName) return '';
         const arr = this.splitPath(fullName),
             idx = arr[1].lastIndexOf('.');
         if (idx < 0) return arr[1];
@@ -114,7 +128,7 @@ Ext.define('MX.util.FileUtil', {
      * @return {String} 后缀，不包括.
      */
     getExtension(fullName, lowerCase) {
-        if(!fullName) return '';
+        if (!fullName) return '';
         const arr = this.splitPath(fullName),
             idx = arr[1].lastIndexOf('.');
         if (idx < 0) return '';
@@ -122,6 +136,16 @@ Ext.define('MX.util.FileUtil', {
         const ext = arr[1].substr(idx + 1);
 
         return lowerCase ? ext.toLowerCase() : ext;
+    },
+
+    /**
+     * 去除文件名中不合法的字符
+     * @param {String} s
+     */
+    stripIllegalChars(s) {
+        if (Ext.isEmpty(s)) return s;
+
+        return s.replace(/[\\\\/:*?"<>|]/g, '_');
     },
 
     /**
@@ -143,40 +167,5 @@ Ext.define('MX.util.FileUtil', {
         if (ext == 'txt') return 'x-fa fa-file-text-o';
 
         return 'x-fa fa-file-o';
-    },
-
-
-
-    waitUploadInitMsg: '请等待上传组件初始化完毕',
-    /**
-     * 加载上传组件库 plupload
-     * @param {Function} callback
-     */
-    ensurePlUploadlibs(callback) {
-        // debugger;
-        const bundleId = 'pluploadlibsloaded';
-        if (!RM.isDefined(bundleId)) {
-            const path = Ext.getResourcePath('libs/plupload/', 'shared', null),
-                isDev = Ext.manifest.env == 'development',
-                lan = navigator.language || navigator.systemLanguage || navigator.userLanguage,
-                ver = Ext.manifest.version,
-                arr = isDev ? [
-                    `${path}moxie.js?v=${ver}`,
-                    `${path}plupload.dev.js?v=${ver}`
-                ] : [
-                    `${path}plupload.full.min.js?v=${ver}`
-                ];
-            if (lan == 'zh-CN') {
-                arr.push(`${path}i18n/zh_CN.js?v=${ver}`);
-            }
-            RM.load(arr, bundleId, {
-                async: false
-            });
-        }
-        RM.ready(bundleId, {
-            success() {
-                callback();
-            }
-        });
     }
 });

@@ -39,6 +39,27 @@ Ext.define('MX.util.Utils', {
     isWeb: location.href.indexOf('http') == 0,
 
     /**
+     * 是否 debug 打包(sencha app build development/cordova build)
+     */
+    isDebugBuild() {
+        return this.isDev || window.BuildInfo && BuildInfo.debug;
+    },
+
+    /**
+     * 是否手动开启 debug 模式（比如：点击 7 次版本号）
+     */
+    isDebugOpened() {
+        return !!parseInt(this.getLsItem('debug') || 0, 10);
+    },
+
+    /**
+     * 是否 debug 模式，控制服务端输出日志
+     */
+    isDebug() {
+        return this.isDebugBuild() || this.isDebugOpened();
+    },
+
+    /**
      * 获取应用程序的实例
      * @return {Ext.app.Application}
      */
@@ -1482,5 +1503,49 @@ Ext.define('MX.util.Utils', {
         }
 
         return errors;
-    }
+    },
+
+    /**
+     * 清空input type="file"
+     * @param {HTMLElement} fileInput
+     */
+    clearFileInput(fileInput) {
+        var form = document.createElement('form');
+        document.body.appendChild(form);
+        // 记住file input的位置
+        var next = fileInput.nextSibling,
+            prev = fileInput.previousSibling,
+            parent = fileInput.parentNode;
+        form.appendChild(fileInput);
+        form.reset();
+        if (next) next.parentNode.insertBefore(fileInput, next);
+        else if (prev) {
+            var p = prev.parentNode;
+            if (p.lastChild === prev) {
+                p.appendChild(fileInput);
+            } else {
+                p.insertBefore(fileInput, prev.nextSibling);
+            }
+        } else if (parent) parent.appendChild(fileInput);
+        document.body.removeChild(form);
+    },
+
+    /**
+     * 生成一个uuid，99.99%不重复
+     * @return {String} uuid
+     */
+    uuid: (function () {
+        var counter = 0;
+
+        return function (prefix) {
+            var guid = new Date().getTime().toString(32),
+                i;
+
+            for (i = 0; i < 5; i++) {
+                guid += Math.floor(Math.random() * 65535).toString(32);
+            }
+
+            return (prefix || '') + guid + (counter++).toString(32);
+        };
+    }())
 });

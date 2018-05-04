@@ -14,5 +14,27 @@
     },
     "is_top_level": true,
     "variables": {}
+  },
+  "android-theme-appcompat": {
+    "source": {
+      "type": "registry",
+      "id": "android-theme-appcompat"
+    },
+    "is_top_level": true,
+    "variables": {
+      "ACTION_MODE_BGCOLOR": "#5fa2dd",
+      "PRIMARY_COLOR": "#5fa2dd"
+    }
+  },
+  "cordova-android-support-gradle-release": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-android-support-gradle-release"
+    },
+    "is_top_level": true,
+    "variables": {
+      "ANDROID_TARGET_VERSION": "25",
+      "ANDROID_SUPPORT_VERSION": "25.+"
+    }
   }
 }

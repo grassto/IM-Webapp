@@ -1,0 +1,1 @@
+﻿{ "verCode":"30201","verName":"3.2.1","apkPath":"http://218.4.111.6:8189/AIO7.apk", "apkChromePath":"http://218.4.111.6:8189/AIO7-Chrome.apk", "apkChromeX86Path":"http://218.4.111.6:8189/AIO7-Chrome-x86.apk", "releaseLog": "1、支持从微信会话中启动app并打开单据链接" }

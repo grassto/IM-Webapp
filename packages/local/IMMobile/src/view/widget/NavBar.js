@@ -79,5 +79,9 @@ Ext.define('IMMobile.view.widget.Navbar', {
                 me.insert(0, v);
             }
         }
+    },
+    initialize() {
+        this.callParent(arguments);
+        this.addCls(['navbar', 'topinset']);
     }
 });

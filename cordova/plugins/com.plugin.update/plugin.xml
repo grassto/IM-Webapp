@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0" id="com.plugin.update" version="0.1.0">
+    <name>apkUpdate</name>
+    <description>Sample PhoneGap Apk Update Plugin</description>
+    <license>MIT</license>
+    <keywords>phonegap,android,autoupdate</keywords>
+    <!-- android -->
+    <platform name="android">
+        <js-module src="www/updateAppPlugin.js" name="UpdateApp">
+            <clobbers target="plugins.update" />
+        </js-module>
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="UpdateApp">
+                <param name="android-package" value="com.plugin.update.UpdateApp" />
+            </feature>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+        </config-file>
+        <config-file target="res/values/strings.xml" parent="/*">
+            <string name="soft_update_title">新版本</string>
+            <string name="soft_update_updatebtn">现在更新</string>
+            <string name="soft_update_later">以后再说</string>
+            <string name="soft_updating">下载新版中...</string>
+            <string name="soft_update_cancel">取消下载</string>
+            <string name="soft_update_background_download">转到后台下载</string>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <provider android:name="com.plugin.update.FileProvider" android:authorities="${applicationId}.apk.opener.provider" android:exported="false" android:grantUriPermissions="true">
+                <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/apk_opener_paths" />
+            </provider>
+            <receiver android:name="com.plugin.update.UpdateApp$ProgressActionReceiver" />
+        </config-file>
+        <framework src="com.android.support:support-v4:+" value="gradle" />
+        <source-file src="src/android/UpdateApp.java" target-dir="src/com/plugin/update" />
+        <source-file src="src/android/FileProvider.java" target-dir="src/com/plugin/update" />
+        <source-file src="src/android/res/xml/apk_opener_paths.xml" target-dir="res/xml" />
+    </platform>
+</plugin>

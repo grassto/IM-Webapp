@@ -5,6 +5,16 @@
 // @import "../sass/etc/fonts/all";
 $enable-font-awesome: dynamic(true);
 
+/* iPhoneX 刘海下巴屏*/
+.actionmode .topinset 
+{ 
+	padding-top: 0 !important; 
+}
+.bottominset {
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
 // $base-color: #87BD3E;//强烈建议将样式代码放置在与其应用的视图相同的.scss文件中
 // $tab-background-color:#2e3238;
 // $formpanel-body-background-color: #2e3238;

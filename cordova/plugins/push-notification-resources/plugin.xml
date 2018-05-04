@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="push-notification-resources" version="1.0.0"> 
+
+    <name>Adding custom sounds to Phonegap XDK builds</name> 
+    <description>Add customized sounds to XDK phonegap builds.</description> 
+    <license>MIT</license> 
+
+    <engines> 
+        <engine name="cordova" version=">=3.0.0" /> 
+    </engines>  
+
+    <!-- android --> 
+    <platform name="android">
+        <resource-file src="android/drawable-hdpi/mipush_notification.png" target="res/drawable-hdpi/mipush_notification.png" />
+        <resource-file src="android/drawable-hdpi/mipush_small_notification.png" target="res/drawable-hdpi/mipush_small_notification.png" />
+    </platform>
+</plugin>

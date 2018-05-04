@@ -7,7 +7,11 @@ cd cordova
 cordova platform rm ios
 cd ..
 PATH=/Users/pushsoft2/bin/Sencha/Cmd/6.5.3.6:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin;
-sencha -info app build --clean ios;
+cd cordova
+rm -r -f www
+mkdir www
+cd ..
+sencha -info app build -uses ios;
 open cordova/platforms/ios/IM.xcodeproj;"
 	
 end tell

@@ -82,7 +82,7 @@ Ext.define('IMMobile.view.group.GroupSelListController', {
         // 缓存数据添加
         // 返回的结果没有人员信息
         Utils.ajaxByZY('get', 'chats/' + data.chat_id + '/members', {
-            async: false, // 在此不能异步，不然数据不统一
+            // async: false, // 在此不能异步，不然数据不统一
             success: function (result) {
                 User.allChannels.push({
                     chat: data,

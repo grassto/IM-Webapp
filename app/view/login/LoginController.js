@@ -60,6 +60,9 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
                     }),
                     success(r) {
                         if (r.user_name) {
+                            if (Config.isPC) {
+                                cefMain.setUserInfo('{user_id: "' + r.user_id + '", user_name: "' + r.user_name + '"}');
+                            }
                             // 记住用户名密码
                             if (values.remember == true) {
                                 localStorage.setItem('USERID', values.userId);

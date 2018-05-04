@@ -167,5 +167,36 @@ Ext.define('MX.util.FileUtil', {
         if (ext == 'txt') return 'x-fa fa-file-text-o';
 
         return 'x-fa fa-file-o';
+    },
+
+    /**
+    * 加载上传组件库 plupload
+    * @param {Function} callback
+    */
+    ensurePlUploadlibs(callback) {
+        const bundleId = 'pluploadlibsloaded';
+        if (!RM.isDefined(bundleId)) {
+            const path = Ext.getResourcePath('libs/plupload/', 'shared', null),
+                isDev = Ext.manifest.env == 'development',
+                lan = navigator.language || navigator.systemLanguage || navigator.userLanguage,
+                ver = Ext.manifest.version,
+                arr = isDev ? [
+                    `${path}moxie.js?v=${ver}`,
+                    `${path}plupload.dev.js?v=${ver}`
+                ] : [
+                        `${path}plupload.full.min.js?v=${ver}`
+                    ];
+            if (lan == 'zh-CN') {
+                arr.push(`${path}i18n/zh_CN.js?v=${ver}`);
+            }
+            RM.load(arr, bundleId, {
+                async: false
+            });
+        }
+        RM.ready(bundleId, {
+            success() {
+                callback();
+            }
+        });
     }
 });

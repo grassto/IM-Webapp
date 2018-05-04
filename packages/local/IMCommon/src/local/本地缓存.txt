@@ -1,0 +1,9 @@
+meAddRctChat传入json数据：
+    data.chat_id
+    data.display_name
+    data.chat_type
+    data.unread_count
+    data.last_post_at
+    data.last_sender_id
+    data.last_sender_name
+    data.last_message

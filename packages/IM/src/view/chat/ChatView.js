@@ -104,7 +104,7 @@ Ext.define('IM.view.chat.ChatView', {
                 '</div>' +
             '</tpl>' +
             '<div style="text-align:{ROL};/*min-height:60px;overflow:hidden;*/">' +
-                '<div class="loader-03"></div>' + // 发送中
+                // '<div class="loader-03"></div>' + // 发送中
                 '<tpl if="values.ROL==\'right\'">' +// 自己的，
                 '<div class="bubble">' +
                 '<tpl else>' + // 他人的

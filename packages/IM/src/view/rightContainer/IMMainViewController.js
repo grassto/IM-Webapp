@@ -375,6 +375,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     sendText: sendText,
                     last_post_at: new Date(),
                     sendStatus: 1, // 发送态
+                    ROL: 'right'
                 });
 
                 // 最近会话更改
@@ -405,9 +406,9 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     params: JSON.stringify(message),
                     success: function (data) {
                         // 修改record的值
-                        msgRecord.set({
-                            msg_id: data[0].msg_id
-                        });
+                        // msgRecord.set({
+                        //     msg_id: data[0].msg_id
+                        // });
 
                         // 本地数据处理
                         if(Config.isPC) {

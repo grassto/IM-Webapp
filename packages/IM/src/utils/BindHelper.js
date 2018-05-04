@@ -244,13 +244,9 @@ Ext.define('IM.utils.BindHelper', {
             chat_name: data.chat_name
         });
 
-        // debugger;
         if (data.creator_id == User.ownerID) {
             recentChatView.setSelection(record);
         }
-
-        // 会出错，之后再改
-        // chatStore.sort();
     },
 
     /**

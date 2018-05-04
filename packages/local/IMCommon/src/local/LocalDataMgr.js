@@ -41,8 +41,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     },
 
 
-    // enSureTable中的transaction都先使用DB来创建，而不使用事务
-
+    // User
     enSureUserTable(transaction) {
         var sql = 'CREATE TABLE IF NOT EXISTS User (UserID TEXT PRIMARY KEY NOT NULL, UserName TEXT, Mobile TEXT, Email TEXT, Sex TEXT, Age INT, Notes TEXT, DefRolID TEXT, IsSuperUser BOOLEAN, IsClose BOOLEAN)';
         transaction.executeSql(sql, null, function (trans, resultSet) {
@@ -59,7 +58,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * @param  {[Object]} transaction sql事务
      */
     ensureRChatTable: function (transaction) {
-        var sql = 'CREATE TABLE IF NOT EXISTS IMRct (ChatID TEXT PRIMARY KEY NOT NULL, DisplayName TEXT, ChatType VARCHAR(1), UnreadCount INT, LastPostAt BIGINT, LastUserID NVARCHAR(50), LastUserName TEXT, LastMsgType VARCHAR(1), LastMsg TEXT, IsTop BOOLEAN, AtCount INT)';
+        var sql = 'CREATE TABLE IF NOT EXISTS IMRct (ChatID TEXT PRIMARY KEY NOT NULL, DisplayName TEXT, ChatType VARCHAR(1), UnreadCount INT, LastPostAt BIGINT, LastUserID NVARCHAR(50), LastUserName TEXT, LastMsgType VARCHAR(1), LastMessage TEXT, IsTop VARCHAR(1), AtCount INT)';
         transaction.executeSql(sql, null, function (trans, resultSet) {
             console.log('建表成功Chat', resultSet);
             //sql执行成功
@@ -74,7 +73,18 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * @param  {[Object]} transaction sql事务
      */
     ensureChatRoomTable: function (transaction) {
-        var sql = 'CREATE TABLE IF NOT EXISTS IMChatRoom (ChatID TEXT PRIMARY KEY NOT NULL, MgrID TEXT, MgrName TEXT, CreatorID TEXT, CreatorName TEXT, UserIDs TEXT, DisplayName TEXT)';
+        var sql = 'CREATE TABLE IF NOT EXISTS IMChat (' +
+        'ChatID NVARCHAR(50) PRIMARY KEY, ' +
+        'DisplayName TEXT, ' +
+        'CreatorID NVARCHAR(20), ' +
+        'CreatorName NVARCHAR(30), ' +
+        'ManagerID NVARCHAR(20), ' +
+        'ManagerName NVARCHAR(30), ' +
+        'Status CHAR(1), ' +
+        'CreateAt BIGINT, ' +
+        'Remarks TEXT, ' +
+        'UserIDs TEXT )';
+        // var sql = 'CREATE TABLE IF NOT EXISTS IMChatRoom (ChatID TEXT PRIMARY KEY NOT NULL, MgrID TEXT, MgrName TEXT, CreatorID TEXT, CreatorName TEXT, UserIDs TEXT, DisplayName TEXT)';
         transaction.executeSql(sql, null, function (trans, resultSet) {
             console.log('建表成功ChatRoom');
             //sql执行成功
@@ -91,7 +101,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             'MsgID NVARCHAR(50), ' +
             'ChatID NVARCHAR(50), ' +
             'MsgType CHAR(1), ' +
-            'Context TEXT, ' +
+            'Content TEXT, ' +
             'FilePath TEXT, ' +
             'CreateAt BIGINT,' +
             'SenderID NVARCHAR(20), ' +
@@ -110,7 +120,18 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
     // IMFile
     ensureFileTable(transaction) {
-        var sql = 'CREATE TABLE IF NOT EXISTS IMFile (ID INTEGER PRIMARY KEY AUTOINCREMENT, MsgID NVARCHAR(50), ChatID NVARCHAR(50), FilePath TEXT, FileType VARCHAR(1), FileName TEXT, FileSize BIGINT)';
+        var sql = 'CREATE TABLE IF NOT EXISTS IMFile (' +
+        'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+        'MsgID NVARCHAR(50), ' +
+        'ChatID NVARCHAR(50), ' +
+        'FilePath TEXT, ' +
+        'FileType CHAR(1), ' +
+        'FileName NVARCHAR(255), ' +
+        'MimeType NVARCHAR(100), ' +
+        'Width INT, ' +
+        'Height INT, ' +
+        'FileSize BIGINT )';
+        // var sql = 'CREATE TABLE IF NOT EXISTS IMFile (ID INTEGER PRIMARY KEY AUTOINCREMENT, MsgID NVARCHAR(50), ChatID NVARCHAR(50), FilePath TEXT, FileType VARCHAR(1), FileName TEXT, FileSize BIGINT)';
         transaction.executeSql(sql, null, function (trans, resultSet) {
             console.log('建表语句成功IMFile');
             //sql执行成功
@@ -200,7 +221,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
                 data[i].chat.last_sender_name = ConnectHelper.parseDirectChatName(data[i]);
                 // data[i].chat.last_sender_name = ChatHelper.getName(data[i].chat.last_sender);
                 // 这边先只用字符串的形式
-                sql = 'INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMsg, LastMsgType) VALUES ("' + data[i].chat.chat_id + '","' + data[i].chat.channelname + '","' + data[i].chat.chat_type + '",' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"' + data[i].chat.last_sender + '","' + data[i].chat.last_sender_name + '","' + data[i].chat.last_message + '","' + data[i].chat.last_msg_type + '");';
+                sql = 'INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType) VALUES ("' + data[i].chat.chat_id + '","' + data[i].chat.channelname + '","' + data[i].chat.chat_type + '",' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"' + data[i].chat.last_sender + '","' + data[i].chat.last_sender_name + '","' + data[i].chat.last_message + '","' + data[i].chat.last_msg_type + '");';
                 sqls += sql;
             }
 
@@ -218,7 +239,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         //     sql = '';
         // for (var i = 0; i < data.length; i++) {
         //     // 这边先只用字符串的形式
-        //     sql = ['INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMsg) VALUES (' + data[i].chat.chat_id + ',' + data[i].chat.channelname + ',' + data[i].chat.chat_type + ',' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"","","");'];
+        //     sql = ['INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage) VALUES (' + data[i].chat.chat_id + ',' + data[i].chat.channelname + ',' + data[i].chat.chat_type + ',' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"","","");'];
         //     sqls.push(sql);
         // }
 
@@ -237,11 +258,25 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
             for (var i = 0; i < data.length; i++) {
                 // 这边先只用字符串的形式
-                sql = 'INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMsg) VALUES ("' + data[i].chat.chat_id + '","' + data[i].chat.channelname + '","' + data[i].chat.chat_type + '",' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"' + data[i].chat.last_sender + '","' + data[i].chat.last_sender_name + '","' + data[i].chat.last_message + '");';
+                sql = 'INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage) VALUES ("' + data[i].chat.chat_id + '","' + data[i].chat.channelname + '","' + data[i].chat.chat_type + '",' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"' + data[i].chat.last_sender + '","' + data[i].chat.last_sender_name + '","' + data[i].chat.last_message + '");';
                 sqls += sql;
             }
 
             me.handleSql(trans, sqls);
+        });
+    },
+
+    /**
+     * 自己新建会话
+     * @param {json} data ({chat_id:xxx,chat_name:xxx,...})
+     */
+    meAddRctChat(data) {
+        var me = this;
+        me.getDB().transaction(function(trans) {
+            me.ensureRChatTable(trans);
+
+            var sql = 'INSERT INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage) VALUES ("' + data.chat_id + '","' + data.display_name + '","' + data.chat_type + '",' + data.unread_count + ',' + data.last_post_at + ',"' + data.last_sender + '","' + data.last_sender_name + '","' + data.last_message + '");';
+            me.handleSql(trans, sql);
         });
     },
 
@@ -266,29 +301,32 @@ Ext.define('IMCommon.local.LocalDataMgr', {
                     case MsgWrapperType.Message:
                         // filePath = ;
                         // 这边先只用字符串的形式
-                        sql = [
-                            'INSERT INTO IMMsg (',
-                                'MsgID',
-                                'ChatID',
-                                'MsgType',
-                                'Content',
-                                'FilePath',
-                                'CreateAt',
-                                'SenderID',
-                                'SenderName',
-                                'Status', // 消息状态，标志发送成功与否，这边全标记为成功
-                            ') VALUES (',
-                                msgList[i].message.msg_id,
-                                msgList[i].message.chat_id,
-                                msgList[i].message.msg_type,
-                                msgList[i].message.message,
-                                filePath, // 这个放在外面组织好，然后拿进来
-                                msgList[i].message.create_at,
-                                msgList[i].message.user_id,
-                                userName, // 这个放在外面组织好，然后拿进来
-                                status,
-                            ')'
-                        ].join('');
+
+                        sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("'+msgList[i].message.msg_id+'","' + msgList[i].message.chat_id + '","' + msgList[i].message.msg_type + '","' + msgList[i].message.message + '","' + filePath + '",' + msgList[i].message.create_at + ',"' + msgList[i].message.user_id + '","' + userName + '","' + status + '")';
+
+                        // sql = [
+                        //     'INSERT INTO IMMsg (',
+                        //     'MsgID',
+                        //     'ChatID',
+                        //     'MsgType',
+                        //     'Content',
+                        //     'FilePath',
+                        //     'CreateAt',
+                        //     'SenderID',
+                        //     'SenderName',
+                        //     'Status', // 消息状态，标志发送成功与否，这边全标记为成功
+                        //     ') VALUES (',
+                        //     msgList[i].message.msg_id,
+                        //     msgList[i].message.chat_id,
+                        //     msgList[i].message.msg_type,
+                        //     msgList[i].message.message,
+                        //     filePath, // 这个放在外面组织好，然后拿进来
+                        //     msgList[i].message.create_at,
+                        //     msgList[i].message.user_id,
+                        //     userName, // 这个放在外面组织好，然后拿进来
+                        //     status,
+                        //     ')'
+                        // ].join('');
                         sqls += sql;
                         break;
                     case MsgWrapperType.Notice:
@@ -313,27 +351,29 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         var me = this,
             status = '1'; // 默认失败状态
 
-        var sql = [
-            'INSERT INTO IMMsg (',
-                'ChatID',
-                'MsgType',
-                'Content',
-                'FilePath',
-                'CreateAt',
-                'SenderID',
-                'SenderName',
-                'Status', // 消息状态，标志发送成功与否，这边全标记为失败
-            ') VALUES (',
-                data.chatID,
-                data.chatType,
-                data.content,
-                data.filePath,
-                data.createAt,
-                data.userID,
-                data.userName,
-                status,
-            ')'
-        ].join('');
+        var sql = 'INSERT INTO IMMsg (ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data.chatID + '","' + data.chatType + '","' + data.content + '","' + data.filePath + '",' + data.createAt + ',"' + data.userID + '","' + data.userName + '","' + status + '")';
+
+        // var sql = [
+        //     'INSERT INTO IMMsg (',
+        //     'ChatID',
+        //     'MsgType',
+        //     'Content',
+        //     'FilePath',
+        //     'CreateAt',
+        //     'SenderID',
+        //     'SenderName',
+        //     'Status', // 消息状态，标志发送成功与否，这边全标记为失败
+        //     ') VALUES (',
+        //     data.chatID + ',',
+        //     data.chatType,
+        //     data.content,
+        //     data.filePath,
+        //     data.createAt,
+        //     data.userID,
+        //     data.userName,
+        //     status,
+        //     ')'
+        // ].join('');
 
         me.getDB().transaction(function (trans) {
             me.ensureMessageTable(trans);
@@ -346,6 +386,6 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * 发送成功后，更新本地MSG
      */
     meUpdateLocMsg() {
-        
+
     }
 });

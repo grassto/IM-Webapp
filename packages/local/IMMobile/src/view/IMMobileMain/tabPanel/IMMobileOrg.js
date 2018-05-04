@@ -10,36 +10,51 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg', {
 
     constructor(config) {
         // 需要自己拼的
-        var root = this.getOrgRoot();
-        var store = Ext.create('Ext.data.TreeStore', {
-            defaultRootProperty: 'items',
-            root: root,
-            fields: ['text']
-            // model: 'IMMobile.model.ChatOrg' // 这样写也错
+        // var root = this.getOrgRoot();
+        const me = this;
+
+        Utils.ajaxByZY('GET', 'users/all', {
+            success: function (data) {
+                User.allUsers = data.users;
+                var root = me.imitateOrgData(data.users, data.organizations);
+
+                var store = Ext.create('Ext.data.TreeStore', {
+                    defaultRootProperty: 'items',
+                    root: root,
+                    fields: ['text']
+                    // model: 'IMMobile.model.ChatOrg' // 这样写也错
+                });
+        
+                config = Ext.apply({
+                    layout: 'vbox',
+                    cls: 'IMMobile-Nested-Wrapper',
+        
+                    items: [{
+                        xtype: 'nestedlist',
+                        cls: 'mobileNestList',
+                        itemId: 'OrgNestedList',
+                        flex: 1,
+                        displayField: 'text',
+        
+                        useTitleAsBackText: false,
+                        updateTitleText: false,
+                        emptyText: '加载中...',
+                        backText: '返回',
+        
+                        store: store
+                    }]
+                }, config);
+
+                for (let i = 0; i < data.users.length; i++) {
+                    if (data.users[i].user_id !== User.ownerID) {
+                        User.allOthers.push(data.users[i]); // 记录所有其他成员信息，用来匹配频道的展示名
+                    }
+                }
+                
+                me.callParent([config]);
+            }
         });
 
-        config = Ext.apply({
-            layout: 'vbox',
-            cls: 'IMMobile-Nested-Wrapper',
-
-            items: [{
-                xtype: 'nestedlist',
-                cls: 'mobileNestList',
-                itemId: 'OrgNestedList',
-                flex: 1,
-                // fullscreen: true,
-                displayField: 'text',
-
-                useTitleAsBackText: false,
-                updateTitleText: false,
-                emptyText: '加载中...',
-                backText: '返回',
-
-                store: store
-            }]
-        }, config);
-
-        this.callParent([config]);
     },
 
     initialize() {

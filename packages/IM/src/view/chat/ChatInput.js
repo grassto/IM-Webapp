@@ -337,7 +337,7 @@ Ext.define('IM.view.chat.ChatInput', {
     onTapBtnFile(btn) {
         const me = this;
         if (!window.plupload || !me.fileUploader) {
-            Utils.toastShort(FileUtil.waitUploadInitMsg);
+            Utils.toastShort('等下');
 
             return;
         }

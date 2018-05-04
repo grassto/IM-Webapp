@@ -3,7 +3,7 @@ title 打包PushIM-Webapp
 set currentpath=%~dp0
 set apppath=%~dp0..
 echo 第一次使用前请打开此bat文件，修改为你本机的路径
-set packagepath=E:\PushIM-Webapp-Packages
+set packagepath=D:\PushIM2.0\PushIM2.0-Webapp\packages
 
 :start
 IF NOT EXIST %packagepath% (md %packagepath%)

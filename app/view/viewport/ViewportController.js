@@ -37,6 +37,9 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
                 success(r) {
                     if (r.user_name) {
                         User.ownerID = r.user_id;
+                        if (Config.isPC) {
+                            cefMain.setUserInfo('{user_id: "' + r.user_id + '", user_name: "' + r.user_name + '"}');
+                        }
                         me.onLogin();
                     } else {
                         Utils.toastShort('用户名或密码错误，请重新登录');
@@ -60,14 +63,14 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     },
 
     onLogin() {
-        if(Ext.os.is.Desktop) {
+        if (Ext.os.is.Desktop) {
             this.dynamicPkgLoad('IM');
             // this.dynamicPkgLoad('IMMobileNavigation');
-        } else if(Ext.os.is.Phone) {
+        } else if (Ext.os.is.Phone) {
             this.listenPhoneBack();
             this.dynamicPkgLoad('IMMobile');
             // 监听手机的返回键
-        } else if(Ext.os.is.Tablet) {
+        } else if (Ext.os.is.Tablet) {
             alert('屏幕未适配');
         } else {
             alert('屏幕未适配');
@@ -75,12 +78,12 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     },
 
     // 监听手机的返回键
-    listenPhoneBack () {
+    listenPhoneBack() {
         const me = this;
         document.addEventListener('backbutton', Ext.Function.bind(me.onBackButton, me), false);
     },
 
-    onBackButton: function() {
+    onBackButton: function () {
         const me = this;
         // 1. 隐藏picker overlay等悬浮在view上的层
         var done = me.backOneFloating();
@@ -92,10 +95,10 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     // 隐藏悬浮层
     backOneFloating() {
         var done = false;
-        Ext.each((Ext.floatRoot || Ext).query('.x-floated:not(.x-tooltip)'),function(el, idx) {
+        Ext.each((Ext.floatRoot || Ext).query('.x-floated:not(.x-tooltip)'), function (el, idx) {
             const cmp = Ext.getCmp(el.id);
-            if(cmp) {
-                if(cmp.onBack) { // 这个是弹出层自己的返回
+            if (cmp) {
+                if (cmp.onBack) { // 这个是弹出层自己的返回
                     cmp.onBack();
                 } else {
                     cmp.hide();
@@ -117,7 +120,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
         const me = this,
             view = me.getView();
 
-        if(Ext.Package.isLoaded(pkg)) {
+        if (Ext.Package.isLoaded(pkg)) {
             me.showView(pkg);
         } else {
             Utils.mask(view, '正在加载模块...');
@@ -145,7 +148,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     },
     showView(xtype) {
         const me = this,
-        viewport = me.getView();
+            viewport = me.getView();
 
         let view = me.existedView(xtype);
         if (!view) {

@@ -155,7 +155,7 @@ Ext.define('IM.utils.SocketEventHelper', {
      * websocket接收请求后执行，将数据绑定至页面
      * @param {object} msg 服务器返回的数据
      */
-    handleNewPostEvent(msg) {
+    handleNewPostEvent2(msg) {
         const me = this,
             data = JSON.parse(msg.data.message);
 
@@ -206,6 +206,15 @@ Ext.define('IM.utils.SocketEventHelper', {
 
                 me.notifyWrapper(msg.data);
             }
+
+        }
+    },
+
+    handleNewPostEvent(msg) {
+        const me = this,
+            data = JSON.parse(msg.data.message);
+
+        if(me.hasRctChat(data.chat_id)) {
 
         }
     },
@@ -421,6 +430,12 @@ Ext.define('IM.utils.SocketEventHelper', {
             }
         }
         return false;
+    },
+
+    hasRctChat(chatID) {
+        var store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
+        record = store.getById(chatID);
+        
     },
 
     // 创建者拼凑信息，组织成：你邀请xxx、xxx、xxx加入群聊

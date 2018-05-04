@@ -42,11 +42,11 @@ Ext.define('IM.view.IM', {
 
     layout: 'hbox',
 
-    items: [{
+    items: [/* {
         xtype: 'button',
         text: '测试',
         handler: 'showLocalData'
-    }, { // 左侧工具条
+    },*/{ // 左侧工具条
         xtype: 'leftTool'
     }, {// 中部
         xtype: 'midPanel',

@@ -425,6 +425,15 @@ Ext.define('IM.utils.ChatHelper', {
         Utils.ajaxByZY('post', 'chats/direct', {
             params: JSON.stringify([User.ownerID, uid]),
             success: function (data) {
+                // 本地
+                if(Config.isPC) {
+                    data.display_name = nickname;
+                    data.unread_count = 0;
+                    data.last_sender_id = User.ownerID;
+                    data.last_sender_name = User.crtUser.user_name;
+                    data.last_message = '';
+                    LocalDataMgr.meAddRctChat(data);
+                }
 
                 me.addChatCache(data); // 内存中加入chat的信息
 

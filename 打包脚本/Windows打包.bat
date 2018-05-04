@@ -54,12 +54,12 @@ goto start
 :pubandroid
 call ant -buildfile replace_appversion.xml
 
-cd ../cordova
+cd ..\cordova
 rmdir www /S /Q
 md www
 cd ..
 
-sencha -info app build --clean -uses android
+sencha -info app build -uses android
 echo -----------------------Build成功-----------------------
 
 goto copyapk
@@ -69,8 +69,8 @@ goto copyapk
 
 :pubprodution
 cd ..
-rmdir build/production /S /Q
-sencha -info app build --clean -uses
+rmdir build\production /S /Q
+sencha -info app build -uses
 echo -----------------------打包完成-----------------------
 
 goto start
@@ -78,8 +78,8 @@ goto start
 
 :pubtesting
 cd ..
-rmdir build/testing /S /Q
-sencha -info app build --clean -uses testing
+rmdir build\testing /S /Q
+sencha -info app build -uses testing
 echo -----------------------打包完成-----------------------
 
 goto start

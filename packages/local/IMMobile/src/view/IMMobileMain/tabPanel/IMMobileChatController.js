@@ -16,6 +16,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
     },
 
     getLocalChats() {
+        debugger;
         LocalDataMgr.getRecentChat(this.bindLocalChats);
     },
 
@@ -23,6 +24,8 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
     bindLocalChats(trans, resultSet) {
         var rows = resultSet.rows,
         len = rows.length;
+
+        debugger;
 
         var recentStore = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-Chat').down('#ChatList').getStore(),
         datas = [],

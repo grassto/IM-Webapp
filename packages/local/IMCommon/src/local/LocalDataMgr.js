@@ -74,16 +74,16 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      */
     ensureChatRoomTable: function (transaction) {
         var sql = 'CREATE TABLE IF NOT EXISTS IMChat (' +
-        'ChatID NVARCHAR(50) PRIMARY KEY, ' +
-        'DisplayName TEXT, ' +
-        'CreatorID NVARCHAR(20), ' +
-        'CreatorName NVARCHAR(30), ' +
-        'ManagerID NVARCHAR(20), ' +
-        'ManagerName NVARCHAR(30), ' +
-        'Status CHAR(1), ' +
-        'CreateAt BIGINT, ' +
-        'Remarks TEXT, ' +
-        'UserIDs TEXT )';
+            'ChatID NVARCHAR(50) PRIMARY KEY, ' +
+            'DisplayName TEXT, ' +
+            'CreatorID NVARCHAR(20), ' +
+            'CreatorName NVARCHAR(30), ' +
+            'ManagerID NVARCHAR(20), ' +
+            'ManagerName NVARCHAR(30), ' +
+            'Status CHAR(1), ' +
+            'CreateAt BIGINT, ' +
+            'Remarks TEXT, ' +
+            'UserIDs TEXT )';
         // var sql = 'CREATE TABLE IF NOT EXISTS IMChatRoom (ChatID TEXT PRIMARY KEY NOT NULL, MgrID TEXT, MgrName TEXT, CreatorID TEXT, CreatorName TEXT, UserIDs TEXT, DisplayName TEXT)';
         transaction.executeSql(sql, null, function (trans, resultSet) {
             console.log('建表成功ChatRoom');
@@ -121,16 +121,16 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     // IMFile
     ensureFileTable(transaction) {
         var sql = 'CREATE TABLE IF NOT EXISTS IMFile (' +
-        'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-        'MsgID NVARCHAR(50), ' +
-        'ChatID NVARCHAR(50), ' +
-        'FilePath TEXT, ' +
-        'FileType CHAR(1), ' +
-        'FileName NVARCHAR(255), ' +
-        'MimeType NVARCHAR(100), ' +
-        'Width INT, ' +
-        'Height INT, ' +
-        'FileSize BIGINT )';
+            'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+            'MsgID NVARCHAR(50), ' +
+            'ChatID NVARCHAR(50), ' +
+            'FilePath TEXT, ' +
+            'FileType CHAR(1), ' +
+            'FileName NVARCHAR(255), ' +
+            'MimeType NVARCHAR(100), ' +
+            'Width INT, ' +
+            'Height INT, ' +
+            'FileSize BIGINT )';
         // var sql = 'CREATE TABLE IF NOT EXISTS IMFile (ID INTEGER PRIMARY KEY AUTOINCREMENT, MsgID NVARCHAR(50), ChatID NVARCHAR(50), FilePath TEXT, FileType VARCHAR(1), FileName TEXT, FileSize BIGINT)';
         transaction.executeSql(sql, null, function (trans, resultSet) {
             console.log('建表语句成功IMFile');
@@ -272,10 +272,31 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      */
     meAddRctChat(data) {
         var me = this;
-        me.getDB().transaction(function(trans) {
+        me.getDB().transaction(function (trans) {
             me.ensureRChatTable(trans);
 
             var sql = 'INSERT INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage) VALUES ("' + data.chat_id + '","' + data.display_name + '","' + data.chat_type + '",' + data.unread_count + ',' + data.last_post_at + ',"' + data.last_sender + '","' + data.last_sender_name + '","' + data.last_message + '");';
+            me.handleSql(trans, sql);
+        });
+    },
+
+    // ws请求过来后，更新最近会话
+    updateRctByWS(data) {
+        const me = this;
+
+        me.getDB().transaction(function (trans) {
+            var sql = 'UPDATE IMRct SET UnreadCount=UnreadCount+1,LastPostAt=' + data.create_at + ',LastUserID="' + data.user_id + '",LastUserName="' + data.user_name + '",LastMessage="' + data.message + '"';
+
+            me.handleSql(trans, sql);
+        });
+    },
+
+    insertRctByWS(data) {
+        const me = this;
+
+        me.getDB().transaction(function (trans) {
+            var sql = 'INSERT INTO IMRct (ChatID, ChatType, DisplayName, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType, IsTop, AtCount) VALUES ("' + data.chat_id + '","' + data.chat_type + '","' + data.chat_name + '",0,' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + data.message + '","' + data.msg_type + '","",0);';
+
             me.handleSql(trans, sql);
         });
     },
@@ -302,7 +323,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
                         // filePath = ;
                         // 这边先只用字符串的形式
 
-                        sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("'+msgList[i].message.msg_id+'","' + msgList[i].message.chat_id + '","' + msgList[i].message.msg_type + '","' + msgList[i].message.message + '","' + filePath + '",' + msgList[i].message.create_at + ',"' + msgList[i].message.user_id + '","' + userName + '","' + status + '")';
+                        sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + msgList[i].message.msg_id + '","' + msgList[i].message.chat_id + '","' + msgList[i].message.msg_type + '","' + msgList[i].message.message + '","' + filePath + '",' + msgList[i].message.create_at + ',"' + msgList[i].message.user_id + '","' + userName + '","' + status + '")';
 
                         // sql = [
                         //     'INSERT INTO IMMsg (',
@@ -351,29 +372,8 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         var me = this,
             status = '1'; // 默认失败状态
 
-        var sql = 'INSERT INTO IMMsg (ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data.chatID + '","' + data.chatType + '","' + data.content + '","' + data.filePath + '",' + data.createAt + ',"' + data.userID + '","' + data.userName + '","' + status + '")';
+        var sql = 'INSERT INTO IMMsg (ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data.chatID + '","' + data.msgType + '","' + data.content + '","' + data.filePath + '",' + data.createAt + ',"' + data.userID + '","' + data.userName + '","' + status + '")';
 
-        // var sql = [
-        //     'INSERT INTO IMMsg (',
-        //     'ChatID',
-        //     'MsgType',
-        //     'Content',
-        //     'FilePath',
-        //     'CreateAt',
-        //     'SenderID',
-        //     'SenderName',
-        //     'Status', // 消息状态，标志发送成功与否，这边全标记为失败
-        //     ') VALUES (',
-        //     data.chatID + ',',
-        //     data.chatType,
-        //     data.content,
-        //     data.filePath,
-        //     data.createAt,
-        //     data.userID,
-        //     data.userName,
-        //     status,
-        //     ')'
-        // ].join('');
 
         me.getDB().transaction(function (trans) {
             me.ensureMessageTable(trans);
@@ -387,5 +387,21 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      */
     meUpdateLocMsg() {
 
+    },
+
+    /**
+     * 接收到websocket信息后，添加消息进入表中
+     * @param {json} data
+     */
+    insertOMsg(data) {
+        const me = this;
+
+        me.getDB().transaction(function (trans) {
+            me.ensureMessageTable(trans);
+            var status = '0'; // 成功态
+            var sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data.msg_id + '","' + data.chat_id + '","' + data.msg_type + '","' + data.message + '","' + data.filePath + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + status + '")';
+
+            me.handleSql(trans, sql);
+        });
     }
 });

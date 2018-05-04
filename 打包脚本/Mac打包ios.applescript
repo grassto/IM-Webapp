@@ -8,6 +8,6 @@ cordova platform rm ios
 cd ..
 PATH=/Users/pushsoft2/bin/Sencha/Cmd/6.5.3.6:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin;
 sencha -info app build --clean ios;
-open cordova/platforms/ios/PushIM-Webapp.xcodeproj;"
+open cordova/platforms/ios/IM.xcodeproj;"
 	
 end tell

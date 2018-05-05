@@ -41,7 +41,7 @@
      *      ]
      */
     "requires": [
-        "packageloader", //动态加载包
+        "package-loader", //动态加载包
         "font-awesome",
         "modern-locale_6_5_2",
         "theme-default",

@@ -9,7 +9,8 @@ Ext.define('IM.view.IMController', {
         'MX.util.Utils'
     ],
     uses: [
-        'IMCommon.local.LocalDataMgr'
+        'IMCommon.local.LocalDataMgr',
+        'IMCommon.local.InitDb'
     ],
 
     listen: {
@@ -32,6 +33,10 @@ Ext.define('IM.view.IMController', {
     init: function () {
         var me = this;
         me.callParent(arguments);
+
+        if(Config.isPC) {
+            InitDb.initDB(); // 初始化本地数据库
+        }
 
         me.handleCEF(); // 是否展示关闭、最大化、最小化按钮
 

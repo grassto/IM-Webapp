@@ -213,9 +213,59 @@ Ext.define('IM.utils.SocketEventHelper', {
     handleNewPostEvent(msg) {
         const me = this,
             data = JSON.parse(msg.data.message);
+        if (data.user_id != User.ownerID) { // 只要不是自己发的，就加
 
-        if(me.hasRctChat(data.chat_id)) {
+            data.user_name = msg.data.sender_name;
+            data.chat_type = msg.data.chat_type;
+            data.chat_name = msg.data.chat_name;
+            // 本地客户端数据保存,IMMsg
+            if (Config.isPC) {
+                LocalDataMgr.insertOMsg(data);
+            }
 
+            const view = Ext.Viewport.lookup('IM'), // 总容器
+                recentChat = view.down('#recentChat'),
+                mainView = view.lookup('im-main');
+            // 先判断有没有这个chat
+            if (me.hasRctChat(data.chat_id)) { // 有
+
+                // 本地数据更新
+                if (Config.isPC) {
+                    LocalDataMgr.updateRctByWS(data);
+                }
+
+                var chatView = mainView.down('#chatView'); // 聊天展示页面
+                if (chatView && User.crtChannelId == data.chat_id) { // 有这个页面并且是当前会话
+                    var store = chatView.getStore();
+
+                    switch (data.msg_type) {
+                        case MsgType.TextMsg:
+                            me.addTextMsg(store, data);
+                            break;
+                        case MsgType.ImgMsg:
+                            me.addImgMsg(store, data);
+                            break;
+                        case MsgType.FileMsg:
+                            me.addFileMsg(store, data);
+                            break;
+                        default:
+                            alert('暂未支持该类型：', data.msg_type);
+                    }
+                    store = recentChat.getStore();
+                    me.promptFakeRead(data, store);
+                } else {
+                    if(Config.isPC) {
+                        LocalDataMgr.insertRctByWS(data);
+                    }
+                    me.promptUnRead(data, recentChat.getStore());
+                }
+
+            } else {
+                ChatHelper.addChatToRecent(data.chat_id);
+                me.promptUnRead(data, recentChat.getStore());
+            }
+
+            me.notifyWrapper(msg.data);// 未读提示
         }
     },
 
@@ -223,11 +273,11 @@ Ext.define('IM.utils.SocketEventHelper', {
         const text = window.minEmoji(data.message);
         store.add({
             msg_id: data.msg_id,
-            senderName: ChatHelper.getName(data.user_id),
+            senderName: data.user_name,
             sendText: text,
             updateTime: new Date(data.update_at),
             last_post_at: new Date(data.update_at),
-            ROL: data.ROL
+            ROL: data.user_id == User.ownerID ? 'right' : ''
         });
     },
     addImgMsg(store, data) {
@@ -434,8 +484,12 @@ Ext.define('IM.utils.SocketEventHelper', {
 
     hasRctChat(chatID) {
         var store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
-        record = store.getById(chatID);
-        
+            record = store.getById(chatID);
+
+        if (record) {
+            return true;
+        }
+        return false;
     },
 
     // 创建者拼凑信息，组织成：你邀请xxx、xxx、xxx加入群聊

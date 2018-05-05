@@ -7,3 +7,6 @@ meAddRctChat传入json数据：
     data.last_sender_id
     data.last_sender_name
     data.last_message
+
+insertOMsg
+    

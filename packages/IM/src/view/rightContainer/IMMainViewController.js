@@ -380,11 +380,11 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
                 // 最近会话更改
                 var rctRecord = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(User.crtChannelId);
-                // rctRecord.set({
-                //     last_msg_type: ,
-                //     last_post_msg: ,
-                //     last_post_at: new Date()
-                // });
+                rctRecord.set({
+                    last_msg_type: MsgType.TextMsg, // 先只管文本的
+                    last_post_msg: sendText,
+                    last_post_at: new Date().getTime()
+                });
 
                 if (Config.isPC) { // 本地数据库保存
                     var chatType = rctRecord.data.type;
@@ -397,7 +397,8 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                         userID: User.ownerID,
                         userName: User.crtUser.user_name
                     };
-                    LocalDataMgr.meAddOffLineMsg(data);
+                    LocalDataMgr.meAddOffLineMsg(data); // msg表
+                    LocalDataMgr.updateRctBySend(data); // Rct表
                 }
 
                 // ChatUtil.onSend(JSON.stringify(message), me.onSendSuccess);
@@ -406,13 +407,17 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     params: JSON.stringify(message),
                     success: function (data) {
                         // 修改record的值
-                        // msgRecord.set({
-                        //     msg_id: data[0].msg_id
-                        // });
+                        msgRecord[0].set({
+                            msg_id: data[0].msg_id,
+                            sendStatus: 0
+                        });
 
                         // 本地数据处理
                         if(Config.isPC) {
-                            LocalDataMgr.meUpdateLocMsg();
+                            for(var i = 0; i < data.length; i++) {
+                                LocalDataMgr.updateMsgBySendS();
+                                LocalDataMgr.updateRctBySendS();
+                            }
                         }
                         // 将选中的人移至最上方
                         // me.fireEvent('listToTop', data.user_id);

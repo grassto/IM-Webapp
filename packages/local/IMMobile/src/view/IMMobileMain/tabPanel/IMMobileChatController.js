@@ -11,26 +11,25 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
      */
     init: function () {
         // 先从本地数据库拉取数据
-        this.getLocalChats();
+        if (Ext.browser.is.Cordova) {
+            this.getLocalChats();
+        }
         this.getAllChats();
     },
 
     getLocalChats() {
-        debugger;
         LocalDataMgr.getRecentChat(this.bindLocalChats);
     },
 
     // 处理数据绑定，作用域不在当前
     bindLocalChats(trans, resultSet) {
         var rows = resultSet.rows,
-        len = rows.length;
-
-        debugger;
+            len = rows.length;
 
         var recentStore = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-Chat').down('#ChatList').getStore(),
-        datas = [],
-        row = {};
-        for(var i = 0; i < len; i++) {
+            datas = [],
+            row = {};
+        for (var i = 0; i < len; i++) {
             row = rows.items(i);
             datas.push({
                 id: row.ChatID,
@@ -64,6 +63,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
         });
     },
 
+    // 这边不要了
     pushChatToCache(data) {
         for (let i = 0; i < data.length; i++) {
             if (data[i].chat.chat_type == 'D') { // 单人会话
@@ -83,6 +83,25 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
         }
     },
 
+    // bindUnreadChats
+    bindUnreadChats(data) {
+        var me = this,
+            view = me.getView(),
+            store = view.down('#ChatList').getStore(),
+            isUnRead = false,
+            status;
+
+        for(let i = 0; i < data.length; i++) {
+            if(data[i].chat.chat_type == ChatType.Direct) {
+
+            } else {
+                status = -2;
+            }
+
+
+        }
+    },
+
     bindAllChats() {
         var localDatas = []; // 用来存放本地所没有的会话
 
@@ -94,7 +113,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
         for (let i = 0; i < User.allChannels.length; i++) {
             // 本地数据，使用last_post_at来作为判断依据，不科学
             // 还是使用unRead，让服务端去组织
-            
+
 
             // 状态
             if (User.allChannels[i].chat.chat_type == ChatType.Direct) {
@@ -124,11 +143,13 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
         }
 
         // 处理本地数据库数据
-        LocalDataMgr.updateRctChat(localDatas);
+        if (Ext.browser.is.Cordova) {
+            LocalDataMgr.updateRctChat(localDatas);
+        }
     },
 
     onSelChatList(view, location) {
-        if(location.record.data.unReadNum !== 0) {
+        if (location.record.data.unReadNum !== 0) {
             this.setUnReadToRead(location.record);
         }
 

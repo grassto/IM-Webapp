@@ -8,7 +8,7 @@ Ext.define('IMCommon.local.InitDb', {
         var db = LocalDataMgr.getDB();
         db.executeSql('SELECT * FROM IMAdm', [], function (data) {
             if (data.rows.length == 0) {
-                me.execSQL(db, '1.0');
+                me.execSQL(db, '0.0');
             } else {
                 var v = data.rows.items(0).Version;
                 me.execSQL(db, v);
@@ -21,7 +21,7 @@ Ext.define('IMCommon.local.InitDb', {
 
     execSQL: function (db, dbVer) {
         var me = this;
-        
+
         var sqlArray = [];
         switch (dbVer) {
             case '0.0':
@@ -73,7 +73,7 @@ Ext.define('IMCommon.local.InitDb', {
             'ChatID NVARCHAR(50) PRIMARY KEY, ' +
             'ChatType CHAR(1), ' +
             'DisplayName TEXT, ' +
-            'UnreadCount INTEGER default(0), ' +
+            'UnreadCount INTEGER DEFAULT(0), ' +
             'LastPostAt BIGINT, ' +
             'LastUserID NVARCHAR(20), ' +
             'LastUserName NVARCHAR(30), ' +

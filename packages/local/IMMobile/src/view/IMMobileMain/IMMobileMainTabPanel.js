@@ -9,8 +9,11 @@ Ext.define('IMMobile.view.IMMobileMain.IMMobileMainTabPanel', {
         'IMMobile.view.IMMobileMain.tabPanel.IMMobileChat',
         'IMMobile.view.IMMobileMain.tabPanel.IMMobileOrg',
         'IMMobile.view.IMMobileMain.tabPanel.IMMobileWorkDesk',
-        'IMMobile.view.IMMobileMain.tabPanel.IMMobileMe'
+        'IMMobile.view.IMMobileMain.tabPanel.IMMobileMe',
+        'IMMobile.view.IMMobileMain.MainTabController'
     ],
+
+    controller: 'maintabcontroller',
 
     defaults: {
         scrollable: true,
@@ -49,5 +52,9 @@ Ext.define('IMMobile.view.IMMobileMain.IMMobileMainTabPanel', {
         iconAlign: 'top',
         iconCls: 'x-fa fa-user',
         xtype: 'IMMobile-Me'
-    }]
+    }],
+
+    listeners: {
+        activeitemchange: 'onTabChanges'
+    }
 });

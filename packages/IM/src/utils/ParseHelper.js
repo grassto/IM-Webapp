@@ -38,7 +38,7 @@ Ext.define('IM.utils.ParseHelper', {
 
     /**
      * 将文本消息转为图片
-     * @param {string} message 纯文本消息
+     * @param {string} message '文本[26字符的图片ID]文本'
      * @param {Array} fileIds 文件id
      */
     parsePic(message, fileIds) {

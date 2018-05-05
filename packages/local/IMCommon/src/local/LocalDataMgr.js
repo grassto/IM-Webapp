@@ -148,7 +148,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     getOwnInfo(ownID, success) {
         var me = this;
         me.getDB().transaction(function (trans) {
-            me.enSureUserTable(trans);
+            // me.enSureUserTable(trans);
 
             var sql = 'select * from User where userID = ?';
             trans.executeSql(sql, [ownID], function (trans, resultSet) {
@@ -163,7 +163,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     getRecentChat(success) {
         var me = this;
         me.getDB().transaction(function (trans) {
-            me.ensureRChatTable(trans);
+            // me.ensureRChatTable(trans);
 
             var sql = 'select * from IMRct';
             me.handleSql(trans, sql, success);
@@ -174,7 +174,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     getRLastPostAt(success) {
         var me = this;
         me.getDB().transaction(function (trans) {
-            me.ensureRChatTable(trans);
+            // me.ensureRChatTable(trans);
 
             var sql = 'SELECT TOP 1 LastPostAt FROM IMRct ORDER BY LastPostAt DESC';
             me.handleSql(trans, sql, success);
@@ -187,7 +187,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     getHistory(success, pageFrom) {
         var me = this;
         me.getDB().transaction(function (trans) {
-            me.ensureMessageTable(trans);
+            // me.ensureMessageTable(trans);
             var sql = 'select *from IMMessage limit ' + pageFrom + ',20';
         });
     },
@@ -205,6 +205,8 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
     /* ********************************************** 写 *********************************************/
 
+    /* ************************************************* IMRct *****************************************************************/
+
     /**
      * 更新最近会话
      * @param {Array} data 获取到的最新的最近会话数据
@@ -215,7 +217,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             sql = '';
 
         me.getDB().transaction(function (trans) {
-            me.ensureRChatTable(trans);
+            // me.ensureRChatTable(trans);
 
             for (var i = 0; i < data.length; i++) {
                 data[i].chat.last_sender_name = ConnectHelper.parseDirectChatName(data[i]);
@@ -235,20 +237,6 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * {chat:{},members:{}}
      */
     updateRctChat(data) {
-        // var sqls = [],
-        //     sql = '';
-        // for (var i = 0; i < data.length; i++) {
-        //     // 这边先只用字符串的形式
-        //     sql = ['INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage) VALUES (' + data[i].chat.chat_id + ',' + data[i].chat.channelname + ',' + data[i].chat.chat_type + ',' + data[i].chat.unread_count + ',' + data[i].chat.last_post_at + ',"","","");'];
-        //     sqls.push(sql);
-        // }
-
-        // this.getDB().sqlBatch(sqls, function () {
-        //     console.log('最近会话同步成功');
-        // }, function (err) {
-        //     console.log('最近会话同步失败', err);
-        // });
-
         var me = this,
             sqls = '',
             sql = '';
@@ -273,7 +261,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     meAddRctChat(data) {
         var me = this;
         me.getDB().transaction(function (trans) {
-            me.ensureRChatTable(trans);
+            // me.ensureRChatTable(trans);
 
             var sql = 'INSERT INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage) VALUES ("' + data.chat_id + '","' + data.display_name + '","' + data.chat_type + '",' + data.unread_count + ',' + data.last_post_at + ',"' + data.last_sender + '","' + data.last_sender_name + '","' + data.last_message + '");';
             me.handleSql(trans, sql);
@@ -291,6 +279,10 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         });
     },
 
+    /**
+     * ws收到响应，增加最近会话
+     * @param {*} data 
+     */
     insertRctByWS(data) {
         const me = this;
 
@@ -300,6 +292,46 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             me.handleSql(trans, sql);
         });
     },
+
+    /**
+     * 发送消息，更新最近会话列表
+     * @param {*} data 
+     */
+    updateRctBySend(data) {
+        const me = this;
+
+        me.getDB().transaction(function (trans) {
+            var sql = 'UPDATE IMRct SET LastPostAt=' + data.createAt + ', LastUserID="' + data.userID + '", LastUserName="' + data.userName + '", LastMessage="' + data.content + '";';
+
+            me.handleSql(trans, sql);
+        });
+    },
+
+    // 发送成功后调用，更新最近会话列表
+    updateRctBySendS() {
+        const me = this;
+
+        me.getDB().transaction(function (trans) {
+            var sql = ''; // Rct表应该也有一个字段标志是否成功发送
+
+        });
+    },
+
+    /**
+     * 最近会话将未读设置为已读
+     * @param {string} cid chatID
+     */
+    rctSetUnreadToRead(cid) {
+        const me = this;
+
+        me.getDB().transaction(function (trans) {
+            var sql = 'UPDATE IMRct SET UnreadCount=0 WHERE ChatID="' + cid + '"';
+
+            me.handleSql(trans, sql);
+        });
+    },
+
+    /* ************************************************* IMMsg *****************************************************************/
 
     /**
      * 初始化插入未读消息
@@ -385,8 +417,15 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     /**
      * 发送成功后，更新本地MSG
      */
-    meUpdateLocMsg() {
+    updateMsgBySendS() {
+        const me = this;
+        // status = '0';
 
+        me.getDB().transaction(function (trans) {
+            var sql = 'UPDATE IMMsg SET Status=0';
+
+            me.handleSql(trans, sql);
+        });
     },
 
     /**

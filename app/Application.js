@@ -12,7 +12,8 @@ Ext.define('PushIM.Webapp.Application', {
         'Ext.layout.HBox',
         'PushIM.Webapp.view.viewport.ViewportController',
         'PushIM.Webapp.view.viewport.ViewportModel',
-        'PushIM.Webapp.util.User'
+        'PushIM.Webapp.util.User',
+        'IMCommon.local.InitDb'
     ],
 
     quickTips: false,
@@ -69,6 +70,10 @@ Ext.define('PushIM.Webapp.Application', {
         me.hideAvaDetail(); // 监听document的单击事件
         // me.preventRightClick(); // 禁用页面原本右击事件
 
+        // 初始化本地数据库信息
+        if(Ext.browser.is.Cordova || window.cefMain) {
+            InitDb.initDB();
+        }
 
         // The viewport controller requires xtype defined by profiles, so let's perform extra
         // initialization when the application and its dependencies are fully accessible.

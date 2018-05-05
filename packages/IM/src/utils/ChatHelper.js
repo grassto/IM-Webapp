@@ -272,6 +272,10 @@ Ext.define('IM.utils.ChatHelper', {
 
             if (record.data.unReadNum !== 0) { // 若选中的频道有未读信息
                 me.setUnReadToRead(record); // 取消未读
+
+                if(Config.isPC) {
+                    LocalDataMgr.rctSetUnreadToRead(cid);
+                }
             }
 
             BindHelper.setRightTitle(record.data.name, record.data.type); // 设置标题头

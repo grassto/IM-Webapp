@@ -34,17 +34,12 @@ Ext.define('IM.view.IMController', {
         var me = this;
         me.callParent(arguments);
 
-        if(Config.isPC) {
-            InitDb.initDB(); // 初始化本地数据库
+        if (Config.isPC) {
+            me.handleCEF(); // 是否展示关闭、最大化、最小化按钮
+
+            me.showLocalData();// 展示本地数据
         }
-
-        me.handleCEF(); // 是否展示关闭、最大化、最小化按钮
-
-        me.showLocalData();// 展示本地数据
-
         me.mounted();// 打开连接
-
-        // me.handleAvatar();// 设置当前用户头像
 
         me.handleSearch();// 左侧搜索框，快速搜索联系人
 
@@ -53,23 +48,22 @@ Ext.define('IM.view.IMController', {
 
     // 展示本地数据库数据
     showLocalData() {
-        if (Config.isPC) {
-            var me = this,
-            // ownData = LocalDataMgr.getOwnInfo(User.ownerID, me.bindLocalAva),
-            chatData = LocalDataMgr.getRecentChat(me.bindRecChats);
-        }
+        var me = this;
+
+        // ownData = LocalDataMgr.getOwnInfo(User.ownerID, me.bindLocalAva),
+        LocalDataMgr.getRecentChat(me.bindRecChats); // 最近会话
     },
 
     // 初始化绑定本地最近会话数据
     bindRecChats(trans, resultSet) {
         var rows = resultSet.rows,
-        len = rows.length;
+            len = rows.length;
 
         var recentStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
-        datas = [],
-        row = {};
-        for(var i = 0; i < len; i++) {
-            row = rows.items(i);
+            datas = [],
+            row = {};
+        for (var i = 0; i < len; i++) {
+            row = rows.item(i);
             datas.push({
                 id: row.ChatID,
                 name: row.DisplayName,
@@ -97,15 +91,9 @@ Ext.define('IM.view.IMController', {
 
     // 是否展示关闭头
     handleCEF() {
-        if (window.cefMain) {
-            this.getViewModel().set('isHideBrowseTitle', false);
-        }
-    },
-
-    handleAvatar() { // 这个在连接后就做了
-        var viewmodel = this.getViewModel();
-        var avatar = AvatarMgr.getAvatarHtmlByName(viewmodel.get('ownerName'));
-        viewmodel.set('avatar', avatar);
+        // if (window.cefMain) {
+        this.getViewModel().set('isHideBrowseTitle', false);
+        // }
     },
 
     handleSearch() {
@@ -192,7 +180,7 @@ Ext.define('IM.view.IMController', {
         });
         WebSocketHelper.setReconnectCallback(function () {
             ConnectHelper.getMe(view.getViewModel());
-            User.isFirstCon = true;
+            User.isFirstCon = true; // 初次加载组织结构树
             // ConnectHelper.getMembers(view);
             ConnectHelper.getUnreadChats(view);
         });
@@ -214,7 +202,7 @@ Ext.define('IM.view.IMController', {
         } else if (tab.iconCls == 'x-fa fa-user') {
             xtype = 'left-organization';
             // 组织结构树第一次加载
-            if(User.isFirstCon) {
+            if (User.isFirstCon) {
                 User.isFirstCon = false;
                 ConnectHelper.getMembers(me.getView());
             }

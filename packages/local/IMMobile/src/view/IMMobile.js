@@ -103,7 +103,8 @@ Ext.define('IMMobile.view.IMMobile', {
                 store.add({
                     senderName: userName,
                     sendText: text,
-                    updateTime: new Date(data.update_at)
+                    updateTime: new Date(data.update_at),
+                    msg_type: data.msg_type
                 });
             } else { // 不在当前会话
                 // 判断频道，没有，加

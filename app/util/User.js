@@ -78,6 +78,50 @@ Ext.define('PushIM.Webapp.util.User', {
         // User.historyFrom = 0;
         // User.historySet = 20;
         User.isFirstCon = true;
+    },
+
+    /**
+     * 缩略图保存路径
+     */
+    getThumbDir() {
+        if (Ext.isEmpty(this.ownerID)) {
+            throw new Error('User.ownerID 为空');
+        }
+
+        return this.ownerID + '/thumbs/';
+    },
+
+    /**
+     * 头像保存路径
+     */
+    getAvatarDir() {
+        if (Ext.isEmpty(this.ownerID)) {
+            throw new Error('User.ownerID 为空');
+        }
+
+        return this.ownerID + '/avatars/';
+    },
+
+    /**
+     * 图片保存路径
+     */
+    getImageDir() {
+        if (Ext.isEmpty(this.ownerID)) {
+            throw new Error('User.ownerID 为空');
+        }
+
+        return this.ownerID + '/images/';
+    },
+
+    /**
+     * 文件保存路径
+     */
+    getFileDir() {
+        if (Ext.isEmpty(this.ownerID)) {
+            throw new Error('User.ownerID 为空');
+        }
+
+        return this.ownerID + '/files/';
     }
 
 });

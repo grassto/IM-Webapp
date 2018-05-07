@@ -19,10 +19,7 @@
 		"AttachHelper": true,
 		"BindingHelper": true,
 		"RouteUtil": true,
-		"FileUtil": true,
 		"AvatarMgr": true,
-		"ImgUtil": true,
-		"ImgMgr": true,
 		"Pkg4Route": true,
 		"User": true,
 		"RouteFloated": true,
@@ -40,7 +37,16 @@
 		"ChatHelper": true,
 		"NoticeType": true,
 		"MsgType": true,
-		"BuildInfo": true
+		"BuildInfo": true,
+		"ImgUtil": true,
+		"ImgMgr": true,
+		"FSUtil": true,
+		"FileUtil": true,
+		"FileMgr": true,
+		"DirMgr": true,
+		"FileTransfer": true,
+		"FileUploadOptions": true,
+		"plugins": true
 	},
 	"rules": { // 0 off, 1 warn, 2 error
 		"no-constant-condition": 2, // 禁止在条件中使用常量表达式 

@@ -85,7 +85,7 @@ Ext.define('PushIM.Webapp.Application', {
             var url = localStorage.getItem('inUrl');
             var index = url.indexOf(':');
             if(index > -1) {
-                Config.wsGoUrl = 'wss' + url.substring(index);
+                Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
             } else {
                 Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
             }
@@ -96,7 +96,7 @@ Ext.define('PushIM.Webapp.Application', {
             var url = localStorage.getItem('outUrl');
             var index = url.indexOf(':');
             if(index > -1) {
-                Config.wsGoUrl = 'wss' + url.substring(index);
+                Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
             } else {
                 Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
             }

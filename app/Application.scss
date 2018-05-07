@@ -140,3 +140,7 @@ a.link-avatar {
       $ui: 'back',
       $background-color: $base-color
   );
+
+  .CefDrag {
+    -webkit-app-region: drag;
+  }

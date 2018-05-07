@@ -35,11 +35,18 @@ Ext.define('IM.view.IMController', {
         me.callParent(arguments);
 
         if (Config.isPC) {
-            me.handleCEF(); // 是否展示关闭、最大化、最小化按钮
+            Utils.mask(me.getView().down('#recentChat')); // 遮罩
+            InitDb.initDB(() => {
+                me.showLocalData();// 展示本地数据
+                Utils.unMask(me.getView().down('#recentChat'));
 
-            me.showLocalData();// 展示本地数据
+                me.mounted();// 打开连接
+            });
+
+            me.handleCEF(); // 是否展示关闭、最大化、最小化按钮
+        } else {
+            me.mounted();// 打开连接
         }
-        me.mounted();// 打开连接
 
         me.handleSearch();// 左侧搜索框，快速搜索联系人
 
@@ -91,9 +98,7 @@ Ext.define('IM.view.IMController', {
 
     // 是否展示关闭头
     handleCEF() {
-        // if (window.cefMain) {
         this.getViewModel().set('isHideBrowseTitle', false);
-        // }
     },
 
     handleSearch() {

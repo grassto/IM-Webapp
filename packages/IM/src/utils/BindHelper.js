@@ -29,10 +29,10 @@ Ext.define('IM.utils.BindHelper', {
             // } else {
             //     isUnRead = false;
             // }
-            if(data[i].chat.chat_type == ChatType.Group) {
+            if (data[i].chat.chat_type == ChatType.Group) {
                 lastUserName = '服务端暂未提供';
             }
-            
+
 
             datas.push({
                 id: data[i].chat.chat_id,
@@ -397,7 +397,15 @@ Ext.define('IM.utils.BindHelper', {
 
             for (var i = 0; i < data.length; i++) {
                 // data[i].wrapper_type  message/notice
+                var isShowTime = true; // 是否展示时间
+                if (i > 0) {
+                    if (Utils.datetime2Ago(data[i].create_at) == Utils.datetime2Ago(data[i - 1].create_at)) {
+                        isShowTime = false;
+                    }
+                }
+
                 var record = ParseHelper.getMsgData(data[i]);
+                record.showTime = isShowTime;
                 records.push(record);
             }
 
@@ -407,7 +415,7 @@ Ext.define('IM.utils.BindHelper', {
 
     // 下拉加载过去的数据
     bindLastMsg(data, store) {
-        if(data.length > 0) {
+        if (data.length > 0) {
             var records = [];
 
             for (var i = 0; i < data.length; i++) {

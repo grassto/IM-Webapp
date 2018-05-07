@@ -13,7 +13,6 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     clearable: false,
     // minHeight: 80,
     // maxHeight: 300,
-    id: 'editor',
     cls: 'IM-richEditor',
 
     initialize() {

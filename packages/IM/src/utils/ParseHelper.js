@@ -87,8 +87,7 @@ Ext.define('IM.utils.ParseHelper', {
 
     /**
      * 解析服务器端获取的数据
-     * @param {Object} data 从服务器端获取的数据
-     * @return {Object} 解析后的数据，Object直接放入store
+     * @param {json} data 从服务器端获取的数据
      */
     getMsgData(data) {
         const me = this;

@@ -325,7 +325,7 @@ Ext.define('IM.view.chat.ChatInput', {
     onPicUploadError(uploader, err) {
         console.log('onUploadError', arguments);
 
-        Ext.Msg.alert('上传失败', '上传失败：' + err);
+        Ext.Msg.alert('上传失败', '上传失败：' + err.message);
     },
 
 
@@ -441,7 +441,7 @@ Ext.define('IM.view.chat.ChatInput', {
     onFilesUploadError(fileUploader, err) {
         console.log('onUploadError', arguments);
 
-        Ext.Msg.alert('上传失败', err);
+        Ext.Msg.alert('上传失败', '上传失败：' + err.message);
     },
 
     // 将附件放入编辑框中上传

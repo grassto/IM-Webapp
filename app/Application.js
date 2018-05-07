@@ -47,9 +47,10 @@ Ext.define('PushIM.Webapp.Application', {
 
 
         if (Ext.manifest.env == 'production') {
-            Config.wsGoUrl = Config.wsPdcUrl;
-            Config.httpUrl = Config.httpAIOUrl;
-            Config.httpUrlForGo = Config.httpPdcGoUrl;
+            // Config.wsGoUrl = Config.wsPdcUrl;
+            // Config.httpUrl = Config.httpAIOUrl;
+            // Config.httpUrlForGo = Config.httpPdcGoUrl;
+            me.setConfigUrl();
         } else { // if(Ext.manifest.env == 'development')
             Config.wsGoUrl = Config.wsDevGoUrl;
             Config.httpUrl = Config.httpAIOUrl;
@@ -70,16 +71,37 @@ Ext.define('PushIM.Webapp.Application', {
         me.hideAvaDetail(); // 监听document的单击事件
         // me.preventRightClick(); // 禁用页面原本右击事件
 
-        // 初始化本地数据库信息
-        if(Ext.browser.is.Cordova || window.cefMain) {
-            InitDb.initDB();
-        }
+        
 
         // The viewport controller requires xtype defined by profiles, so let's perform extra
         // initialization when the application and its dependencies are fully accessible.
         Ext.Viewport.getController().onLaunch();
         me.callParent([profile]);
 
+    },
+
+    setConfigUrl() {
+        if(localStorage.getItem('inOrOut') == 'in') {
+            var url = localStorage.getItem('inUrl');
+            var index = url.indexOf(':');
+            if(index > -1) {
+                Config.wsGoUrl = 'wss' + url.substring(index);
+            } else {
+                Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+            }
+
+            Config.httpUrlForGo = url + '/api/v1/';
+            
+        } else if(localStorage.getItem('inOrOut') == 'out') {
+            var url = localStorage.getItem('outUrl');
+            var index = url.indexOf(':');
+            if(index > -1) {
+                Config.wsGoUrl = 'wss' + url.substring(index);
+            } else {
+                Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+            }
+            Config.httpUrlForGo = url + '/api/v1/';
+        }
     },
 
     /**

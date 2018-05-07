@@ -4,5 +4,6 @@ Ext.define('IMCommon.enumType.MsgType', {
 
     TextMsg: 'T',
     ImgMsg: 'I',
-    FileMsg: 'F'
+    FileMsg: 'F',
+    GroupNotice: 'G'
 });

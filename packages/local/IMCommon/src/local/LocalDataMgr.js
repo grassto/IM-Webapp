@@ -5,9 +5,15 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     alternateClassName: 'LocalDataMgr',
     singleton: true,
 
-    // requires: [
-    //     'UX.data.proxy.Sql'
-    // ],
+    // 26位guid号
+    newGuid() {
+        var guid = '';
+        for (var i = 1; i <= 26; i++) {
+            var n = Math.floor(Math.random() * 16.0).toString(16);
+            guid += n;
+        }
+        return guid;
+    },
 
     /* ********************************************** 数据库相关 *********************************************/
 
@@ -35,8 +41,8 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             if (success) {
                 success(trans, resultSet);
             }
-        }, function (a, b) {
-            alert('出错了', a, b);
+        }, function (trans, err) {
+            alert('出错了' + err.message);
         });
     },
 
@@ -94,7 +100,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         });
     },
 
-    // IMMessage
+    // IMMsg
     ensureMessageTable: function (transaction) {
         var sql = 'CREATE TABLE IF NOT EXISTS IMMsg (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
@@ -108,7 +114,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             'SenderName NVARCHAR(30), ' +
             'MsgSeq BIGINT, ' +
             'Status CHAR(1) )';
-        // var sql = 'CREATE TABLE IF NOT EXISTS IMMessage (ID INTEGER PRIMARY KEY AUTOINCREMENT, MsgID NVARCHAR(50), ChatID NVARCHAR(50), MsgType VARCHAR(1), Content TEXT, FilePath TEXT, CreateAt BIGINT, SenderID NVARCHAR(50), SenderName TEXT, MsgSeq BIGINT, Status VARCHAR(1))';
+        // var sql = 'CREATE TABLE IF NOT EXISTS IMMsg (ID INTEGER PRIMARY KEY AUTOINCREMENT, MsgID NVARCHAR(50), ChatID NVARCHAR(50), MsgType VARCHAR(1), Content TEXT, FilePath TEXT, CreateAt BIGINT, SenderID NVARCHAR(50), SenderName TEXT, MsgSeq BIGINT, Status VARCHAR(1))';
         transaction.executeSql(sql, null, function (trans, resultSet) {
             console.log('建表成功Message');
             //sql执行成功
@@ -182,20 +188,20 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     },
 
     /**
-     * 分页获取历史记录
+     * 分页获取历史记录,
      */
-    getHistory(success, pageFrom) {
+    getHistory(success, pageFrom, cid) {
         var me = this;
         me.getDB().transaction(function (trans) {
             // me.ensureMessageTable(trans);
-            var sql = 'select *from IMMessage limit ' + pageFrom + ',20';
+            var sql = 'select * from IMMsg where ChatID="' + cid + '" ORDER BY CreateAt DESC limit ' + pageFrom + ',20';
         });
     },
 
     // 本地查出最后一条消息的时间
     getLastMsgTime(chatID, success) {
         var result = 0;
-        var sql = 'select CreateAt from IMMessage where ChatID="' + chatID + '" order by CreateAt desc limit 0,1';
+        var sql = 'select CreateAt from IMMsg where ChatID="' + chatID + '" order by CreateAt desc limit 0,1';
         this.getDB().executeSql(sql, null, function (resultSet) {
             success(resultSet);
         });
@@ -273,7 +279,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         const me = this;
 
         me.getDB().transaction(function (trans) {
-            var sql = 'UPDATE IMRct SET UnreadCount=UnreadCount+1,LastPostAt=' + data.create_at + ',LastUserID="' + data.user_id + '",LastUserName="' + data.user_name + '",LastMessage="' + data.message + '"';
+            var sql = 'UPDATE IMRct SET UnreadCount=UnreadCount+1,LastPostAt=' + data.create_at + ',LastUserID="' + data.user_id + '",LastUserName="' + data.user_name + '",LastMessage="' + data.message + '" WHERE ChatID="' + data.chat_id + '";';
 
             me.handleSql(trans, sql);
         });
@@ -281,7 +287,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
     /**
      * ws收到响应，增加最近会话
-     * @param {*} data 
+     * @param {json} data
      */
     insertRctByWS(data) {
         const me = this;
@@ -295,13 +301,13 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
     /**
      * 发送消息，更新最近会话列表
-     * @param {*} data 
+     * @param {json} data
      */
     updateRctBySend(data) {
         const me = this;
 
         me.getDB().transaction(function (trans) {
-            var sql = 'UPDATE IMRct SET LastPostAt=' + data.createAt + ', LastUserID="' + data.userID + '", LastUserName="' + data.userName + '", LastMessage="' + data.content + '";';
+            var sql = 'UPDATE IMRct SET LastPostAt=' + data.createAt + ', LastUserID="' + data.userID + '", LastUserName="' + data.userName + '", LastMessage="' + data.content + '" WHERE ChatID="' + data.chatID + '";';
 
             me.handleSql(trans, sql);
         });
@@ -335,59 +341,34 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
     /**
      * 初始化插入未读消息
-     * @param {json} msgList
+     * @param {json} data 拼好的数据
      */
-    initAddToMsg(msgList) {
+    initAddToMsg(data) {
         var me = this,
             sqls = '',
             sql = '';
 
         me.getDB().transaction(function (trans) {
-            me.ensureMessageTable(trans);
 
             var status = '0'; // 成功状态
-            var filePath = '',
-                userName = '';
 
-            for (var i = 0; i < msgList.length; i++) {
-                switch (msgList[i].wrapper_type) {
-                    case MsgWrapperType.Message:
-                        // filePath = ;
-                        // 这边先只用字符串的形式
+            for (var i = 0; i < data.length; i++) {
 
-                        sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + msgList[i].message.msg_id + '","' + msgList[i].message.chat_id + '","' + msgList[i].message.msg_type + '","' + msgList[i].message.message + '","' + filePath + '",' + msgList[i].message.create_at + ',"' + msgList[i].message.user_id + '","' + userName + '","' + status + '")';
+                sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data.msg_id + '","' + data.chat_id + '","' + data.msg_type + '","' + data.message + '","' + data.file_path + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + status + '")';
 
-                        // sql = [
-                        //     'INSERT INTO IMMsg (',
-                        //     'MsgID',
-                        //     'ChatID',
-                        //     'MsgType',
-                        //     'Content',
-                        //     'FilePath',
-                        //     'CreateAt',
-                        //     'SenderID',
-                        //     'SenderName',
-                        //     'Status', // 消息状态，标志发送成功与否，这边全标记为成功
-                        //     ') VALUES (',
-                        //     msgList[i].message.msg_id,
-                        //     msgList[i].message.chat_id,
-                        //     msgList[i].message.msg_type,
-                        //     msgList[i].message.message,
-                        //     filePath, // 这个放在外面组织好，然后拿进来
-                        //     msgList[i].message.create_at,
-                        //     msgList[i].message.user_id,
-                        //     userName, // 这个放在外面组织好，然后拿进来
-                        //     status,
-                        //     ')'
-                        // ].join('');
-                        sqls += sql;
-                        break;
-                    case MsgWrapperType.Notice:
-                        // 组织一下content
-                        break;
-                    default:
-                        break;
-                }
+                sqls += sql;
+                // switch (msgList[i].wrapper_type) {
+                //     case MsgWrapperType.Message:
+                //         sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + msgList[i].message.msg_id + '","' + msgList[i].message.chat_id + '","' + msgList[i].message.msg_type + '","' + msgList[i].message.message + '","' + msgList[i].message.file_path + '",' + msgList[i].message.create_at + ',"' + msgList[i].message.user_id + '","' + msgList[i].message.user_name + '","' + status + '")';
+
+                //         sqls += sql;
+                //         break;
+                //     case MsgWrapperType.Notice:
+                //         // 组织一下content
+                //         break;
+                //     default:
+                //         break;
+                // }
 
 
             }

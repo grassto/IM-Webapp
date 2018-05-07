@@ -24,41 +24,44 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
 
     onLaunch() {
         var me = this;
+        me.onNeedLogin();
 
-        // 验证是否有用户名与密码
-        var USERID = localStorage.getItem('USERID'),
-            PASSWORD = localStorage.getItem('PASSWORD');
-        if (USERID && PASSWORD) { // 如果它们都有值
-            Utils.ajaxByZY('post', 'users/login', {
-                params: JSON.stringify({
-                    user_id: USERID,
-                    password: PASSWORD
-                }),
-                success(r) {
-                    if (r.user_name) {
-                        User.ownerID = r.user_id;
-                        if (Config.isPC) {
-                            cefMain.setUserInfo('{user_id: "' + r.user_id + '", user_name: "' + r.user_name + '"}');
-                        }
-                        me.onLogin();
-                    } else {
-                        Utils.toastShort('用户名或密码错误，请重新登录');
-                        me.onNeedLogin();
-                    }
-                },
-                failure(msg) {
-                    Utils.toastShort(msg);
-                    me.onNeedLogin();
-                },
-                callback() {
-                    Ext.getBody().removeCls('launching');
-                },
-                maskTarget: true
-            });
-        } else {
-            Utils.toastShort('会话已超时，请重新登录');
-            me.onNeedLogin();
-        }
+        // // 验证是否有用户名与密码
+        // var USERID = localStorage.getItem('USERID'),
+        //     PASSWORD = localStorage.getItem('PASSWORD');
+        // if (USERID && PASSWORD) { // 如果它们都有值
+        //     Utils.ajaxByZY('post', 'users/login', {
+        //         params: JSON.stringify({
+        //             user_id: USERID,
+        //             password: PASSWORD
+        //         }),
+        //         success(r) {
+        //             if (r.user_name) {
+        //                 User.crtUser = r; // 个人信息
+        //                 User.ownerID = r.user_id;
+                        
+        //                 if (Config.isPC) {
+        //                     cefMain.setUserInfo('{user_id: "' + r.user_id + '", user_name: "' + r.user_name + '"}');
+        //                 }
+        //                 me.onLogin();
+        //             } else {
+        //                 Utils.toastShort('用户名或密码错误，请重新登录');
+        //                 me.onNeedLogin();
+        //             }
+        //         },
+        //         failure(msg) {
+        //             Utils.toastShort(msg);
+        //             me.onNeedLogin();
+        //         },
+        //         callback() {
+        //             Ext.getBody().removeCls('launching');
+        //         },
+        //         maskTarget: true
+        //     });
+        // } else {
+        //     Utils.toastShort('会话已超时，请重新登录');
+        //     me.onNeedLogin();
+        // }
 
     },
 

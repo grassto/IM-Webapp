@@ -15,7 +15,7 @@ Ext.define('IM.utils.ConnectHelper', {
         Utils.ajaxByZY('GET', 'users/me', {
             success: function (data) {
                 console.log('个人信息：', data);
-                User.crtUser = data;
+                // User.crtUser = data; // 个人信息在连接成功后即返回
                 viewmodel.set({
                     'ownerName': data.user_name,
                     'avatar': AvatarMgr.getAvatarHtmlByName(data.user_name)
@@ -75,7 +75,7 @@ Ext.define('IM.utils.ConnectHelper', {
         var me = this,
             recView = view.down('#recentChat');
 
-        Utils.mask(recView);
+        // Utils.mask(recView);
         Utils.ajaxByZY('GET', 'users/me/chats/unread', {
             success: function (data) {
                 if (data) {
@@ -94,7 +94,7 @@ Ext.define('IM.utils.ConnectHelper', {
                     BindHelper.bindUnreadChats(data);
                 }
 
-                Utils.unMask(recView);
+                // Utils.unMask(recView);
             }
         });
     },

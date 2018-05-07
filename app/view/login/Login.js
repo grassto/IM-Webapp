@@ -32,10 +32,9 @@ Ext.define('PushIM.Webapp.view.login.Login', {
             this.getViewModel().set('loginIsHideBrowseTitle', false);
         }
 
-        
-        if(Ext.os.is.Desktop) {
-            this.getViewModel().set('isHideLoginSet', true);
-        }
+        // if(Ext.os.is.Desktop) {
+        //     this.getViewModel().set('isHideLoginSet', true);
+        // }
     },
 
     layout: 'vbox',
@@ -118,10 +117,10 @@ Ext.define('PushIM.Webapp.view.login.Login', {
                     xtype: 'button',
                     iconCls: 'x-fa fa-wrench',
                     ui: 'flat',
-                    text: '账套设置',
-                    bind: {
-                        hidden: '{isHideLoginSet}'
-                    },
+                    text: '网络设置',
+                    // bind: {
+                    //     hidden: '{isHideLoginSet}'
+                    // },
                     handler: 'onSet'
                 }]
             }]

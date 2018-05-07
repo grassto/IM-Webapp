@@ -2,24 +2,32 @@ Ext.define('IMCommon.local.InitDb', {
     alternateClassName: 'InitDb',
     singleton: true,
 
-    initDB: function () {
+    isOK: false,
+    ensureInit(callback) {
+        if (this.isOK) return true;
+
+        this.initDB(callback);
+    },
+
+    // callback:数据库创建完毕后调用，防止表未创建成功，即执行查询
+    initDB: function (callback) {
         var me = this;
 
         var db = LocalDataMgr.getDB();
         db.executeSql('SELECT * FROM IMAdm', [], function (data) {
             if (data.rows.length == 0) {
-                me.execSQL(db, '0.0');
+                me.execSQL(db, '0.0', callback);
             } else {
                 var v = data.rows.items(0).Version;
-                me.execSQL(db, v);
+                me.execSQL(db, v, callback);
             }
 
         }, function (err) {
-            me.execSQL(db, '0.0');
+            me.execSQL(db, '0.0', callback);
         });
     },
 
-    execSQL: function (db, dbVer) {
+    execSQL: function (db, dbVer, callback) {
         var me = this;
 
         var sqlArray = [];
@@ -38,10 +46,13 @@ Ext.define('IMCommon.local.InitDb', {
             for (var i = 0; i < sqlArray.length; i++) {
                 tx.executeSql(sqlArray[i]);
             }
-        }, function (error) {
-            console.log('Transaction ERROR: ' + error.message);
-        }, function () {
+        }, function (tx) {
             console.log('ok!');
+
+            InitDb.isOK = true;
+            callback(); // 语句执行成功后调用
+        }, function (tx, error) {
+            console.log('Transaction ERROR: ' + error.message);
         });
     },
 
@@ -106,7 +117,42 @@ Ext.define('IMCommon.local.InitDb', {
             'Height INT, ' +
             'FileSize BIGINT )';
 
-        return [t0, t1, t2, t3, t4];
+        var t5 = 'CREATE TABLE IF NOT EXISTS IMUsr (' +
+            'UserID NVARCHAR(20) PRIMARY KEY,' +
+            'UserName NVARCHAR(30),' +
+            'Email NVARCHAR(100),' +
+            'Sex CHAR(1),' +
+            'Age INT,' +
+            'Phone NVARCHAR(100),' +
+            'Mobile NVARCHAR(100),' +
+            'Notes NVARCHAR(200),' +
+            'CustomMark NVARCHAR(200),' +
+            'DefRolID NVARCHAR(40),' +
+            'Locale NVARCHAR(5),' +
+            'IsSupperUser CHAR(1),' +
+            'IsClose CHAR(1) )';
+
+        var t6 = 'CREATE TABLE IF NOT EXISTS IMUsrRl (' +
+            'RoleID NVARCHAR(40) NOT NULL,' +
+            'UserID NVARCHAR(20) NOT NULL,' +
+            'IsClose CHAR(1) DEFAULT(\'N\') )';
+
+        var t7 = 'CREATE TABLE IF NOT EXISTS IMRol (' +
+            'RoleID NVARCHAR(40) NOT NULL,' +
+            'RoleName NVARCHAR(40) NOT NULL,' +
+            'OrgID NVARCHAR(40),' +
+            'Remarks NVARCHAR(200),' +
+            'IsClose CHAR(1) DEFAULT(\'N\'),' +
+            'IsMaster CHAR(1) )';
+
+        var t8 = 'CREATE TABLE IF NOT EXISTS IMOrg (' +
+            'OrgID NVARCHAR(40) PRIMARY KEY,' +
+            'OrgName NVARCHAR(40),' +
+            'ParentID NVARCHAR(40),' +
+            'Remarks NVARCHAR(200),' +
+            'IsClose CHAR(1) DEFAULT(\'N\') )';
+
+        return [t0, t1, t2, t3, t4, t5, t6, t7, t8];
     },
 
     getV2_0: function () {

@@ -6,7 +6,8 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
     ],
 
     uses: [
-        'PushIM.Webapp.view.setting.AccountSetting'
+        'PushIM.Webapp.view.setting.AccountSetting',
+        'PushIM.Webapp.view.setting.CEFSetting'
     ],
 
     init() {
@@ -68,7 +69,10 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
                                 localStorage.setItem('USERID', values.userId);
                                 localStorage.setItem('PASSWORD', values.password);
                             }
+                            
+                            User.crtUser = r;
                             User.ownerID = r.user_id;
+
                             me.fireEvent('login');
                         } else {
                             Utils.toastShort('用户名或密码错误，请重新登录');
@@ -112,6 +116,10 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
 
 
     onSet() {
-        Ext.Viewport.getController().showView('acSetting');
+        if(Ext.browser.is.cordova) {
+            Ext.Viewport.getController().showView('acSetting');
+        } else {
+            Ext.Viewport.getController().showView('CEFSetting');
+        }
     }
 });

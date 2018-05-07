@@ -10,7 +10,7 @@ Ext.define('IMMobile.view.chatView.editor.RichEditor', {
     clearable: false,
     // minHeight: 80,
     // maxHeight: 300,
-    id: 'editor',
+    // id: 'editor',
 
     initialize() {
         var me = this;

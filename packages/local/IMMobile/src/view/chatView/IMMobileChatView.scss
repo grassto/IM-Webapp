@@ -35,11 +35,17 @@
             .plain{
                 padding: 9px 13px;
                 word-break: break-all;
-                .viewPic{
-                    cursor: pointer;
-                    height: 60px;
-                    width: 100%;
-                }
+            }
+            .viewPic{
+                cursor: pointer;
+                //height: 60px;
+                //width: 100%;
+                max-width: 45vmin;
+                //max-width: unquote('max(33vh, 55vw)');
+                max-height: 250px; //45vh;
+                min-width: 37px;
+                min-height: 42px;
+                vertical-align: middle;
             }
         }
         .bubble:after, .bubble:before {

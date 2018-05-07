@@ -32,7 +32,7 @@ Ext.define('IM.utils.ParseHelper', {
 
     onParseFile(text) {
         var result = '';
-        
+
         return result;
     },
 
@@ -65,7 +65,7 @@ Ext.define('IM.utils.ParseHelper', {
     },
 
     parseToPic(message, fileId) {
-        if(fileId) {
+        if (fileId) {
             return '<img id="' + fileId + '" style="background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + fileId + '/thumbnail">';
         }
         return message;
@@ -166,12 +166,13 @@ Ext.define('IM.utils.ParseHelper', {
                     updateTime: new Date(message.update_at)
                 };
             } else if (message.msg_type == MsgType.ImgMsg) {
-                text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';
+                // text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';
+                text = ImgMgr.parsePic(message.attach_id);
 
                 // 处理滚动条
-                var url = Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail';
+                //var url = Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail';
                 // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
-                window.imagess(url, message.attach_id);
+                //window.imagess(url, message.attach_id);
                 result = {
                     msg_id: message.msg_id,
                     senderName: userName,
@@ -191,6 +192,9 @@ Ext.define('IM.utils.ParseHelper', {
                     ROL: ROL,
                     updateTime: new Date(message.update_at)
                 };
+            }
+            if(result) {
+                result.msg_type = message.msg_type;
             }
 
 

@@ -9,7 +9,8 @@ Ext.define('IMCommon.utils.ParseUtil', {
      */
     parsePic(message, fileId) {
         if(fileId) {
-            return '<img id="' + fileId + '" style="background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + fileId + '/thumbnail">';
+            return ImgMgr.parsePic(fileId);
+            // return '<img id="' + fileId + '" style="background:url(' + Ext.getResourcePath('images/loading.gif') + ') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + fileId + '/thumbnail">';
         }
         return message;
     }

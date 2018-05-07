@@ -21,7 +21,8 @@ Ext.define('IM.view.IM', {
         'IMCommon.enumType.MsgType',
         'IMCommon.enumType.MsgWrapperType',
         'IMCommon.enumType.NoticeType',
-        'IMCommon.enumType.SocketEventType'
+        'IMCommon.enumType.SocketEventType',
+        'IMCommon.utils.ImgMgr'
     ],
 
     uses: [

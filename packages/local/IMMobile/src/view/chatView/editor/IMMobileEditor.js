@@ -30,6 +30,7 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
     items: [{
         xtype: 'IMMobile-RichEditor',
         itemId: 'MobileEditor',
+        errorTarget: null,
         flex: 1
     }, {
         xtype: 'button',

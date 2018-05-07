@@ -2,50 +2,72 @@ Ext.define('IMCommon.utils.ImgMgr', {
     alternateClassName: 'ImgMgr',
     singleton: true,
 
-    parsePic(attId, attType) {
+    prefix: 'node-', // 节点 id 前缀
+
+    getDom(id) {
+        return document.getElementById(id);
+    },
+
+    /**
+     * 节点是否在 document.body 中
+     * @param {HTMLElement} node
+     */
+    isInBody(node) {
+        if (!node) return false;
+
+        if (node.baseURI !== undefined) {
+            return !Ext.isEmpty(node.baseURI);
+        }
+
+        return Ext.getBody().isAncestor(node);
+    },
+
+    parsePic(attId) {
         return [
-        '<div class="imgCt">',
-            '<img class="viewPic" src="' + ImgUtil.onePxImg + '" onload="ImgMgr.loadPic(this)" data-thumb="' + attId + '/thumbnail" data-img="' + attId + '" data-showthumb="Y" data-errtip="加载失败" data-type="' + attType + '"/>',
-        '</div>'].join('');
+            '<div class="imgBlock">',
+            '<img class="viewPic" src="' + Ext.getResourcePath('images/loading.gif') + '" onload="ImgMgr.loadPic(this)" data-thumb="' + attId + '/thumbnail" data-img="' + attId + '" data-showthumb="Y"/>',
+            '</div>'
+        ].join('');
     },
 
     loadPic: function (node) {
         var me = this;
-        if (!node) return;
+        if (!node || !me.isInBody(node)) return;
 
         var showThumb = node.hasAttribute('data-showthumb'),
+            showProgress = node.hasAttribute('data-showprogress'), // 显示下载进度
             thumb = node.getAttribute('data-thumb'),
             imgId = node.getAttribute('data-img'),
-            picType = node.getAttribute('data-type'),
             url = me.getFullPicUrl(showThumb ? thumb : imgId),
-            // picName = imgId + '.' + picType;
-            picName = imgId + '.png'; // 这边需要一个类型
+            saveDir = showThumb ? User.getThumbDir() : User.getImageDir(),
+            picName = imgId;
 
         node.removeAttribute('onload');
         me._setNodeTipText(node, '加载中'); // 在 <div class="imgCt"> 里放一个 文字提示<div>
 
         if (Ext.browser.is.Cordova || window.cefMain) { // 如果是 cordova（或者 cef）
-            var nodeId = Ext.id(node, 'node-'); // 防止 node 节点没有id，给它一个id
+            var nodeId = Ext.id(node, me.prefix); // 防止 node 节点没有id，给它一个id
 
-            cefFile.downloadImage(url, picName, function(evt) {
+            /* cefFile.downloadImage(url, picName, function(evt) {
                 var s = JSON.parse(evt);
                 if(s.status == 'completed') {
                     ImgMgr._setNodeSrc(nodeId, s.file_path);
                     return;
                 }
-            });
+            });*/
 
-            // // 下载文件
-            // FileMgr.downFile(url, saveDir, picName, {
-            //     success: function (path) {
-            //         ImgMgr._setNodeSrc(nodeId, path); // 将本地路径 赋值给 src
-            //     },
-            //     failure: function (error) {
-            //         console.log('ImgMgr loadGoodsPic', error);
-            //         ImgMgr._setNodeSrc(nodeId, '!error'); // 将 src 赋值为 '!error'
-            //     },
-            //     scope: me
-            // });
+            FileMgr.downFileForSrc(url, 1, saveDir + picName, {
+                downloading(percent) {
+                    if (showProgress) {
+                        me._setNodeTipText(node, `${percent}%`);
+                    }
+                }
+            }).then(path => {
+                ImgMgr._setNodeSrc(nodeId, path);
+            }).catch(err => {
+                console.error('ImgMgr', 'loadPic failed', err);
+                ImgMgr._setNodeSrc(nodeId, '!error');
+            });
         } else {
             ImgMgr._setNodeSrc(node, url); // 如果是浏览器，直接 url 赋值给 src
         }
@@ -57,7 +79,7 @@ Ext.define('IMCommon.utils.ImgMgr', {
         }
         if (!node) return;
 
-        if (errTip === undefined) errTip = true;
+        // if (errTip === undefined) errTip = true;
 
         var me = this;
         var imgLoaded = function (e) {
@@ -88,6 +110,10 @@ Ext.define('IMCommon.utils.ImgMgr', {
             if (errTip) {
                 //"加载失败"提示
                 me._setNodeTipText(n, n.getAttribute('data-errtip') || '加载失败');
+            }
+            else {
+                node.src = Ext.getResourcePath('images/failed.png');
+                me._removeNodeTip(n);
             }
         };
         node.addEventListener('load', imgLoaded, false);

@@ -110,7 +110,6 @@ Ext.define('IM.view.chat.ChatView', {
                 '<tpl else>' + // 他人的
                 '<div class="bubble" style="background-color:navajowhite">' +
                 '</tpl>' +
-                    '<div class="plain">' +
                     '<tpl if="values.msg_type==\'F\'">' + // file展示
                         '<div class="fileMsg">' +
                             '<div class="fileWrapper">' +
@@ -133,10 +132,13 @@ Ext.define('IM.view.chat.ChatView', {
                                 '</tpl>' +
                             '</div>' +
                         '</div>' +
-                    '<tpl else>' + // 文本或图片，直接拼好过来
+                    '<tpl elseif="values.msg_type == \'I\'">' + // 图片，直接拼好过来
                         '{sendText}' +
+                    '<tpl else>' + // 文本展示
+                        '<div class="plain">' +
+                            '{sendText}' +
+                        '</div>' +
                     '</tpl>' +
-                    '</div>' +
                 '</div>' +
             '</div>' +
         '</tpl>'

@@ -13,10 +13,6 @@ Ext.define('MX.util.DirMgr', {
     singleton: true,
 
     privates: {
-        thumbDir: 'thumbs/',
-        avatarDir: 'avatars/',
-        imgDir: 'images/',
-        fileDir: 'files/',
 
         /**
          * 多次调用create创建同一个临时存储目录，会进入此队列，这样只需要调用一次create_r

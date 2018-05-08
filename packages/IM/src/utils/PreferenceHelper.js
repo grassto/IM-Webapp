@@ -263,9 +263,17 @@ Ext.define('IM.utils.PreferenceHelper', {
 
     // 在多人会话中，需要有操作的时候，都得调用，返回是否可以继续，true：可以，false：不可以
     preGrpChat() {
-        var result = '';
-        if(this.isDeleted()) {
-            result = '对不起，您已被移出该会话';
+        var me = this,
+            result = true,
+            grpWarnMsg = '';
+        if(me.isDeleted()) {
+            grpWarnMsg = '对不起，您已被移出该会话';
+        }
+
+        if(grpWarnMsg !== '') {
+            me.warnGrpMem(grpWarnMsg);
+            
+            result = false;
         }
 
         return result;
@@ -289,5 +297,7 @@ Ext.define('IM.utils.PreferenceHelper', {
     // 多人会话，不能操作，警告信息
     warnGrpMem(grpWarnMsg) {
         Utils.toastShort(grpWarnMsg);
-    }
+    },
+
+
 });

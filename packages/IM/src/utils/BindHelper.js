@@ -236,17 +236,20 @@ Ext.define('IM.utils.BindHelper', {
         }
 
         var record = chatStore.add({
-            id: data.chat_id,
+            chat_id: data.chat_id,
             name: nickname,
             type: data.chat_type,
             last_post_at: new Date(data.update_at),
             status: status,
-            chat_name: data.chat_name
+            chat_name: data.chat_name,
+            members: data.members
         });
 
         if (data.creator_id == User.ownerID) {
             recentChatView.setSelection(record);
         }
+
+        return record[0];
     },
 
     /**
@@ -262,10 +265,18 @@ Ext.define('IM.utils.BindHelper', {
                 me.getLeafIDFromTree(record.childNodes[i], memsID);
             }
         } else {
-            memsID.push(record.data.id);
+            memsID.push(record.data); // 改为record
         }
 
-        return memsID;
+        var result = [];
+        if (memsID.length == 1) {
+            result.push(memsID);
+        } else {
+            for (var j = 0; j < memsID.length; j++) {
+                result.push(memsID[j].id);
+            }
+        }
+        return result;
     },
 
 

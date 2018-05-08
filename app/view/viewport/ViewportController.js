@@ -182,8 +182,8 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
                 // 这一块应该写在success里面
                 WebSocketHelper.close(); // 断开Websocket连接
 
-                localStorage.setItem('USERID', '');
-                localStorage.setItem('PASSWORD', '');
+                // localStorage.setItem('USERID', '');
+                // localStorage.setItem('PASSWORD', '');
                 User.clear();
                 me.onNeedLogin();
             }

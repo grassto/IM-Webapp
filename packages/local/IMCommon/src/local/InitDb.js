@@ -43,21 +43,23 @@ Ext.define('IMCommon.local.InitDb', {
         sqlArray.push(me.getUpdateVer('1.0'));
 
         db.transaction(function (tx) {
+            var sqls = '';
             for (var i = 0; i < sqlArray.length; i++) {
-                tx.executeSql(sqlArray[i]);
+                sqls += sqlArray[i];
             }
-        }, function (tx) {
-            console.log('ok!');
-
-            InitDb.isOK = true;
-            callback(); // 语句执行成功后调用
-        }, function (tx, error) {
-            console.log('Transaction ERROR: ' + error.message);
+            tx.executeSql(sqls, null, function (tx) {
+                console.log('ok!');
+    
+                InitDb.isOK = true;
+                callback(tx); // 语句执行成功后调用
+            }, function (tx, error) {
+                console.log('Transaction ERROR: ' + error.message);
+            });
         });
     },
 
     getUpdateVer: function (dbVer) {
-        var upSql = 'UPDATE IMAdm SET Version = \'' + dbVer + '\'';
+        var upSql = 'UPDATE IMAdm SET Version = \'' + dbVer + '\';';
         return upSql;
     },
 
@@ -65,7 +67,7 @@ Ext.define('IMCommon.local.InitDb', {
 
         var t0 = 'CREATE TABLE IF NOT EXISTS IMAdm (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-            'Version NVARCHAR(20))';
+            'Version NVARCHAR(20));';
 
         var t1 = 'CREATE TABLE IF NOT EXISTS IMMsg (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
@@ -78,7 +80,7 @@ Ext.define('IMCommon.local.InitDb', {
             'SenderID NVARCHAR(20), ' +
             'SenderName NVARCHAR(30), ' +
             'MsgSeq BIGINT, ' +
-            'Status CHAR(1) )';
+            'Status CHAR(1) );';
 
         var t2 = 'CREATE TABLE IF NOT EXISTS IMRct (' +
             'ChatID NVARCHAR(50) PRIMARY KEY, ' +
@@ -91,7 +93,7 @@ Ext.define('IMCommon.local.InitDb', {
             'LastMessage TEXT, ' +
             'LastMsgType CHAR(1), ' +
             'IsTop CHAR(1), ' +
-            'AtCount INTEGER )';
+            'AtCount INTEGER );';
 
         var t3 = 'CREATE TABLE IF NOT EXISTS IMChat (' +
             'ChatID NVARCHAR(50) PRIMARY KEY, ' +
@@ -103,7 +105,8 @@ Ext.define('IMCommon.local.InitDb', {
             'Status CHAR(1), ' +
             'CreateAt BIGINT, ' +
             'Remarks TEXT, ' +
-            'UserIDs TEXT )';
+            'UserIDs TEXT,' +
+            'UserNames TEXT );';
 
         var t4 = 'CREATE TABLE IF NOT EXISTS IMFile (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
@@ -115,7 +118,7 @@ Ext.define('IMCommon.local.InitDb', {
             'MimeType NVARCHAR(100), ' +
             'Width INT, ' +
             'Height INT, ' +
-            'FileSize BIGINT )';
+            'FileSize BIGINT );';
 
         var t5 = 'CREATE TABLE IF NOT EXISTS IMUsr (' +
             'UserID NVARCHAR(20) PRIMARY KEY,' +
@@ -130,12 +133,12 @@ Ext.define('IMCommon.local.InitDb', {
             'DefRolID NVARCHAR(40),' +
             'Locale NVARCHAR(5),' +
             'IsSupperUser CHAR(1),' +
-            'IsClose CHAR(1) )';
+            'IsClose CHAR(1) );';
 
         var t6 = 'CREATE TABLE IF NOT EXISTS IMUsrRl (' +
             'RoleID NVARCHAR(40) NOT NULL,' +
             'UserID NVARCHAR(20) NOT NULL,' +
-            'IsClose CHAR(1) DEFAULT(\'N\') )';
+            'IsClose CHAR(1) DEFAULT(\'N\') );';
 
         var t7 = 'CREATE TABLE IF NOT EXISTS IMRol (' +
             'RoleID NVARCHAR(40) NOT NULL,' +
@@ -143,14 +146,14 @@ Ext.define('IMCommon.local.InitDb', {
             'OrgID NVARCHAR(40),' +
             'Remarks NVARCHAR(200),' +
             'IsClose CHAR(1) DEFAULT(\'N\'),' +
-            'IsMaster CHAR(1) )';
+            'IsMaster CHAR(1) );';
 
         var t8 = 'CREATE TABLE IF NOT EXISTS IMOrg (' +
             'OrgID NVARCHAR(40) PRIMARY KEY,' +
             'OrgName NVARCHAR(40),' +
             'ParentID NVARCHAR(40),' +
             'Remarks NVARCHAR(200),' +
-            'IsClose CHAR(1) DEFAULT(\'N\') )';
+            'IsClose CHAR(1) DEFAULT(\'N\') );';
 
         return [t0, t1, t2, t3, t4, t5, t6, t7, t8];
     },
@@ -163,11 +166,11 @@ Ext.define('IMCommon.local.InitDb', {
         var updateSql = 'UPDATE IMAdm SET Version = ?';
         var db = LocalDataMgr.getDB();
         db.transaction(function (tx) {
-            tx.executeSql(updateSql, [ver]);
-        }, function () {
-            console.log('success')
-        }, function (tx, error) {
-            console.log('UPDATE error: ' + error.message)
+            tx.executeSql(updateSql, [ver], function () {
+                console.log('success')
+            }, function (tx, error) {
+                console.log('UPDATE error: ' + error.message)
+            });
         });
     }
 });

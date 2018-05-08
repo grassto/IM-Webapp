@@ -61,7 +61,7 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
             '</div>',
             '<div class="displayInfo">',
                 '<div class="displayName">{name}</div>', // 会话标题
-                '<tpl if="values.type == \'D\'">', // 显示会话内容
+                '<tpl if="values.type == \'D\'">', // 显示会话内容 单人
                     '<tpl if="values.last_msg_type == \'T\'">',
                         '<div>{last_post_msg}</div>', // 文字
                     '<tpl elseif="values.last_msg_type == \'F\'">',
@@ -69,13 +69,13 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
                     '<tpl elseif="values.last_msg_type == \'I\'">',
                         '<div>[图片]</div>', // 图片
                     '</tpl>',
-                '<tpl else>',
+                '<tpl else>', // 多人
                     '<tpl if="values.last_msg_type == \'T\'">',
-                        '<div>{last_post_userName}：{last_post_msg}</div>', // 文字
+                        '<div>{last_post_name}：{last_post_msg}</div>', // 文字
                     '<tpl elseif="values.last_msg_type == \'I\'">',
-                        '<div>{last_post_userName}：[图片]</div>', // 图片
+                        '<div>{last_post_name}：[图片]</div>', // 图片
                     '<tpl elseif="values.last_msg_type == \'F\'">',
-                        '<div>{last_post_userName}：[文件]</div>', // 文件
+                        '<div>{last_post_name}：[文件]</div>', // 文件
                     '</tpl>',
                 '</tpl>',
             '</div>',

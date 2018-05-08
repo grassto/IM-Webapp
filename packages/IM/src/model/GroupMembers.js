@@ -28,10 +28,10 @@ Ext.define('IM.model.GroupMembers', {
         { // 从缓存中遍历所有人员，绑定人员姓名
             name: 'user_name',
             type: 'string',
-            convert: function(v, record) {
-                // debugger;
-                return ChatHelper.getName(record.data.user_id);
-            }
+            // convert: function(v, record) {
+            //     // debugger;
+            //     return ChatHelper.getName(record.data.user_id);
+            // }
         }
     ]
 });

@@ -96,8 +96,9 @@ Ext.define('PushIM.Webapp.view.setting.CEFSetting', {
             ui: 'action',
             handler: function () {
                 Ext.Viewport.getController().showView('authlogin');
-
-                Ext.getApplication().setConfigUrl();
+                if (Ext.manifest.env == 'production') {
+                    Ext.getApplication().setConfigUrl();
+                }
             }
         }]
     }]

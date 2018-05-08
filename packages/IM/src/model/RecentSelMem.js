@@ -1,8 +1,8 @@
 Ext.define('IM.model.RecentSelMem', {
     extend: 'Ext.data.Model',
-    idProperty: 'id', // chat_id
+    idProperty: 'chat_id', // chat_id
     fields: [
-        'id',
+        'chat_id',
         'chat_name',
         'userID',
         'type',
@@ -25,7 +25,7 @@ Ext.define('IM.model.RecentSelMem', {
         },
         { // 用于排序
             name: 'last_post_at',
-            type: 'date',
+            // type: 'date', // 使用date动态去修改record的值，页面无效果
             convert: function(value) {
                 if(value == 0 || value == undefined || value == null) {
                     return '';
@@ -43,12 +43,14 @@ Ext.define('IM.model.RecentSelMem', {
             type: 'bool'
         },
         {
-            name: 'last_post_userName',
+            name: 'last_post_name'
             // convert: function(value) {
             //     return ChatHelper.getName(value);
             // }
         },
         'last_msg_type',
-        'last_post_msg'
+        'last_post_msg',
+
+        'members'
     ]
 });

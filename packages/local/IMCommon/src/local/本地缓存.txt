@@ -7,6 +7,22 @@ meAddRctChat传入json数据：
     data.last_sender_id
     data.last_sender_name
     data.last_message
+    data.last_msg_type
 
 insertOMsg
     
+
+createGrpChat
+    chat_id
+    chat_name
+    chat_status
+    chat_type
+    create_at
+    creator_id
+    delete_at
+    header
+    is_manual
+    last_post_at
+    manager_id
+    purpose
+    update_at

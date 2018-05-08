@@ -31,21 +31,63 @@ Ext.define('IM.view.IMController', {
     },
 
     init: function () {
-        var me = this;
+        var me = this,
+            view = me.getView(),
+            rctView = view.down('#recentChat');
         me.callParent(arguments);
 
         if (Config.isPC) {
-            Utils.mask(me.getView().down('#recentChat')); // 遮罩
-            InitDb.initDB(() => {
-                me.showLocalData();// 展示本地数据
-                Utils.unMask(me.getView().down('#recentChat'));
+            Utils.mask(rctView); // 遮罩
+            InitDb.initDB((trans) => {
+                LocalDataMgr.getRecentChat(trans, function (ta, resultSet) {
+                    var rows = resultSet.rows,
+                        len = rows.length;
 
-                me.mounted();// 打开连接
+                    if (len > 0) {
+                        var recentStore = rctView.getStore(),
+                            datas = [],
+                            row = {};
+                        for (var i = 0; i < len; i++) {
+                            row = rows.item(i);
+                            if (row.ChatType == ChatType.Group) {
+                                row.mems = [];
+                                var us = row.UserIDs.split(','),
+                                    ns = row.UserNames.split(',');
+
+                                for (var j = 0; j < us.length; j++) {
+                                    row.mems.push({
+                                        chat_id: row.ChatID,
+                                        user_id: us[i], // id
+                                        user_name: ns[i] // name
+                                    });
+                                }
+                            }
+                            datas.push({
+                                id: row.ChatID,
+                                name: row.DisplayName,
+                                type: row.ChatType,
+                                status: -2, // 不显示状态
+                                isUnRead: row.UnreadCount > 0,
+                                unReadNum: row.UnreadCount,
+                                last_post_at: row.LastPostAt,
+                                last_post_userName: row.LastUserName,
+                                last_msg_type: row.LastMsgType,
+                                last_post_msg: row.LastMsg,
+                                members: row.mems
+                            });
+                        }
+                        recentStore.add(datas);
+                    }
+                    Utils.unMask(rctView);
+
+                    me.mounted(view);// 打开连接
+                });
+
             });
 
             me.handleCEF(); // 是否展示关闭、最大化、最小化按钮
         } else {
-            me.mounted();// 打开连接
+            me.mounted(view);// 打开连接
         }
 
         me.handleSearch();// 左侧搜索框，快速搜索联系人
@@ -66,25 +108,32 @@ Ext.define('IM.view.IMController', {
         var rows = resultSet.rows,
             len = rows.length;
 
-        var recentStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
-            datas = [],
-            row = {};
-        for (var i = 0; i < len; i++) {
-            row = rows.item(i);
-            datas.push({
-                id: row.ChatID,
-                name: row.DisplayName,
-                type: row.ChatType,
-                status: -2, // 不显示状态
-                isUnRead: row.UnreadCount > 0,
-                unReadNum: row.UnreadCount,
-                last_post_at: row.LastPostAt,
-                last_post_userName: row.LastUserName,
-                last_msg_type: row.LastMsgType,
-                last_post_msg: row.LastMsg
-            });
+        if (len > 0) {
+            var recentStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
+                datas = [],
+                row = {};
+            for (var i = 0; i < len; i++) {
+                row = rows.item(i);
+                if (row.ChatType == ChatType.Group) {
+                    row.mems = [];
+
+                }
+                datas.push({
+                    id: row.ChatID,
+                    name: row.DisplayName,
+                    type: row.ChatType,
+                    status: -2, // 不显示状态
+                    isUnRead: row.UnreadCount > 0,
+                    unReadNum: row.UnreadCount,
+                    last_post_at: row.LastPostAt,
+                    last_post_userName: row.LastUserName,
+                    last_msg_type: row.LastMsgType,
+                    last_post_msg: row.LastMsg,
+                    members: row.mems
+                });
+            }
+            recentStore.add(datas);
         }
-        recentStore.add(datas);
     },
 
 
@@ -150,10 +199,7 @@ Ext.define('IM.view.IMController', {
     /**
      * 打开连接
      */
-    mounted() {
-        var me = this,
-            view = me.getView();
-
+    mounted(view) {
         ConnectHelper.getMe(view.getViewModel());
         ConnectHelper.getUnreadChats(view);
         // ConnectHelper.getMembers(view); // 延期到点击组织结构的tab的时候才去加载

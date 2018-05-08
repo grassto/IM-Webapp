@@ -166,14 +166,16 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     /**
      * 从本地获取最近会话
      */
-    getRecentChat(success) {
-        var me = this;
-        me.getDB().transaction(function (trans) {
-            // me.ensureRChatTable(trans);
+    getRecentChat(trans, success) {
+        // var me = this;
+        // me.getDB().transaction(function (trans) {
+        //     // me.ensureRChatTable(trans);
 
-            var sql = 'select * from IMRct';
-            me.handleSql(trans, sql, success);
-        });
+        //     var sql = 'select * from IMRct';
+        //     me.handleSql(trans, sql, success);
+        // });
+        var sql = 'select R.*,C.UserIDs,C.UserNames from IMRct R LEFT JOIN IMChat C ON R.ChatID = C.ChatID ORDER BY UnreadCount DESC, LastPostAt DESC';
+        LocalDataMgr.handleSql(trans, sql, success);
     },
 
     // 不要用
@@ -269,12 +271,42 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         me.getDB().transaction(function (trans) {
             // me.ensureRChatTable(trans);
 
-            var sql = 'INSERT INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage) VALUES ("' + data.chat_id + '","' + data.display_name + '","' + data.chat_type + '",' + data.unread_count + ',' + data.last_post_at + ',"' + data.last_sender + '","' + data.last_sender_name + '","' + data.last_message + '");';
+            var sql = 'INSERT INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType) VALUES ("' + data.chat_id + '","' + data.display_name + '","' + data.chat_type + '",' + data.unread_count + ',' + data.last_post_at + ',"' + data.last_sender + '","' + data.last_sender_name + '","' + data.last_message + '", "' + data.last_msg_type + '");';
             me.handleSql(trans, sql);
         });
     },
 
-    // ws请求过来后，更新最近会话
+    /**
+     * 新建多人会话
+     * @param {json} data
+     */
+    createGrpChat(data) {
+        const me = this;
+        me.getDB().transaction(function (trans) {
+            var sql = 'INSERT INTO IMRct ' +
+                '(ChatID, ChatType, DisplayName, LastPostAt) VALUES ' +
+                '("' + data.chat_id + '", "' + data.chat_type + '", "' + data.header + '", ' + data.create_at + ');';
+
+            var ids = [], names = [];
+            for (var i = 0; i < data.members.length; i++) {
+                ids.push(data.members[i].user_id);
+                names.push(data.members[i].user_name);
+            }
+            ids = ids.join(',');
+            names = names.join(',');
+
+            sql += 'INSERT INTO IMChat ' +
+                '(ChatID, DisplayName, CreatorID, CreatorName, ManagerID, ManagerName, CreateAt, UserIDs, UserNames) VALUES' +
+                '("' + data.chat_id + '", "' + data.header + '", "' + User.ownerID + '", "' + User.crtUser.user_name + '", "' + data.manager_id + '", "' + User.crtUser.user_name + '", ' + data.create_at + ', "' + ids + '", "' + names + '");';
+
+            me.handleSql(trans, sql);
+        });
+    },
+
+    /**
+     * ws请求过来后，更新最近会话
+     * @param {json} data
+     */
     updateRctByWS(data) {
         const me = this;
 
@@ -313,7 +345,9 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         });
     },
 
-    // 发送成功后调用，更新最近会话列表
+    /**
+     * 发送成功后调用，更新最近会话列表
+     */
     updateRctBySendS() {
         const me = this;
 
@@ -398,12 +432,12 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     /**
      * 发送成功后，更新本地MSG
      */
-    updateMsgBySendS() {
+    updateMsgBySendS(data) {
         const me = this;
         // status = '0';
 
         me.getDB().transaction(function (trans) {
-            var sql = 'UPDATE IMMsg SET Status=0';
+            var sql = 'UPDATE IMMsg SET Status=0 WHERE ChatID="'+data.chat_id+'"';
 
             me.handleSql(trans, sql);
         });
@@ -423,5 +457,20 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
             me.handleSql(trans, sql);
         });
+    },
+
+    /**
+     * 消息发送成功前调用
+     * @param {*} data
+     */
+    beforeSendMsgS(data) {
+
+    },
+
+    /**
+     * 消息发送成功后调用
+     */
+    afterSendMsgS(data) {
+
     }
 });

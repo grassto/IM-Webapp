@@ -17,9 +17,9 @@ Ext.define('IM.view.chat.ChatView', {
         type: 'chatView_detail'
     },
 
-    store: {
-        type: 'chatView'
-    },
+    // store: {
+    //     type: 'chatView'
+    // },
 
     hasMore: true, // 分页
     perPage: 0, // 分页

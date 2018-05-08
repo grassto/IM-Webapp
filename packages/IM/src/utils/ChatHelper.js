@@ -18,13 +18,16 @@ Ext.define('IM.utils.ChatHelper', {
                         var memsID = [];
                         memsID = BindHelper.getLeafIDFromTree(record, memsID);
 
-                        // 不判断，都是新增多人会话
-                        me.createGroupChat(memsID);
+                        if (memsID.length == 1) { // 组织结构下仅有一人
+                            me.createDirectChat(record.get('id'), record.get('name'));
+                        } else {
+                            // 不判断，都是新增多人会话
+                            me.createGroupChat(memsID);
+                        }
                     }
                 });
             } else {
-                // me.chgToIMView();
-                me.onOpenDirectChat(record.data.id, record.data.name);
+                me.createDirectChat(record.get('id'), record.get('name'));
             }
         } else {
             Utils.toastLong('之后再处理');
@@ -252,24 +255,28 @@ Ext.define('IM.utils.ChatHelper', {
      * 通过chat_id来设置左侧chat的选中，并获取历史记录
      * @param {string} cid chat_id
      */
-    openDirectChat(cid) {
-        var record = this.sameOpenChat(cid);
+    openDirectChat(cid, isCreate) {
+        var record = this.sameOpenChat(cid, isCreate);
 
         StatusHelper.setRightStatus(record.data.status, 'inline');// 设置状态
 
         this.showGrpMem(cid, 'D'); // 右侧的人员列表页面是否显示
     },
 
-    openGroupChat(cid) {
-        this.sameOpenChat(cid);
+    openGroupChat(cid, isCreate) {
+        this.sameOpenChat(cid, isCreate);
 
         StatusHelper.setRightStatus('', 'none');// 设置状态
 
         this.showGrpMem(cid, 'G'); // 右侧的人员列表页面展示
     },
 
-    // 提取出打开会话公共的部分（单人、多人）
-    sameOpenChat(cid) {
+    /**
+     * 提取出打开会话公共的部分（单人、多人）,若是新发起的会话，则不需要去获取历史记录
+     * @param {string} cid 会话id
+     * @param {*} isCreate 是否是新发起的会话  true/undefined
+     */
+    sameOpenChat(cid, isCreate) {
         this.chgToIMView(); // 先跳转
 
         if (User.crtChannelId == cid) return;
@@ -297,7 +304,10 @@ Ext.define('IM.utils.ChatHelper', {
 
             BindHelper.setRightTitle(record.data.name, record.data.type); // 设置标题头
 
+            // if (!isCreate) { // 不是新创建的会话
             me.getHistory(cid); // 获取历史记录
+            // }
+
         }
 
         return record;
@@ -308,7 +318,8 @@ Ext.define('IM.utils.ChatHelper', {
      */
     showGrpMem(cid, type) {
         var me = this,
-            groupMemsView = Ext.Viewport.lookup('IM').lookup('im-main').down('#groupList'),
+            imView = Ext.Viewport.lookup('IM'),
+            groupMemsView = imView.lookup('im-main').down('#groupList'),
             memStore = groupMemsView.getStore();
         if (type == 'D') {
 
@@ -317,7 +328,10 @@ Ext.define('IM.utils.ChatHelper', {
         } else if (type == 'G') {
             groupMemsView.show();
             memStore.removeAll();
-            var mems = BindHelper.getMemsByChatId(cid);
+
+            var rctStore = imView.down('#recentChat').getStore(),
+                    rctRecord = rctStore.getById(cid),
+                    mems = rctRecord.get('members');
 
             mems = me.handleMemListStatus(mems);
 
@@ -396,8 +410,8 @@ Ext.define('IM.utils.ChatHelper', {
     getHistory(cid) {
         var me = this,
             chatView = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'),
-            store = Ext.getStore(cid);
-        // isScrolToDown = false;
+            store = Ext.getStore(cid),
+            isScrolToDown = false;
 
         // 每一个会话给一个store
         if (!store) {
@@ -406,96 +420,99 @@ Ext.define('IM.utils.ChatHelper', {
                 model: 'IM.model.Chat'
             }, Ext.data.Store);
 
-            chatView.setStore(store);
-
-            // isScrolToDown = true; // 若是第一次打开这个会话，则滚动到最下方
-
-            // 从本地获取历史记录,若是web版，则不管它
-            if (Config.isPC) {
-                // 查出前20条数据
-                LocalDataMgr.getHistory(me.bindLocalHistory, 0, cid);
-
-                var perPage = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(cid).data.unReadNum;
-
-                if (!perPage) return; // 没有未读，退出
-
-                // 获取最后更新时间的回调函数,根据这个时间去服务器端请求数据
-                var getTimeSuc = function (resultSet) {
-                    var rows = resultSet.rows;
-                    if (rows.length > 0) {
-                        var lastTime = rows.item(0).CreateAt;
-
-                        // 获取未读消息,(page默认为0，per_page默认为20)
-                        Utils.ajaxByZY('get', 'chats/' + cid + '/posts/unread?per_page=' + perPage + '&time=' + lastTime, {
-                            success: function (data) {
-                                console.log('分页获取的历史消息：', data);
-
-                                var msgList = data.message_list;
-                                if (msgList.length > 0) {
-                                    var msgDatas = [],
-                                        msgData = {}; // 拼凑data数据
-
-                                    for (var i = 0; i < msgList.length; i++) {
-                                        switch (msgList[i].wrapper_type) {
-                                            case MsgWrapperType.Message:
-                                                msgData = msgList[i].message;
-
-                                                if (msgData.msg_type == MsgType.TextMsg) {// 文本消息
-
-                                                } else if (msgData.msg_type == MsgType.ImgMsg) {// 图片
-                                                    console.log('暂未适配该类型消息：', msgData.msg_type);
-                                                } else if (msgData.msg_type == MsgType.FileMsg) {// 文件
-                                                    console.log('暂未适配该类型消息：', msgData.msg_type);
-                                                }
-
-                                                msgDatas.push(msgData);
-                                                break;
-                                            case MsgWrapperType.Notice: // 只要两个数据展示，信息、时间
-                                                msgData = msgList[i].notice;
-                                                msgData.message = ParseHelper.getNoticeMemsByContent(msgData.operator_id, msgData.content);
-                                                msgData.msg_type = MsgType.GroupNotice;
-
-                                                msgDatas.push(msgData);
-                                                break;
-                                            default:
-                                                console.log('暂未适配该类型消息：', msgList[i].wrapper_type);
-                                                break;
-                                        }
-
-                                    }
-                                    // 本地数据更新
-                                    LocalDataMgr.initAddToMsg(msgDatas);
-
-                                    BindHelper.bindAllMsg(msgList, store); // 绑定数据
-
-                                    // me.onShowChatTime(store);// 处理时间，一分钟内不显示
-                                }
-                            }
-                        });
-                    }
-                };
-
-                LocalDataMgr.getLastMsgTime(cid, getTimeSuc);
-
-            } else {
-                Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
-                    success: function (data) {
-
-                        BindHelper.bindAllMsg(data, store); // 绑定数据
-
-                        // me.onShowChatTime(store);// 处理时间，一分钟内不显示
-                    }
-                });
-            }
-
-            me.onScroll(chatView); // 滚动条滚动到最下方
-        } else {
-            chatView.setStore(store); // 更换store
+            isScrolToDown = true;
         }
 
-        // if (isScrolToDown) {
-        //     me.onScroll(chatView); // 滚动条滚动到最下方
-        // }
+        chatView.setStore(store);
+
+        // isScrolToDown = true; // 若是第一次打开这个会话，则滚动到最下方
+
+        // 从本地获取历史记录,若是web版，则不管它
+        if (Config.isPC) {
+            // 查出前20条数据
+            LocalDataMgr.getHistory(me.bindLocalHistory, 0, cid);
+
+            var perPage = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(cid).get('unReadNum');
+
+            if (!perPage) perPage = 20; // 没有未读，（新建会话时）
+
+            // 获取最后更新时间的回调函数,根据这个时间去服务器端请求数据
+            var getTimeSuc = function (resultSet) {
+                var rows = resultSet.rows;
+                if (rows.length > 0) {
+                    var lastTime = rows.item(0).CreateAt;
+
+                    // 获取未读消息,(page默认为0，per_page默认为20)
+                    Utils.ajaxByZY('get', 'chats/' + cid + '/posts/unread?per_page=' + perPage + '&time=' + lastTime, {
+                        success: function (data) {
+                            console.log('分页获取的历史消息：', data);
+
+                            var msgList = data.message_list;
+                            if (msgList.length > 0) {
+                                var msgDatas = [],
+                                    msgData = {}; // 拼凑data数据
+
+                                for (var i = 0; i < msgList.length; i++) {
+                                    switch (msgList[i].wrapper_type) {
+                                        case MsgWrapperType.Message:
+                                            msgData = msgList[i].message;
+
+                                            if (msgData.msg_type == MsgType.TextMsg) {// 文本消息
+
+                                            } else if (msgData.msg_type == MsgType.ImgMsg) {// 图片
+                                                console.log('暂未适配该类型消息：', msgData.msg_type);
+                                            } else if (msgData.msg_type == MsgType.FileMsg) {// 文件
+                                                console.log('暂未适配该类型消息：', msgData.msg_type);
+                                            }
+
+                                            msgDatas.push(msgData);
+                                            break;
+                                        case MsgWrapperType.Notice: // 只要两个数据展示，信息、时间
+                                            msgData = msgList[i].notice;
+                                            msgData.message = ParseHelper.getNoticeMemsByContent(msgData.operator_id, msgData.content);
+                                            msgData.msg_type = MsgType.GroupNotice;
+
+                                            msgDatas.push(msgData);
+                                            break;
+                                        default:
+                                            console.log('暂未适配该类型消息：', msgList[i].wrapper_type);
+                                            break;
+                                    }
+
+                                }
+                                // 本地数据更新
+                                LocalDataMgr.initAddToMsg(msgDatas);
+
+                                BindHelper.bindAllMsg(msgList, store); // 绑定数据
+
+                                // me.onShowChatTime(store);// 处理时间，一分钟内不显示
+                            }
+                        }
+                    });
+                }
+            };
+
+            LocalDataMgr.getLastMsgTime(cid, getTimeSuc);
+
+        } else {
+            store.removeAll();
+            Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
+                success: function (data) {
+
+                    BindHelper.bindAllMsg(data, store); // 绑定数据
+
+                    me.onScroll(chatView);
+
+                    // me.onShowChatTime(store);// 处理时间，一分钟内不显示
+                }
+            });
+        }
+
+
+
+        if (isScrolToDown) {
+            me.onScroll(chatView); // 滚动条滚动到最下方
+        }
 
     },
 
@@ -550,19 +567,24 @@ Ext.define('IM.utils.ChatHelper', {
         Utils.ajaxByZY('post', 'chats/direct', {
             params: JSON.stringify([User.ownerID, uid]),
             success: function (data) {
-                // 本地
-                if (Config.isPC) {
-                    data.display_name = nickname;
-                    data.unread_count = 0;
-                    data.last_sender_id = User.ownerID;
-                    data.last_sender_name = User.crtUser.user_name;
-                    data.last_message = '';
-                    LocalDataMgr.meAddRctChat(data);
+                var record = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(data.chat_id);
+                // 页面store中是否有该数据
+                if (!record) { // 不存在
+
+                    // 本地
+                    if (Config.isPC) {
+                        data.display_name = nickname;
+                        data.unread_count = 0;
+                        data.last_sender_id = User.ownerID;
+                        data.last_sender_name = User.crtUser.user_name;
+                        data.last_message = '';
+                        LocalDataMgr.meAddRctChat(data);
+                    }
+
+                    me.addChatCache(data); // 内存中加入chat的信息
+
+                    BindHelper.addChannelToRecent(data, uid, nickname);
                 }
-
-                me.addChatCache(data); // 内存中加入chat的信息
-
-                BindHelper.addChannelToRecent(data, uid, nickname);
 
                 me.openDirectChat(data.chat_id); // 打开频道
             },
@@ -575,29 +597,51 @@ Ext.define('IM.utils.ChatHelper', {
 
     createGroupChat(memsID) {
         const me = this;
-        if (memsID.length == 1) { // 只有一个人,则为单人会话
-            var userName = me.getName(memsID[0]);
-            me.onOpenDirectChat(memsID[0], userName);
-        } else {
-            Utils.ajaxByZY('post', 'chats/group', {
-                // async: false,
-                params: JSON.stringify(memsID),
-                success: function (data) {
-                    console.log('创建多人会话成功', data);
+        // if (memsID.length == 1) { // 只有一个人,则为单人会话
+        //     var userName = me.getName(memsID[0]);
+        //     me.onOpenDirectChat(memsID[0], userName);
+        // } else {
+        Utils.ajaxByZY('post', 'chats/group', {
+            // async: false,
+            params: JSON.stringify(memsID),
+            success: function (data) {
+                console.log('创建多人会话成功', data);
+                // User.crtChannelId = data.chat_id;
+                // me.addChatCache(data);
 
-                    // User.crtChannelId = data.chat_id;
-                    me.addChatCache(data);
+                var record = BindHelper.addChannelToRecent(data, '', data.header);
 
-                    BindHelper.addChannelToRecent(data, '', data.header);
-
-                    me.openGroupChat(data.chat_id);
-
-                },
-                failure: function (data) {
-                    console.log('创建多人会话失败', data);
+                if (Config.isPC) {
+                    LocalDataMgr.createGrpChat(data);
                 }
-            });
-        }
+
+                me.openGroupChat(data.chat_id, true);
+
+                // if(Config.isPC) {
+                //     LocalDataMgr.createGrpChat(data);
+
+                //     Utils.ajaxByZY('get', 'chats/' + data.chat_id + '/members', {
+                //         success: function (result) {
+                //             record.set('members', result);
+
+                //             me.openGroupChat(data.chat_id);
+                //         }
+                //     });
+
+                // } else {
+                //     me.addChatCache(data);
+                //     me.openGroupChat(data.chat_id);
+                // }
+
+
+
+            },
+            failure: function (data) {
+                console.log('创建多人会话失败', data);
+                Utils.toastShort('发起会话失败');
+            }
+        });
+        // }
     },
 
     /**

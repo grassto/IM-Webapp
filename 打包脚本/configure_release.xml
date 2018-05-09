@@ -19,7 +19,7 @@
 		encoding="UTF-8"
 	/>
   <replaceregexp file="../app.json"
-		match="&quot;type&quot;: &quot;(cmd|closure|none)&quot;"
+		match="&quot;type&quot;: &quot;(closure|none)&quot;"
 		replace="&quot;type&quot;: &quot;cmd&quot;"
 		byline="true"
 		encoding="UTF-8"

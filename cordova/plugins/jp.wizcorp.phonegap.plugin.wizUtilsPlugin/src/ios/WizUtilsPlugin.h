@@ -77,4 +77,6 @@
 
 - (void) saveToAlbum:(CDVInvokedUrlCommand*)command;
 
+- (void) getUUID:(CDVInvokedUrlCommand*)command;
+
 @end

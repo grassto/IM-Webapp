@@ -24,7 +24,7 @@
                 
     "name": "PushIM.Webapp",
     "namespace": "PushIM.Webapp",
-    "version": "1.0.0.0",
+    "version": "1.0.0.1",
     "framework": "ext",
     "toolkit": "modern",
     "theme": "theme-default",

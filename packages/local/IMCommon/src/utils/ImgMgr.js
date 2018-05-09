@@ -23,38 +23,34 @@ Ext.define('IMCommon.utils.ImgMgr', {
     },
 
     parsePic(attId) {
+        const me = this,
+            previewUrl = me.getFullPicUrl(`${attId}/thumbnail`),
+            originalUrl = me.getFullPicUrl(attId);
+
         return [
             '<div class="imgBlock">',
-            '<img class="viewPic" src="' + Ext.getResourcePath('images/loading.gif') + '" onload="ImgMgr.loadPic(this)" data-thumb="' + attId + '/thumbnail" data-img="' + attId + '" data-showthumb="Y"/>',
+            `<img class="viewPic" src="${Ext.getResourcePath('images/loading.gif')}" onload="ImgMgr.loadPic(this)" data-preview="${previewUrl}" data-original="${originalUrl}" data-showpreview="Y"/>`,
             '</div>'
         ].join('');
     },
 
-    loadPic: function (node) {
+    loadPic(node) {
         var me = this;
         if (!node || !me.isInBody(node)) return;
 
-        var showThumb = node.hasAttribute('data-showthumb'),
+        var showPreview = node.hasAttribute('data-showpreview'),
             showProgress = node.hasAttribute('data-showprogress'), // 显示下载进度
-            thumb = node.getAttribute('data-thumb'),
-            imgId = node.getAttribute('data-img'),
-            url = me.getFullPicUrl(showThumb ? thumb : imgId),
-            saveDir = showThumb ? User.getThumbDir() : User.getImageDir(),
-            picName = imgId;
+            previewUrl = node.getAttribute('data-preview'),
+            originalUrl = node.getAttribute('data-original'),
+            url = showPreview ? previewUrl : originalUrl,
+            saveDir = User.getImageDir(),
+            picName = FileUtil.getFileName(url);
 
         node.removeAttribute('onload');
         me._setNodeTipText(node, '加载中'); // 在 <div class="imgCt"> 里放一个 文字提示<div>
 
         if (Ext.browser.is.Cordova || window.cefMain) { // 如果是 cordova（或者 cef）
             var nodeId = Ext.id(node, me.prefix); // 防止 node 节点没有id，给它一个id
-
-            /* cefFile.downloadImage(url, picName, function(evt) {
-                var s = JSON.parse(evt);
-                if(s.status == 'completed') {
-                    ImgMgr._setNodeSrc(nodeId, s.file_path);
-                    return;
-                }
-            });*/
 
             FileMgr.downFileForSrc(url, 1, saveDir + picName, {
                 downloading(percent) {
@@ -73,13 +69,13 @@ Ext.define('IMCommon.utils.ImgMgr', {
         }
     },
 
-    _setNodeSrc: function (node, src, errTip) {
+    _setNodeSrc(node, src, errTip) {
         if (Ext.isString(node) && !Ext.isEmpty(node)) {
             node = Ext.getDom(node);
         }
         if (!node) return;
 
-        // if (errTip === undefined) errTip = true;
+        if (errTip === undefined) errTip = true;
 
         var me = this;
         var imgLoaded = function (e) {
@@ -105,14 +101,14 @@ Ext.define('IMCommon.utils.ImgMgr', {
             n.removeEventListener('load', imgLoaded, false);
             n.removeEventListener('error', imgLoadErr, false);
 
-            n.src = ImgUtil.onePxImg;
+            // n.src = ImgUtil.onePxImg;
 
+            n.src = Ext.getResourcePath('images/failed.png');
             if (errTip) {
-                //"加载失败"提示
+                // "加载失败"提示
                 me._setNodeTipText(n, n.getAttribute('data-errtip') || '加载失败');
             }
             else {
-                node.src = Ext.getResourcePath('images/failed.png');
                 me._removeNodeTip(n);
             }
         };
@@ -123,7 +119,7 @@ Ext.define('IMCommon.utils.ImgMgr', {
     },
 
     // 在 <div class="imgCt"> 里放一个 文字提示<div>
-    _setNodeTipText: function (n, text) {
+    _setNodeTipText(n, text) {
         if (!n || !n.parentNode) return;
         var tip = n.parentNode.querySelector('.img-tip');
         if (!tip) {
@@ -134,7 +130,7 @@ Ext.define('IMCommon.utils.ImgMgr', {
         tip.innerHTML = text;
     },
     // 从 <div class="imgCt"> 里移除 文字提示<div>
-    _removeNodeTip: function (n) {
+    _removeNodeTip(n) {
         if (!n || !n.parentNode) return;
         var tip = n.parentNode.querySelector('.img-tip');
         if (tip) {
@@ -143,6 +139,38 @@ Ext.define('IMCommon.utils.ImgMgr', {
     },
 
     getFullPicUrl(picUrl) {
-        return Config.httpUrlForGo + 'files/' + picUrl;
+        return `${Config.httpUrlForGo}files/${picUrl}`;
+    },
+
+    /**
+     * 移动端 点击查看大图 事件
+     */
+    addViewerListener (container) {
+        (container.innerElement || container.element).on({
+            delegate: 'img',
+            tap: 'showViewerOnTapImg',
+            scope: this
+        });
+    },
+    showViewerOnTapImg (e) {
+        this.showViewerOfDom(e.target);
+    },
+    showViewerOfDom (node) {
+        if (node.hasAttribute('data-original')) {
+            var src = node.getAttribute('data-original'),
+                isPreview = node.hasAttribute('data-showpreview'),
+                loaded = node.className.indexOf('loaded') >= 0,
+                previewSrc = isPreview && loaded ? node.src : null,
+                name = FileUtil.getFileName(src);
+
+            Ext.Viewport.add({
+                xtype: 'imgviewer',
+                imgName: name,
+                saveDir: 'images/',
+                previewSrc: previewSrc,
+                originNodeId: isPreview ? null : Ext.id(node, this.prefix),
+                src: src
+            });
+        }
     }
 });

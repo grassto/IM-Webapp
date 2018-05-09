@@ -175,6 +175,9 @@ public class WizUtilsPlugin extends CordovaPlugin {
                 callbackContext.error(e.getMessage());
             }
             return true;
+        } else if(action.equals("getUUID")){
+            String uuid = getUUID();
+            callbackContext.success(uuid);
         } else {
             callbackContext.error("Invalid action");
             return false;
@@ -244,5 +247,9 @@ public class WizUtilsPlugin extends CordovaPlugin {
             return result; // return the file size
         }
         return 0;
+    }
+
+    private String getUUID() {
+        return java.util.UUID.randomUUID().toString().replace("-", "");
     }
 }

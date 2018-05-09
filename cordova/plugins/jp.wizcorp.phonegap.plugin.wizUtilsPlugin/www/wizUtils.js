@@ -70,6 +70,10 @@ var wizUtils = {
             return;
         }
         exec(s, f, "WizUtilsPlugin", "saveToAlbum", [uri]);
+    },
+    
+    getUUID: function(s, f) {
+        cordova.exec(s, f, "WizUtilsPlugin", "getUUID", []);
     }
 
 };

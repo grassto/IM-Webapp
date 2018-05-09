@@ -69,6 +69,8 @@ Ext.define('IM.view.leftTab.recentChat.RecentChat', {
                     '<tpl elseif="values.last_msg_type == \'I\'">',
                         '<div>[图片]</div>', // 图片
                     '</tpl>',
+                '<tpl elseif="values.type == \'G\'">', // 群聊提示信息
+                    '<div>{last_post_msg}</div>',
                 '<tpl else>', // 多人
                     '<tpl if="values.last_msg_type == \'T\'">',
                         '<div>{last_post_name}：{last_post_msg}</div>', // 文字

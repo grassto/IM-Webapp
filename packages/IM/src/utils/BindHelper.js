@@ -101,6 +101,8 @@ Ext.define('IM.utils.BindHelper', {
             users = User.allUsers;
         // otherUsers = User.allOthers;
 
+        // treeStore.removeAll();
+
         // 创建节点树
         for (var i = 0; i < orgs.length; i++) {
             if (orgs[i].parent_id === '') {// 根节点
@@ -239,7 +241,7 @@ Ext.define('IM.utils.BindHelper', {
             chat_id: data.chat_id,
             name: nickname,
             type: data.chat_type,
-            last_post_at: new Date(data.update_at),
+            last_post_at: data.update_at,
             status: status,
             chat_name: data.chat_name,
             members: data.members
@@ -253,7 +255,7 @@ Ext.define('IM.utils.BindHelper', {
     },
 
     /**
-     * 递归添加leaf节点id
+     * 递归添加leaf节点id, 若节点下只有一个人，则返回这个人的信息
      * @param {*} record 组织结构树节点信息
      * @param {*} memsID 需要添加的id
      */
@@ -270,7 +272,7 @@ Ext.define('IM.utils.BindHelper', {
 
         var result = [];
         if (memsID.length == 1) {
-            result.push(memsID);
+            result.push(memsID[0]);
         } else {
             for (var j = 0; j < memsID.length; j++) {
                 result.push(memsID[j].id);
@@ -278,6 +280,7 @@ Ext.define('IM.utils.BindHelper', {
         }
         return result;
     },
+
 
 
     // onAddMemToGroup(listData) {

@@ -19,7 +19,7 @@ Ext.define('IM.utils.ChatHelper', {
                         memsID = BindHelper.getLeafIDFromTree(record, memsID);
 
                         if (memsID.length == 1) { // 组织结构下仅有一人
-                            me.createDirectChat(record.get('id'), record.get('name'));
+                            me.createDirectChat(memsID[0].id, memsID[0].name);
                         } else {
                             // 不判断，都是新增多人会话
                             me.createGroupChat(memsID);
@@ -287,9 +287,7 @@ Ext.define('IM.utils.ChatHelper', {
             chatStore = chatView.getStore(),
             record = chatStore.getById(cid);
 
-        // 初始化分页数据
-        chatView.perPage = 0;
-        chatView.hasMore = true;
+        
 
         if (record) { // 讲道理，这里肯定有这个record
             // chatView.setSelection(record); // 设置选中
@@ -330,8 +328,8 @@ Ext.define('IM.utils.ChatHelper', {
             memStore.removeAll();
 
             var rctStore = imView.down('#recentChat').getStore(),
-                    rctRecord = rctStore.getById(cid),
-                    mems = rctRecord.get('members');
+                rctRecord = rctStore.getById(cid),
+                mems = rctRecord.get('members');
 
             mems = me.handleMemListStatus(mems);
 
@@ -466,13 +464,15 @@ Ext.define('IM.utils.ChatHelper', {
                                             }
 
                                             msgDatas.push(msgData);
+
+
                                             break;
                                         case MsgWrapperType.Notice: // 只要两个数据展示，信息、时间
                                             msgData = msgList[i].notice;
                                             msgData.message = ParseHelper.getNoticeMemsByContent(msgData.operator_id, msgData.content);
                                             msgData.msg_type = MsgType.GroupNotice;
 
-                                            msgDatas.push(msgData);
+                                            // msgDatas.push(msgData);
                                             break;
                                         default:
                                             console.log('暂未适配该类型消息：', msgList[i].wrapper_type);
@@ -480,9 +480,9 @@ Ext.define('IM.utils.ChatHelper', {
                                     }
 
                                 }
+
                                 // 本地数据更新
                                 LocalDataMgr.initAddToMsg(msgDatas);
-
                                 BindHelper.bindAllMsg(msgList, store); // 绑定数据
 
                                 // me.onShowChatTime(store);// 处理时间，一分钟内不显示
@@ -578,7 +578,7 @@ Ext.define('IM.utils.ChatHelper', {
                         data.last_sender_id = User.ownerID;
                         data.last_sender_name = User.crtUser.user_name;
                         data.last_message = '';
-                        LocalDataMgr.meAddRctChat(data);
+                        LocalDataMgr.createDitChat(data);
                     }
 
                     me.addChatCache(data); // 内存中加入chat的信息
@@ -586,7 +586,9 @@ Ext.define('IM.utils.ChatHelper', {
                     BindHelper.addChannelToRecent(data, uid, nickname);
                 }
 
-                me.openDirectChat(data.chat_id); // 打开频道
+                me.openChatAfterCreate(data, nickname); // 创建会话成功后，打开会话界面
+
+                // me.openDirectChat(data.chat_id); // 打开频道
             },
             failure: function (data) {
                 console.log(data);
@@ -597,51 +599,98 @@ Ext.define('IM.utils.ChatHelper', {
 
     createGroupChat(memsID) {
         const me = this;
-        // if (memsID.length == 1) { // 只有一个人,则为单人会话
-        //     var userName = me.getName(memsID[0]);
-        //     me.onOpenDirectChat(memsID[0], userName);
-        // } else {
-        Utils.ajaxByZY('post', 'chats/group', {
-            // async: false,
-            params: JSON.stringify(memsID),
-            success: function (data) {
-                console.log('创建多人会话成功', data);
-                // User.crtChannelId = data.chat_id;
-                // me.addChatCache(data);
+        if (memsID.length == 1) { // 只有一个人,则为单人会话
+            var userName = me.getName(memsID[0]);
+            me.onOpenDirectChat(memsID[0], userName);
+        } else {
+            Utils.ajaxByZY('post', 'chats/group', {
+                // async: false,
+                params: JSON.stringify(memsID),
+                success: function (data) {
+                    console.log('创建多人会话成功', data);
+                    // User.crtChannelId = data.chat_id;
+                    // me.addChatCache(data);
 
-                var record = BindHelper.addChannelToRecent(data, '', data.header);
+                    var record = BindHelper.addChannelToRecent(data, '', data.header);
 
-                if (Config.isPC) {
-                    LocalDataMgr.createGrpChat(data);
+                    if (Config.isPC) {
+                        LocalDataMgr.createGrpChat(data);
+                    }
+
+                    me.openChatAfterCreate(data);
+
+                    // me.openGroupChat(data.chat_id, true);
+
+                    // if(Config.isPC) {
+                    //     LocalDataMgr.createGrpChat(data);
+
+                    //     Utils.ajaxByZY('get', 'chats/' + data.chat_id + '/members', {
+                    //         success: function (result) {
+                    //             record.set('members', result);
+
+                    //             me.openGroupChat(data.chat_id);
+                    //         }
+                    //     });
+
+                    // } else {
+                    //     me.addChatCache(data);
+                    //     me.openGroupChat(data.chat_id);
+                    // }
+
+
+
+                },
+                failure: function (data) {
+                    console.log('创建多人会话失败', data);
+                    Utils.toastShort('发起会话失败');
                 }
+            });
+        }
+    },
 
-                me.openGroupChat(data.chat_id, true);
+    /**
+     * 新建会话后调用
+     * @param {json} data 服务端传回的数据
+     * @param {string} nickname 需要展示的chat名称
+     */
+    openChatAfterCreate(data, nickname) {
+        const me = this;
+        me.chgToIMView();
 
-                // if(Config.isPC) {
-                //     LocalDataMgr.createGrpChat(data);
+        var mainView = Ext.Viewport.lookup('IM').lookup('im-main'),
+        chatView = mainView.down('#chatView'),
+        grpView = mainView.down('#groupList');
+        var store = Ext.factory({
+            storeId: data.chat_id,
+            model: 'IM.model.Chat'
+        }, Ext.data.Store);
 
-                //     Utils.ajaxByZY('get', 'chats/' + data.chat_id + '/members', {
-                //         success: function (result) {
-                //             record.set('members', result);
+        chatView.setStore(store);
 
-                //             me.openGroupChat(data.chat_id);
-                //         }
-                //     });
+        switch(data.chat_type) {
+            case ChatType.Direct:
+                grpView.hide();
+            break;
+            case ChatType.Group:
+                nickname = data.header;
+                // 右侧人员列表展示
+                var grpStore = grpView.getStore();
+                grpStore.removeAll();
+                var mems = me.handleMemListStatus(data.members);
+                grpStore.add(mems);
 
-                // } else {
-                //     me.addChatCache(data);
-                //     me.openGroupChat(data.chat_id);
-                // }
-
-
-
-            },
-            failure: function (data) {
-                console.log('创建多人会话失败', data);
-                Utils.toastShort('发起会话失败');
-            }
-        });
-        // }
+                // 加入群聊提示信息
+                var grpMsg = GroupNotice.createNewGrpNotice(data.creator_id, data.members);
+                store.add({
+                    updateTime: data.create_at,
+                    GrpChangeMsg: grpMsg,
+                    showGrpChange: true
+                });
+            break;
+            default:
+            break;
+        }
+        BindHelper.setRightTitle(nickname, data.chat_type); // 右侧标题头
     },
 
     /**

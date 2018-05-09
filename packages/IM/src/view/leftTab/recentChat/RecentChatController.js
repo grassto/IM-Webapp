@@ -16,9 +16,9 @@ Ext.define('IM.view.leftTab.recentChat.RecentChatController', {
             data = location.record.data;
 
         if(data.type === 'D') {
-            ChatHelper.openDirectChat(data.id);
+            ChatHelper.openDirectChat(data.chat_id);
         } else if(data.type === 'G') {
-            ChatHelper.openGroupChat(data.id);
+            ChatHelper.openGroupChat(data.chat_id);
         }
     },
 

@@ -33,6 +33,7 @@ Ext.define('IM.utils.ConnectHelper', {
             orgTree = view.down('#left-organization');
         Utils.mask(orgTree);
         Utils.ajaxByZY('GET', 'users/all', {
+            async: false,
             success: function (data) {
                 var org = data.organizations, // 组织结构信息
                     usersInfo = data.users; // 所有成员信息
@@ -40,6 +41,10 @@ Ext.define('IM.utils.ConnectHelper', {
                 // 存入缓存
                 User.allUsers = usersInfo;
                 User.organization = org;
+
+                if(Config.isPC) {
+                    LocalDataMgr.initUpdateOrg(usersInfo, org);
+                }
 
                 var ids = []; // 获取状态时使用
                 for (let i = 0; i < usersInfo.length; i++) {
@@ -51,14 +56,15 @@ Ext.define('IM.utils.ConnectHelper', {
                 }
 
                 BindHelper.loadOrganization(orgTree);
-                // debugger;
+                orgTree.expandAll(); // tree展开节点
+
                 Utils.unMask(orgTree);// 不知道放这有没有用
 
                 // 定时获取状态 60s， 最近会话列表的问题，对应的是chat，没有人的信息
-                // me.getStatus(ids);
-                // setInterval(() => {
-                //     me.getStatus(ids);
-                // }, 60 * 1000);
+                me.getStatus(ids);
+                setInterval(() => {
+                    me.getStatus(ids);
+                }, 60 * 1000);
 
 
                 // me.getChannels(view);
@@ -178,7 +184,7 @@ Ext.define('IM.utils.ConnectHelper', {
             async: false,
             params: JSON.stringify(uArray),
             success: function (data) {
-                console.log('所有人员状态：', data);
+                // console.log('所有人员状态：', data);
                 User.allStatus = data;
             }
         });

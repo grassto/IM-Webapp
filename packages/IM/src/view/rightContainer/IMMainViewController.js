@@ -145,13 +145,10 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
      * 右侧页面的发起群聊图标，选中后会在发起群聊的框中展示出已经选中的人
      */
     onShowGrpSel() {
-        var grpWarnMsg = PreferenceHelper.preGrpChat();
-        if (grpWarnMsg == '') {
+        if (PreferenceHelper.preGrpChat()) {
             User.isPlus = false; // 判断是哪个按钮
 
             this.fireEvent('grpSel');
-        } else {
-            PreferenceHelper.warnGrpMem(grpWarnMsg);
         }
     },
 
@@ -329,6 +326,92 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
         this.onSend();
     },
 
+    onSendText() {
+        if (PreferenceHelper.preGrpChat()) {
+            const me = this,
+                textAreaField = me.getView().down('richEditor'); // 编辑输入框
+
+            var sendText = textAreaField.getSubmitValue();
+            sendText = ParseHelper.htmlToText(sendText);
+
+            if(sendText) {
+                var message = [],
+                guid = LocalDataMgr.newGuid();
+                message.push({
+                    msg_id: guid, // js不能生成guid号，先用随机字符串，需要cef提供支持
+                    chat_id: User.crtChannelId,
+                    message: sendText,
+                    user_id: User.ownerID
+                });
+
+                // 将数据添加至页面
+                var cView = me.getView().down('#chatView'),
+                store = cView.getStore();
+                var msgRecord = store.add({
+                    msg_id: guid,
+                    senderName: User.crtUser.user_name,
+                    sendText: sendText,
+                    last_post_at: new Date(),
+                    sendStatus: 1, // 发送态
+                    ROL: 'right'
+                });
+                ChatHelper.onScroll(cView); // 数据添加后滚动到最下方
+
+                // 会报错，不知道为啥，之后再改
+                var rctRecord = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(User.crtChannelId);
+                // rctRecord.set({
+                //     last_msg_type: MsgType.TextMsg, // 先只管文本的
+                //     last_post_msg: sendText,
+                //     last_post_at: new Date(),
+                //     last_post_name: User.crtUser.user_name
+                // });
+
+                if (Config.isPC) { // 本地数据库保存
+                    var chatType = rctRecord.get('type');
+                    var data = {
+                        chatID: User.crtChannelId,
+                        chatType: chatType,
+                        content: sendText,
+                        createAt: new Date().getTime(),
+                        userID: User.ownerID,
+                        userName: User.crtUser.user_name
+                    };
+                    LocalDataMgr.meAddOffLineMsg(data); // msg表
+                    LocalDataMgr.updateRctBySend(data); // Rct表
+                }
+
+                // ChatUtil.onSend(JSON.stringify(message), me.onSendSuccess);
+
+                Utils.ajaxByZY('post', 'posts/post2', {
+                    params: JSON.stringify(message),
+                    success: function (data) {
+                        console.log('发送成功', data);
+                        
+                        var datas = [];
+                        for(var i = 0; i <data.length; i++) {
+                            
+                        }
+
+                        // 本地数据处理
+                        if (Config.isPC) {
+                            for (var i = 0; i < data.length; i++) {
+                                LocalDataMgr.updateAfterSendMsg();
+                            }
+                        }
+                        // 将选中的人移至最上方
+                        // me.fireEvent('listToTop', data.user_id);
+                        console.log('发送成功', data);
+                        User.files = [];
+                    }
+                });
+
+                textAreaField.clear(); // 清空编辑框
+            } else {
+                Utils.toastShort('发送内容不能为空');
+            }
+        }
+    },
+
     onSend(files) {
         if (PreferenceHelper.preGrpChat()) {
             const me = this,
@@ -340,14 +423,19 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             sendText = textAreaField.getSubmitValue();
             sendText = ParseHelper.htmlToText(sendText);
 
+            // 拆分图文混排消息
+            var message = ParseHelper.parseWord(sendText);
+
             if (sendText) {
-                var message = [],
-                guid = LocalDataMgr.newGuid();
+                var guid = LocalDataMgr.newGuid();
                 message.push({
-                    msg_id: guid, // js不能生成guid号，先用随机字符串，需要cef提供支持
+                    // msg_id: guid, // js不能生成guid号，先用随机字符串，需要cef提供支持
+                    client_id: guid,
                     chat_id: User.crtChannelId,
                     message: sendText,
-                    user_id: User.ownerID
+                    msg_type: MsgType.TextMsg,
+                    user_id: User.ownerID,
+                    user_name: User.crtUser.user_name
                 });
 
                 // 将数据添加至页面

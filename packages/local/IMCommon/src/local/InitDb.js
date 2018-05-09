@@ -130,6 +130,9 @@ Ext.define('IMCommon.local.InitDb', {
             'Mobile NVARCHAR(100),' +
             'Notes NVARCHAR(200),' +
             'CustomMark NVARCHAR(200),' +
+            'OrgIDs NVARCHAR(100),' + // 从服务端获取来的
+            'DefRoleName NVARCHAR(100),' + //
+
             'DefRolID NVARCHAR(40),' +
             'Locale NVARCHAR(5),' +
             'IsSupperUser CHAR(1),' +

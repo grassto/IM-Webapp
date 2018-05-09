@@ -47,16 +47,18 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     onDrop(target, info) {
         var me = this,
             files = info.files,
-            len = files.length;
-        if (len > 0) {
-            for (var i = 0; i < len; i++) {
-                if (files[i].type == 'image/png') { // 图片类型，则上传并绑定到editor
-                    me.uploadPic(files);
-                } else { // 其他类型再处理
+            len = files.length,
+            type; // 图片格式jpg,jpeg,gif,png,bmp
+        for (var i = 0; i < len; i++) {
+            type = files[i].type.substr(files[i].type.indexOf('/') + 1);
 
-                }
+            if(FileUtil.imageFilter.extensions.indexOf(type) > -1) {// 图片类型，则上传并绑定到editor
+                me.uploadPic(files);
+            } else { // 其他类型再处理
+
             }
         }
+
     },
 
     /**
@@ -396,6 +398,13 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         });
     },
 
+    uploadPic2(picInfo) {
+        var me = this,
+            formData = new FormData();
+       
+        debugger;
+    },
+
     /**
      * 根据id绑定图片至img
      * @param {string} infoID 图片id
@@ -422,7 +431,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         User.localFiles = fileInfo; // 通过缓存来存储
         // 显示上传页面
         const me = this;
-        if(!me.uploadList) {
+        if (!me.uploadList) {
             me.uploadList = Ext.create('IM.widget.UploadList', {
                 id: 'uploadList'
             });
@@ -443,11 +452,11 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         const me = this;
         var html = [
             '<div class="fileMsg">',
-                '<div class="fileWrapper">',
-                    '<div class="fileIcon"></div>',
-                    '<div class="fileName">' + file.file_name + '</div>',
-                    '<div>' + me.bytesToSize(file.size) + '</div>',
-                '</div>',
+            '<div class="fileWrapper">',
+            '<div class="fileIcon"></div>',
+            '<div class="fileName">' + file.file_name + '</div>',
+            '<div>' + me.bytesToSize(file.size) + '</div>',
+            '</div>',
             '</div>',
             '&#8203'
         ].join('');
@@ -467,7 +476,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
             sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
             i = Math.floor(Math.log(bytes) / Math.log(k));
 
-       return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+        return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
     },
 
 

@@ -25,7 +25,7 @@ Ext.define('IM.model.RecentSelMem', {
         },
         { // 用于排序
             name: 'last_post_at',
-            // type: 'date', // 使用date动态去修改record的值，页面无效果
+            type: 'date', // 使用date动态去修改record的值，页面无效果
             convert: function(value) {
                 if(value == 0 || value == undefined || value == null) {
                     return '';
@@ -40,10 +40,12 @@ Ext.define('IM.model.RecentSelMem', {
         },
         { // 是否置顶
             name: 'toTop',
-            type: 'bool'
+            type: 'boolean',
+            defaultValue: false
         },
         {
-            name: 'last_post_name'
+            name: 'last_post_name',
+            type: 'string'
             // convert: function(value) {
             //     return ChatHelper.getName(value);
             // }

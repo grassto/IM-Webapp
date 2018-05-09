@@ -215,12 +215,12 @@ Ext.define('IM.utils.SocketEventHelper', {
             data = JSON.parse(msg.data.message);
         if (data.user_id != User.ownerID) { // 只要不是自己发的，就加
 
-            data.user_name = msg.data.sender_name;
-            data.chat_type = msg.data.chat_type;
-            data.chat_name = msg.data.chat_name;
+            data.user_name = msg.data.sender_name; // 发送者
+            data.chat_type = msg.data.chat_type; // 会话类型（D/G）
+            data.chat_name = msg.data.chat_name; // 会话名称
             // 本地客户端数据保存,IMMsg
             if (Config.isPC) {
-                LocalDataMgr.insertOMsg(data);
+                me.localNewMsg(data);
             }
 
             const view = Ext.Viewport.lookup('IM'), // 总容器
@@ -267,6 +267,30 @@ Ext.define('IM.utils.SocketEventHelper', {
 
             me.notifyWrapper(msg.data);// 未读提示
         }
+    },
+
+    /**
+     * 根据不同的msg_type将数据组织好，通过统一入口存入本地数据库
+     * @param {json} data
+     */
+    localNewMsg(data) {
+
+        switch (data.msg_type) {
+            case MsgType.TextMsg:
+                
+                break;
+            case MsgType.ImgMsg:
+                
+                break;
+            case MsgType.FileMsg:
+                
+                break;
+            default:
+                alert('暂未支持该类型：', data.msg_type);
+        }
+            
+
+        LocalDataMgr.insertOMsg(data);
     },
 
     addTextMsg(store, data) {

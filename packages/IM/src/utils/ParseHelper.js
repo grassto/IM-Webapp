@@ -2,7 +2,19 @@ Ext.define('IM.utils.ParseHelper', {
     alternateClassName: 'ParseHelper',
     singleton: true,
 
-    // 解析URL之后做
+    /**
+     * 发送图片前，拆分图文混排数据
+     * @param {string} msg 消息内容（html）
+     * @return {Array} 消息数组
+     */
+    parseWord(msg) {
+        var result = [],
+            reg = /\<img[^\>]*src="([^"]*)"[^\>]*\>/g;
+
+        return result;
+    },
+
+    // 解析URL有问题，先不急着做
     parseURL(message) {
         // debugger;
         var reg = /^(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?$/ig;
@@ -193,7 +205,7 @@ Ext.define('IM.utils.ParseHelper', {
                     updateTime: new Date(message.update_at)
                 };
             }
-            if(result) {
+            if (result) {
                 result.msg_type = message.msg_type;
             }
 

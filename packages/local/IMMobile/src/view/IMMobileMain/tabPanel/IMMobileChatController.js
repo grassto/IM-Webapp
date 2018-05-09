@@ -11,10 +11,11 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
      */
     init: function () {
         // 先从本地数据库拉取数据
-        if (Ext.browser.is.Cordova) {
+        if (Config.isPhone) {
             this.getLocalChats();
+        } else {
+            this.getAllChats();
         }
-        this.getAllChats();
     },
 
     getLocalChats() {

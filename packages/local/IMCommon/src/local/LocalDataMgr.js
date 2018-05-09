@@ -23,7 +23,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     getDB: function () {
         if (Ext.browser.is.Cordova || window.cefMain) {
             return sqlitePlugin.openDatabase({
-                name: 'IM',
+                name: User.ownerID, // 不同的用户根据user_id来创建数据库
                 iosDatabaseLocation: 'default'
             });
         }
@@ -263,10 +263,10 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     },
 
     /**
-     * 自己新建会话
+     * 新建单人会话
      * @param {json} data ({chat_id:xxx,chat_name:xxx,...})
      */
-    meAddRctChat(data) {
+    createDitChat(data) {
         var me = this;
         me.getDB().transaction(function (trans) {
             // me.ensureRChatTable(trans);
@@ -283,9 +283,11 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     createGrpChat(data) {
         const me = this;
         me.getDB().transaction(function (trans) {
+            var content = GroupNotice.createNewGrpNotice(data.creator_id, data.members);
+
             var sql = 'INSERT INTO IMRct ' +
-                '(ChatID, ChatType, DisplayName, LastPostAt) VALUES ' +
-                '("' + data.chat_id + '", "' + data.chat_type + '", "' + data.header + '", ' + data.create_at + ');';
+                '(ChatID, ChatType, DisplayName, LastPostAt, LastMessage, LastMsgType) VALUES ' +
+                '("' + data.chat_id + '", "' + data.chat_type + '", "' + data.header + '", ' + data.create_at + ', "' + content + '", "' + MsgType.GroupNotice + '");';
 
             var ids = [], names = [];
             for (var i = 0; i < data.members.length; i++) {
@@ -299,6 +301,10 @@ Ext.define('IMCommon.local.LocalDataMgr', {
                 '(ChatID, DisplayName, CreatorID, CreatorName, ManagerID, ManagerName, CreateAt, UserIDs, UserNames) VALUES' +
                 '("' + data.chat_id + '", "' + data.header + '", "' + User.ownerID + '", "' + User.crtUser.user_name + '", "' + data.manager_id + '", "' + User.crtUser.user_name + '", ' + data.create_at + ', "' + ids + '", "' + names + '");';
 
+
+            sql += 'INSERT INTO IMMsg ' +
+                '(MsgID, ChatID, MsgType, Content, CreateAt, Status) VALUES ' +
+                '("' + me.newGuid() + '", "' + data.chat_id + '", "' + MsgType.GroupNotice + '", "' + content + '", ' + data.create_at + ', 0);';
             me.handleSql(trans, sql);
         });
     },
@@ -437,7 +443,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         // status = '0';
 
         me.getDB().transaction(function (trans) {
-            var sql = 'UPDATE IMMsg SET Status=0 WHERE ChatID="'+data.chat_id+'"';
+            var sql = 'UPDATE IMMsg SET Status=0 WHERE ChatID="' + data.chat_id + '"';
 
             me.handleSql(trans, sql);
         });
@@ -451,7 +457,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         const me = this;
 
         me.getDB().transaction(function (trans) {
-            me.ensureMessageTable(trans);
+            // me.ensureMessageTable(trans);
             var status = '0'; // 成功态
             var sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data.msg_id + '","' + data.chat_id + '","' + data.msg_type + '","' + data.message + '","' + data.filePath + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + status + '")';
 
@@ -471,6 +477,91 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * 消息发送成功后调用
      */
     afterSendMsgS(data) {
+
+    },
+
+
+
+
+
+
+    initGetOrg(success) {
+        var me = this;
+        me.getDB().transaction(function (trans) {
+            var sql = 'select * from IMUsr';
+
+            me.handleSql(trans, sql, function (tas, resultSet) {
+                var rows = resultSet.rows;
+                if (rows.length > 0) {
+                    var users = [],
+                        user = {};
+                    for (var i = 0; i < rows.length; i++) {
+                        user.user_id = rows.item(i).UserID;
+                        user.user_name = rows.item(i).UserName;
+                        user.org_ids = rows.item(i).OrgIDs;
+                        user.age = rows.item(i).Age;
+                        user.custom_mark = rows.item(i).CustomMark;
+                        user.def_role_name = rows.item(i).DefRoleName;
+                        user.email = rows.item(i).Email;
+                        user.mobile = rows.item(i).Mobile;
+                        user.notes = rows.item(i).Notes;
+                        user.phone = rows.item(i).Phone;
+                        user.sex = rows.item(i).Sex;
+                        users.push(user);
+                    }
+                    User.allUsers = users;
+
+                    sql = 'select * from IMOrg';
+                    me.handleSql(tas, sql, function (tx, rs) {
+                        var rws = rs.rows;
+                        if (rws.length > 0) {
+                            var orgs = [],
+                                org = {};
+                            for (var i = 0; i < rws.length; i++) {
+                                org.org_id = rws.item(i).OrgID;
+                                org.org_name = rws.item(i).OrgName;
+                                org.parent_id = rws.item(i).ParentID;
+                                org.remarks = rws.item(i).Remarks;
+                                orgs.push(org);
+                            }
+                            User.organization = orgs;
+                        }
+
+                        // 当数据都加载成功后调用
+                        success();
+                    });
+                } else {
+                    success();
+                }
+            });
+        });
+    },
+
+    /**
+     * 根据服务端返回的数据组织sql，写入数据库
+     * @param {Array} users 服务端返回的users
+     * @param {Array} orgs 服务端返回的orgs
+     */
+    initUpdateOrg(users, orgs) {
+        var me = this;
+        me.getDB().transaction(function (trans) {
+            var sqls = '';
+            for (var i = 0; i < users.length; i++) {
+                sqls += 'INSERT OR REPLACE INTO IMUsr ' +
+                    '(UserID, UserName, Age, CustomMark, DefRoleName, Email, Mobile, Notes, OrgIDs, Phone, Sex) VALUES ' +
+                    '("' + users[i].user_id + '", "' + users[i].user_name + '", ' + users[i].age + ', "' + users[i].custom_mark + '", "' + users[i].def_fole_name + '", "' + users[i].email + '", "' + users[i].mobile + '", "' + users[i].notes + '", "' + users[i].org_ids + '", "' + users[i].phone + '", "' + users[i].sex + '"); ';
+                // ' WHERE UserID = "' + users[i].user_id + '";';
+            }
+
+            for (var j = 0; j < orgs.length; j++) {
+                sqls += 'INSERT OR REPLACE INTO IMOrg ' +
+                    '(OrgID, OrgName, ParentID, Remarks) VALUES ' +
+                    '("' + orgs[j].org_id + '", "' + orgs[j].org_name + '", "' + orgs[j].parent_id + '", "' + orgs[j].remarks + '") ;';
+                // 'WHERE OrgID = "' + orgs[i].org_id + '";';
+            }
+
+            me.handleSql(trans, sqls);
+        });
 
     }
 });

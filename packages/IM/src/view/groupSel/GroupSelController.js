@@ -26,7 +26,26 @@ Ext.define('IM.view.groupSel.GroupSelController', {
     init() {
         var grp = this.getView().down('#grpSel-org');
 
-        BindHelper.loadOrganization(grp);
+        if (User.isFirstCon) {
+            if (Config.isPC) {
+                LocalDataMgr.initGetOrg(function() {
+                    var view = Ext.Viewport.lookup('IM'),
+                        orgTree = view.down('#left-organization');
+                    BindHelper.loadOrganization(orgTree);
+                    BindHelper.loadOrganization(grp);
+
+                    ConnectHelper.getMembers(view);
+                });
+            } else {
+                ConnectHelper.getMembers(Ext.Viewport.lookup('IM'));
+
+                BindHelper.loadOrganization(grp);
+            }
+
+        } else {
+            BindHelper.loadOrganization(grp);
+        }
+
     },
 
     onAddMem(grid, info) {
@@ -84,11 +103,11 @@ Ext.define('IM.view.groupSel.GroupSelController', {
 
             } else {
                 // 根据当前频道的人数来判断是添加用户还是新建频道，只有两人的时候是新建频道
-                if(User.crtChatMembers.length == 2) {
+                if (User.crtChatMembers.length == 2) {
                     memsID.push(User.crtChatMembers[0]);
                     memsID.push(User.crtChatMembers[1]);
                     ChatHelper.createGroupChat(memsID);
-                } else if(User.crtChatMembers.length > 2) {
+                } else if (User.crtChatMembers.length > 2) {
                     ChatHelper.addMemToGroup(memsID);
                 }
 

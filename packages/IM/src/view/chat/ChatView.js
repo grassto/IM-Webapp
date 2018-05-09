@@ -21,8 +21,9 @@ Ext.define('IM.view.chat.ChatView', {
     //     type: 'chatView'
     // },
 
-    hasMore: true, // 分页
-    perPage: 0, // 分页
+    // 分页信息不能放在view上，应该放在store上
+    // hasMore: true, // 分页
+    // perPage: 0, // 分页
 
     // emptyText: '暂无会话',
 
@@ -65,7 +66,7 @@ Ext.define('IM.view.chat.ChatView', {
         // });
 
         // 添加滚动条事件
-        me.getScrollable().on('scroll', 'onChgScrl', me);
+        // me.getScrollable().on('scroll', 'onChgScrl', me);
 
     },
 

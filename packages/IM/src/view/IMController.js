@@ -255,7 +255,11 @@ Ext.define('IM.view.IMController', {
             // 组织结构树第一次加载
             if (User.isFirstCon) {
                 User.isFirstCon = false;
-                ConnectHelper.getMembers(me.getView());
+                if(Config.isPC) {
+                    me.bindLocalOrg();
+                } else {
+                    ConnectHelper.getMembers(me.getView());
+                }
             }
         } else if (tab.iconCls == 'x-fa fa-th-large') {
             xtype = 'setting';
@@ -301,6 +305,15 @@ Ext.define('IM.view.IMController', {
         return middleView;
     },
 
+    bindLocalOrg() {
+        LocalDataMgr.initGetOrg(function() {
+            var view = Ext.Viewport.lookup('IM'),
+                orgTree = view.down('#left-organization');
+            BindHelper.loadOrganization(orgTree);
+
+            ConnectHelper.getMembers(view);
+        });
+    },
 
     /* **************************************** 弹出的dialog ***********************************/
     // 群聊选人

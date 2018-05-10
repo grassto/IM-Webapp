@@ -279,15 +279,13 @@ Ext.define('IM.utils.ChatHelper', {
     sameOpenChat(cid, isCreate) {
         this.chgToIMView(); // 先跳转
 
-        if (User.crtChannelId == cid) return;
-
-        User.crtChannelId = cid;
         const me = this,
             chatView = Ext.Viewport.lookup('IM').down('#recentChat'),
             chatStore = chatView.getStore(),
             record = chatStore.getById(cid);
 
-        
+        if (User.crtChannelId == cid) return record;
+        User.crtChannelId = cid;
 
         if (record) { // 讲道理，这里肯定有这个record
             // chatView.setSelection(record); // 设置选中
@@ -656,6 +654,7 @@ Ext.define('IM.utils.ChatHelper', {
     openChatAfterCreate(data, nickname) {
         const me = this;
         me.chgToIMView();
+        User.crtChannelId = data.chat_id;
 
         var mainView = Ext.Viewport.lookup('IM').lookup('im-main'),
         chatView = mainView.down('#chatView'),

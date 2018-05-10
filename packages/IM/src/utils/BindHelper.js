@@ -30,7 +30,7 @@ Ext.define('IM.utils.BindHelper', {
             //     isUnRead = false;
             // }
             if (data[i].chat.chat_type == ChatType.Group) {
-                lastUserName = '服务端暂未提供';
+                lastUserName = data[i].chat.last_post_userName;
             }
 
 

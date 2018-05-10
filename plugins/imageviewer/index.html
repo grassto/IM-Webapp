@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>图片浏览</title>
+    <link rel="stylesheet" href="viewer.css">
+    <script src="../FilePlugin.js"></script>
+    <script src="../FileTransferPlugin.js"></script>
+    <link rel="stylesheet" href="../../css/common.css" />
+    <script>
+        var setMaxIcon = function (t) {
+            var max = document.getElementById('max');
+            if (t == 'max') {
+                max.className = 'icon-window-maximize max';
+            } else {
+                max.className = 'icon-window-restore max';
+            }
+        }
+
+    </script>
+    <style>
+        .viewer-download {
+            color: #fff;
+            font-family: icomoon;
+            font-size: .75rem;
+            line-height: 1.5rem;
+            text-align: center;
+        }
+
+            .viewer-download::before {
+                content: "\e900";
+            }
+    </style>
+</head>
+<body>
+    <script src="viewer.js"></script>
+    <script>
+       
+        var imagesData = JSON.parse(window.cefImageView.images) || [],
+            saveDir = (window.cefImageView.userid ? window.cefImageView.userid + '/' : '') + 'images/';
+
+        var container = document.createElement('div');
+        for (var i = 0; i < imagesData.length; i++) {
+            var data = imagesData[i];
+            var img = document.createElement('img');
+            img.src = data.url;
+            if (data.original) img.setAttribute('data-original', data.original);
+
+            container.appendChild(img);
+        }
+
+        window.addEventListener('DOMContentLoaded', function () {
+            var viewer = new Viewer(container, {
+                saveDir: saveDir,
+                url: 'data-original',
+                button: false,
+                backdrop: false,
+                transition: false,
+                zoomRatio: 0.2,
+                toolbar: {
+                    download: function () {
+                        const a = document.createElement('a');
+
+                        a.href = viewer.image.src;
+                        a.download = viewer.image.alt;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    },
+                    oneToOne: true,
+                    prev: function () {
+                        viewer.prev(true);
+                    },
+                    next: function () {
+                        viewer.next(true);
+                    },
+                    rotateLeft: true,
+                    rotateRight: true,
+                },
+            });
+            if (window.cefImageView.initialindex && window.cefImageView.initialindex >= 0) {
+                viewer.view(window.cefImageView.initialindex);
+            }
+            else {
+                viewer.show();
+            }
+            
+        });
+    </script>
+    <div class="head">
+        <span class="title">图片预览</span>
+        <ul class="window-box">
+            <li onclick="cefImageView.min()"><a class="icon-window-minimize min"></a></li>
+            <li onclick="cefImageView.max()"><a id="max" class="icon-window-maximize max"></a></li>
+            <li onclick="cefImageView.close()"><a class="icon-window-close close"></a></li>
+        </ul>
+    </div>
+</body>
+</html>

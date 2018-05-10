@@ -45,9 +45,10 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         itemId: 'IMMobileChatView',
         cls: 'IMMobile-chatView',
         flex: 1,
-        store: {
-            model: 'IMCommon.model.Chat'
-        },
+        // 动态设置store
+        // store: {
+        //     model: 'IMCommon.model.Chat'
+        // },
         itemTpl: '<tpl if="values.showTime">' + // 一分钟内时间不重复展示
             '<div style="width:100%;color:#6f6a60;text-align:center;margin-bottom:10px;">{updateTime}</div>' +
         '</tpl>' +
@@ -114,11 +115,11 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
             scope: me
         });
 
-        me.down('#IMMobileChatView').getStore().on({
-            add: 'onAdd',
-            destroyable: true,
-            scope: me
-        });
+        // me.down('#IMMobileChatView').getStore().on({
+        //     add: 'onAdd',
+        //     destroyable: true,
+        //     scope: me
+        // });
 
 
         // 初始化页面相关信息
@@ -155,13 +156,14 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         const me = this;
 
         if(User.chatMemID) { // 若存在，则表示是从组织结构那边过来的
-            const chatID = me.getChatID(User.chatMemID);
-            if(chatID) {
-                me.getMsgs(chatID);
-            } else {
-                me.createChat(User.chatMemID);
-            }
-        } else {
+            // const chatID = me.getChatID(User.chatMemID);
+            // if(chatID) {
+            //     me.getMsgs(chatID);
+            // } else {
+            //     me.createChat(User.chatMemID);
+            // }
+            me.createDirectChat(User.chatMemID);
+        } else { // 直接点击最近会话进来的
             me.getMsgs(User.crtChannelId);
         }
 
@@ -212,16 +214,42 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         });
     },
 
-    createChat(userID) {
+    createDirectChat(userID) {
         const me = this;
         Utils.ajaxByZY('post', 'chats/direct', {
             params: JSON.stringify([User.ownerID, userID]),
             success: function (data) {
-                // User.chatMemID = ''; // 清空缓存
+                // User.chatMemID = '';
+                // 最近会话store
+                var store = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-MainTabPanel').down('#IMMobile_Chat').getStore(), 
+                record = store.getById(data.chat_id);
 
-                AddDataUtil.addChatToRecent(data.chat_id); // 最近会话列表添加
+                if(!record) { // 创建的新会话
+                    if(Config.isPhone) {
+                        data.display_name = User.crtChatName;
+                        data.unread_count = 0;
+                        data.last_sender_id = User.ownerID;
+                        data.last_sender_name = User.crtUser.user_name;
+                        data.last_message = '';
+                        LocalDataMgr.createDitChat(data);
+                    }
 
-                me.getMsgs(data.chat_id); // 打开频道
+                    store.insert(0, {
+                        chat_id: data.chat_id,
+                        name: User.crtChatName,
+                        type: data.chat_type,
+                        last_post_at: data.update_at,
+                        status: -2, // 不显示状态
+                        chat_name: data.chat_name,
+                        members: data.members
+                    });
+
+                    // var chatView = me.
+                } else { // 直接打开会话
+                    me.getMsgs(data.chat_id); // 打开频道
+                }
+
+                
             },
             failure: function (data) {
                 console.log(data);

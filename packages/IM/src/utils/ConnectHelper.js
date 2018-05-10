@@ -144,7 +144,7 @@ Ext.define('IM.utils.ConnectHelper', {
         for (let i = 0; i < data.length; i++) {
             if (data[i].chat.chat_type == 'D') { // 单人会话
                 // chat_name为C1034__C1064这种，将其拼凑为姓名
-                data[i].chat.channelname = data[i].chat.header = this.parseDirectChatName(data[i], User.ownerID);
+                data[i].chat.channelname = data[i].chat.last_sender_name;
 
                 User.allChannels.push(data[i]);
                 // for (let j = 0; j < User.allOthers.length; j++) {
@@ -167,9 +167,9 @@ Ext.define('IM.utils.ConnectHelper', {
     parseDirectChatName(dataWrap, userID) {
         var chatName = '';
         if (dataWrap.members[0].user_id !== userID) {
-            chatName = dataWrap.members[0].user_id;
+            chatName = dataWrap.members[0].user_name;
         } else {
-            chatName = dataWrap.members[1].user_id;
+            chatName = dataWrap.members[1].user_name;
         }
 
         return chatName;

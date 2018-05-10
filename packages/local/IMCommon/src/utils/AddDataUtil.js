@@ -210,7 +210,7 @@ Ext.define('IMCommon.utils.AddDataUtil', {
         // }
 
         var record = chatStore.add({
-            id: data.chat_id,
+            chat_id: data.chat_id,
             name: nickname,
             type: data.chat_type,
             last_post_at: new Date(data.update_at),

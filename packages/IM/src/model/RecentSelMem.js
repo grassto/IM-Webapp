@@ -5,7 +5,7 @@ Ext.define('IM.model.RecentSelMem', {
         'chat_id',
         'chat_name',
         'userID',
-        'type',
+        'type', // chat_type
         'isUnRead', // 加这个字段是为了当前页面未读，但是不显示未读条数
         {
             name: 'status',
@@ -25,7 +25,7 @@ Ext.define('IM.model.RecentSelMem', {
         },
         { // 用于排序
             name: 'last_post_at',
-            type: 'date', // 使用date动态去修改record的值，页面无效果
+            // type: 'date', // 使用date动态去修改record的值，页面无效果
             convert: function(value) {
                 if(value == 0 || value == undefined || value == null) {
                     return '';

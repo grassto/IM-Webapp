@@ -63,7 +63,7 @@ Ext.define('IM.view.IMController', {
                                 }
                             }
                             datas.push({
-                                id: row.ChatID,
+                                chat_id: row.ChatID,
                                 name: row.DisplayName,
                                 type: row.ChatType,
                                 status: -2, // 不显示状态

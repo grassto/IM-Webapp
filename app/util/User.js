@@ -53,6 +53,7 @@ Ext.define('PushIM.Webapp.util.User', {
     // historySet: 20, // 查询多少条
 
     isFirstCon: true, // 是否是第一次加载，组织结构树
+    isFirstConRct: true, // 是否是第一次加载，最近会话列表（主要是移动端的websocket重连）
 
     clear() {
         User.ownerID = '';
@@ -78,6 +79,7 @@ Ext.define('PushIM.Webapp.util.User', {
         // User.historyFrom = 0;
         // User.historySet = 20;
         User.isFirstCon = true;
+        User.isFirstConRct = true;
     },
 
     /**

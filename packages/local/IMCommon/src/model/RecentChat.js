@@ -1,11 +1,11 @@
 Ext.define('IMCommon.model.ChatOld', {
     extend: 'Ext.data.Model',
-    idProperty: 'id', // 组织结构
+    idProperty: 'chat_id', // 组织结构
     fields: [
-        'id',
+        'chat_id',
         'chat_name',
         'notify',
-        'userID',
+        'user_id',
         'type',
         'isUnRead',
         {
@@ -35,7 +35,13 @@ Ext.define('IMCommon.model.ChatOld', {
         },
         { // 用于排序
             name: 'last_post_at',
-            type: 'date'
+            // type: 'date',
+            convert: function(value) {
+                if(value == 0 || value == undefined || value == null) {
+                    return '';
+                }
+                return Utils.datetime2Ago(value, true);
+            }
         },
         {
             name: 'unReadNum',
@@ -44,7 +50,20 @@ Ext.define('IMCommon.model.ChatOld', {
         },
         {
             name: 'toTop',
-            type: 'int'
-        }
+            type: 'int',
+            defaultValue: false
+        },
+
+        {
+            name: 'last_post_name',
+            type: 'string'
+            // convert: function(value) {
+            //     return ChatHelper.getName(value);
+            // }
+        },
+        'last_msg_type',
+        'last_post_msg',
+
+        'members'
     ]
 });

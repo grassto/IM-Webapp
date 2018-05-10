@@ -126,7 +126,7 @@ Ext.define('IM.utils.SocketEventHelper', {
                 if (data.msg_type == 'T') {
                     text = window.minEmoji(text);
                 } else if (data.msg_type == 'I') {
-                    text = '<img id="' + data.attach_id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail">';
+                    text = '<img id="' + data.attach_id + '" style="/*width:40px;height:40px;*/background:url(' + Ext.getResourcePath('images/loading.gif') +') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail">';
                 }
                 record = chatStore.add({ ROL: ROL, senderName: userName, sendText: text, updateTime: new Date(data.update_at) });
                 if (data.msg_type == 'I') {

@@ -96,7 +96,7 @@ Ext.define('IMCommon.utils.AddDataUtil', {
                 };
             } else if (message.msg_type == MsgType.ImgMsg) {
                 text = ImgMgr.parsePic(message.attach_id);
-                // text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';;
+                // text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(' + Ext.getResourcePath('images/loading.gif') +') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';;
 
                 // 处理滚动条
                 //var url = Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail';

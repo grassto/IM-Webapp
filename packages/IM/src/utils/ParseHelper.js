@@ -52,7 +52,7 @@ Ext.define('IM.utils.ParseHelper', {
                 for (var i = 0; i < fileIds.length; i++) {
                     if (fileIds[i] == id) {
                         // out = '<img style="height:60px;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '">';  // "'/thumbnail">';
-                        out = '<img id="' + id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
+                        out = '<img id="' + id + '" style="/*width:40px;height:40px;*/' + Ext.getResourcePath('images/loading.gif') +') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + id + '/thumbnail">';
                         break;
                     } else {
                         out = str;
@@ -66,7 +66,7 @@ Ext.define('IM.utils.ParseHelper', {
 
     parseToPic(message, fileId) {
         if (fileId) {
-            return '<img id="' + fileId + '" style="background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + fileId + '/thumbnail">';
+            return '<img id="' + fileId + '" style="background:url(' + Ext.getResourcePath('images/loading.gif') +') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + fileId + '/thumbnail">';
         }
         return message;
     },
@@ -166,7 +166,7 @@ Ext.define('IM.utils.ParseHelper', {
                     updateTime: new Date(message.update_at)
                 };
             } else if (message.msg_type == MsgType.ImgMsg) {
-                // text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(/resources/images/loading.gif) no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';
+                // text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(' + Ext.getResourcePath('images/loading.gif') +') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';
                 text = ImgMgr.parsePic(message.attach_id);
 
                 // 处理滚动条

@@ -20,6 +20,8 @@ Ext.define('IM.view.leftTab.organization.Organization', {
         childdoubletap: 'orgOnDblSelMem'
     },
 
+    titleBar: null,
+
     hideHeaders: true,
 
     columns: [{

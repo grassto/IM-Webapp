@@ -207,9 +207,9 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
                 var view = me.down('#IMMobileChatView');
                 AddDataUtil.addAllMsg(view, data);
 
-                Utils.unMask(me);
-
                 User.chatMemID = ''; // 应该放在这
+            }, callback: function() {
+                Utils.unMask(me);
             }
         });
     },
@@ -234,6 +234,7 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
                         LocalDataMgr.createDitChat(data);
                     }
 
+                    // 最近会话加入新的会话
                     store.insert(0, {
                         chat_id: data.chat_id,
                         name: User.crtChatName,
@@ -244,7 +245,13 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
                         members: data.members
                     });
 
-                    // var chatView = me.
+                    // 创建新的store，更换view的store
+                    var newStore = Ext.factory({
+                        storeId: data.chat_id,
+                        model: 'IMCommon.model.Chat'
+                    }, Ext.data.Store);
+                    
+                    me.setStore(newStore);
                 } else { // 直接打开会话
                     me.getMsgs(data.chat_id); // 打开频道
                 }

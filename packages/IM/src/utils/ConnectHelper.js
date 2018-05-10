@@ -61,10 +61,10 @@ Ext.define('IM.utils.ConnectHelper', {
                 Utils.unMask(orgTree);// 不知道放这有没有用
 
                 // 定时获取状态 60s， 最近会话列表的问题，对应的是chat，没有人的信息
-                me.getStatus(ids);
-                setInterval(() => {
-                    me.getStatus(ids);
-                }, 60 * 1000);
+                // me.getStatus(ids);
+                // setInterval(() => {
+                //     me.getStatus(ids);
+                // }, 60 * 1000);
 
 
                 // me.getChannels(view);

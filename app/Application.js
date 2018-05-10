@@ -84,28 +84,34 @@ Ext.define('PushIM.Webapp.Application', {
 
     // 根据网络设置来配置相应的url
     setConfigUrl() {
-        if (localStorage.getItem('inOrOut') == 'in') {
-            var url = localStorage.getItem('inUrl');
-            if (url && url.indexOf) {
-                var index = url.indexOf(':');
-                if (index > -1) {
-                    Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
-                } else {
-                    Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
-                }
+        // 设置默认值
+        if (!localStorage.getItem('inOrOut') || !localStorage.getItem('inUrl') || !localStorage.getItem('outUrl')) {
+            Config.httpUrlForGo = Config.httpPdcGoUrl;
+            Config.wsGoUrl = Config.wsPdcUrl;
+        } else {
+            if (localStorage.getItem('inOrOut') == 'in') {
+                var url = localStorage.getItem('inUrl');
+                if (url && url.indexOf) {
+                    var index = url.indexOf(':');
+                    if (index > -1) {
+                        Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
+                    } else {
+                        Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+                    }
 
-                Config.httpUrlForGo = url + '/api/v1/';
-            }
-        } else if (localStorage.getItem('inOrOut') == 'out') {
-            var url = localStorage.getItem('outUrl');
-            if (url && url.indexOf) {
-                var index = url.indexOf(':');
-                if (index > -1) {
-                    Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
-                } else {
-                    Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+                    Config.httpUrlForGo = url + '/api/v1/';
                 }
-                Config.httpUrlForGo = url + '/api/v1/';
+            } else if (localStorage.getItem('inOrOut') == 'out') {
+                var url = localStorage.getItem('outUrl');
+                if (url && url.indexOf) {
+                    var index = url.indexOf(':');
+                    if (index > -1) {
+                        Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
+                    } else {
+                        Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+                    }
+                    Config.httpUrlForGo = url + '/api/v1/';
+                }
             }
         }
     },

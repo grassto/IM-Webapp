@@ -35,11 +35,13 @@ Ext.define('IM.view.IMController', {
             view = me.getView(),
             rctView = view.down('#recentChat');
         me.callParent(arguments);
+        console.log('程序初始化');
 
         if (Config.isPC) {
             Utils.mask(rctView); // 遮罩
             InitDb.initDB((trans) => {
                 LocalDataMgr.getRecentChat(trans, function (ta, resultSet) {
+                    console.log('数据库初始化完毕');
                     var rows = resultSet.rows,
                         len = rows.length;
 
@@ -57,8 +59,8 @@ Ext.define('IM.view.IMController', {
                                 for (var j = 0; j < us.length; j++) {
                                     row.mems.push({
                                         chat_id: row.ChatID,
-                                        user_id: us[i], // id
-                                        user_name: ns[i] // name
+                                        user_id: us[j], // id
+                                        user_name: ns[j] // name
                                     });
                                 }
                             }
@@ -72,7 +74,7 @@ Ext.define('IM.view.IMController', {
                                 last_post_at: row.LastPostAt,
                                 last_post_userName: row.LastUserName,
                                 last_msg_type: row.LastMsgType,
-                                last_post_msg: row.LastMsg,
+                                last_post_msg: row.LastMessage,
                                 members: row.mems
                             });
                         }
@@ -112,6 +114,7 @@ Ext.define('IM.view.IMController', {
             var recentStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
                 datas = [],
                 row = {};
+            debugger;
             for (var i = 0; i < len; i++) {
                 row = rows.item(i);
                 if (row.ChatType == ChatType.Group) {
@@ -132,6 +135,7 @@ Ext.define('IM.view.IMController', {
                     members: row.mems
                 });
             }
+            
             recentStore.add(datas);
         }
     },

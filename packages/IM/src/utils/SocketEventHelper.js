@@ -4,6 +4,9 @@
 Ext.define('IM.utils.SocketEventHelper', {
     alternateClassName: 'SocketEventHelper',
     singleton: true,
+    requires: [
+        'IMCommon.utils.AddDataUtil'
+    ],
     /* ******************************** posted *********************************************/
 
     /**
@@ -220,21 +223,33 @@ Ext.define('IM.utils.SocketEventHelper', {
             data.chat_name = msg.data.chat_name; // 会话名称
             // 本地客户端数据保存,IMMsg
             if (Config.isPC) {
-                me.localNewMsg(data);
+                // me.localNewMsg(data);
+                LocalDataMgr.getPostEvent(data);
             }
 
             const view = Ext.Viewport.lookup('IM'), // 总容器
                 recentChat = view.down('#recentChat'),
                 mainView = view.lookup('im-main');
+            if(!mainView) {
+                ChatHelper.chgToIMView();
+            }
             // 先判断有没有这个chat
             if (me.hasRctChat(data.chat_id)) { // 有
+                recentChat.getStore().getById(data.chat_id).set({
+                    last_msg_type: MsgType.TextMsg, // 先只管文本的
+                    last_post_msg: data.message,
+                    last_post_at: data.create_at,
+                    last_post_name: data.user_name
+                });
 
                 // 本地数据更新
                 if (Config.isPC) {
                     LocalDataMgr.updateRctByWS(data);
                 }
-
-                var chatView = mainView.down('#chatView'); // 聊天展示页面
+                var chatView;
+                if(mainView) {
+                    chatView = mainView.down('#chatView'); // 聊天展示页面
+                }
                 if (chatView && User.crtChannelId == data.chat_id) { // 有这个页面并且是当前会话
                     var store = chatView.getStore();
 
@@ -251,6 +266,7 @@ Ext.define('IM.utils.SocketEventHelper', {
                         default:
                             alert('暂未支持该类型：', data.msg_type);
                     }
+                    ChatHelper.onScroll(chatView);
                     store = recentChat.getStore();
                     me.promptFakeRead(data, store);
                 } else {
@@ -261,7 +277,9 @@ Ext.define('IM.utils.SocketEventHelper', {
                 }
 
             } else {
-                ChatHelper.addChatToRecent(data.chat_id);
+                // ChatHelper.addChatToRecent(data.chat_id);
+                // BindHelper.addChannelToRecent(data, data.user_id, data.user_name);
+                AddDataUtil.wsAddChatToRct(recentChat.getStore(), data);
                 me.promptUnRead(data, recentChat.getStore());
             }
 
@@ -338,7 +356,8 @@ Ext.define('IM.utils.SocketEventHelper', {
     notifyWrapper(dataWrapper) {
         var me = this,
             data = JSON.parse(dataWrapper.message),
-            userName = ChatHelper.getName(data.chat_id);
+            // userName = ChatHelper.getName(data.chat_id);
+            userName = dataWrapper.sender_name;
         if (dataWrapper.chat_type == ChatType.Direct) { // 单人
             me.notify(dataWrapper.sender_name, data.message);
             CEFHelper.addNotice(data, userName);
@@ -506,6 +525,10 @@ Ext.define('IM.utils.SocketEventHelper', {
         return false;
     },
 
+    /**
+     * 根据store判断是否存在chat
+     * @param {*} chatID 
+     */
     hasRctChat(chatID) {
         var store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
             record = store.getById(chatID);
@@ -552,8 +575,9 @@ Ext.define('IM.utils.SocketEventHelper', {
 
         for (var i = 0; i < memIDs.length; i++) {
             if (User.ownerID != memIDs[i] && creatorID != memIDs[i]) { // 创建者不加，自己不加，直接显示为你
-                memName = ChatHelper.getName(memIDs[i]);
+                // memName = ChatHelper.getName(memIDs[i]);
 
+                memName = memIDs[i];
                 if (i == 0) {
                     memNames = memName;
                 } else {

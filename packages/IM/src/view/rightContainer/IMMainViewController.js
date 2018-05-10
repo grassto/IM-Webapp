@@ -134,7 +134,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 data = lastSel[0].data;
             }
             if (data.unReadNum > 0) {
-                var record = recentChat.getStore().getById(data.id);
+                var record = recentChat.getStore().getById(data.chat_id);
                 ChatHelper.setUnReadToRead(record);
             }
         }
@@ -424,10 +424,11 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
             sendText = ParseHelper.htmlToText(sendText);
 
             // 拆分图文混排消息
-            var message = ParseHelper.parseWord(sendText);
+            // var message = ParseHelper.parseWord(sendText);
 
             if (sendText) {
-                var guid = LocalDataMgr.newGuid();
+                var message = [],
+                    guid = LocalDataMgr.newGuid();
                 message.push({
                     // msg_id: guid, // js不能生成guid号，先用随机字符串，需要cef提供支持
                     client_id: guid,
@@ -442,7 +443,7 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 var cView = me.getView().down('#chatView'),
                 store = cView.getStore();
                 var msgRecord = store.add({
-                    msg_id: guid,
+                    client_id: guid,
                     senderName: User.crtUser.user_name,
                     sendText: sendText,
                     last_post_at: new Date(),
@@ -452,26 +453,29 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                 ChatHelper.onScroll(cView); // 数据添加后滚动到最下方
 
                 // 会报错，不知道为啥，之后再改
-                // var rctRecord = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(User.crtChannelId);
-                // rctRecord.set({
-                //     last_msg_type: MsgType.TextMsg, // 先只管文本的
-                //     last_post_msg: sendText,
-                //     last_post_at: new Date(),
-                //     last_post_name: User.crtUser.user_name
-                // });
+                var rctRecord = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(User.crtChannelId);
+                rctRecord.set({
+                    last_msg_type: MsgType.TextMsg, // 先只管文本的
+                    last_post_msg: sendText,
+                    last_post_at: new Date(),
+                    last_post_name: User.crtUser.user_name
+                });
 
                 if (Config.isPC) { // 本地数据库保存
                     var chatType = rctRecord.get('type');
                     var data = {
                         chatID: User.crtChannelId,
+                        clientID: guid,
                         chatType: chatType,
                         content: sendText,
                         createAt: new Date().getTime(),
                         userID: User.ownerID,
-                        userName: User.crtUser.user_name
+                        userName: User.crtUser.user_name,
+                        msgType: MsgType.TextMsg
                     };
-                    LocalDataMgr.meAddOffLineMsg(data); // msg表
-                    LocalDataMgr.updateRctBySend(data); // Rct表
+                    LocalDataMgr.beforeSendMsgS(data);
+                    // LocalDataMgr.meAddOffLineMsg(data); // msg表
+                    // LocalDataMgr.updateRctBySend(data); // Rct表
                 }
 
                 // ChatUtil.onSend(JSON.stringify(message), me.onSendSuccess);
@@ -481,20 +485,17 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
                     success: function (data) {
                         console.log('发送成功', data);
                         
-                        var datas = [];
-                        for(var i = 0; i <data.length; i++) {
-                            
+                        for(var i = 0; i < data.length; i++) {
+                            msgRecord[0].set({
+                                msg_id: data[i].msg_id,
+                                sendStatus: 0 // 成功态
+                            });
                         }
 
                         // 本地数据处理
                         if (Config.isPC) {
-                            for (var i = 0; i < data.length; i++) {
-                                LocalDataMgr.updateAfterSendMsg();
-                            }
+                            LocalDataMgr.afterSendMsgS(data);
                         }
-                        // 将选中的人移至最上方
-                        // me.fireEvent('listToTop', data.user_id);
-                        console.log('发送成功', data);
                         User.files = [];
                     }
                 });

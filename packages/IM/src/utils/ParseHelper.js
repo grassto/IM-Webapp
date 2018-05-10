@@ -166,13 +166,14 @@ Ext.define('IM.utils.ParseHelper', {
                 ROL = 'right';
             }
 
-            userName = ChatHelper.getName(message.user_id);
+            // userName = ChatHelper.getName(message.user_id);
+            userName = message.user_name;
 
             if (message.msg_type == MsgType.TextMsg) {
                 text = window.minEmoji(message.message); // emoji解析
                 result = {
                     msg_id: message.msg_id,
-                    senderName: userName,
+                    senderName: message.user_name,
                     sendText: text,
                     ROL: ROL,
                     updateTime: new Date(message.update_at)

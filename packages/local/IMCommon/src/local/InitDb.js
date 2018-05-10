@@ -72,6 +72,7 @@ Ext.define('IMCommon.local.InitDb', {
         var t1 = 'CREATE TABLE IF NOT EXISTS IMMsg (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
             'MsgID NVARCHAR(50), ' +
+            'ClientID NVARCHAR(50), ' +
             'ChatID NVARCHAR(50), ' +
             'MsgType CHAR(1), ' +
             'Content TEXT, ' +

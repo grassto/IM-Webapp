@@ -35,7 +35,7 @@ Ext.define('IM.utils.BindHelper', {
 
 
             datas.push({
-                id: data[i].chat.chat_id,
+                chat_id: data[i].chat.chat_id,
                 name: data[i].chat.channelname,
                 type: data[i].chat.chat_type,
                 status: status,
@@ -45,7 +45,8 @@ Ext.define('IM.utils.BindHelper', {
                 last_post_at: data[i].chat.last_post_at,
                 last_post_userName: lastUserName,
                 last_msg_type: data[i].chat.last_msg_type,
-                last_post_msg: data[i].chat.last_message
+                last_post_msg: data[i].chat.last_message,
+                members: data[i].members
             });
         }
 
@@ -248,7 +249,7 @@ Ext.define('IM.utils.BindHelper', {
         });
 
         if (data.creator_id == User.ownerID) {
-            recentChatView.setSelection(record);
+            recentChatView.setSelection(record[0]);
         }
 
         return record[0];
@@ -420,6 +421,8 @@ Ext.define('IM.utils.BindHelper', {
 
                 var record = ParseHelper.getMsgData(data[i]);
                 record.showTime = isShowTime;
+                record.name = record.user_name;
+                // record.senderName = record.user_name;
                 records.push(record);
             }
 

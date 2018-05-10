@@ -8,9 +8,13 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     // 26位guid号
     newGuid() {
         var guid = '';
-        for (var i = 1; i <= 26; i++) {
-            var n = Math.floor(Math.random() * 16.0).toString(16);
-            guid += n;
+        // for (var i = 1; i <= 26; i++) {
+        //     var n = Math.floor(Math.random() * 16.0).toString(16);
+        //     guid += n;
+        // }
+        // return guid;
+        if (Config.isPC) {
+            guid = cefMain.getGuid();
         }
         return guid;
     },
@@ -193,6 +197,8 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         me.getDB().transaction(function (trans) {
             // me.ensureMessageTable(trans);
             var sql = 'select * from IMMsg where ChatID="' + cid + '" ORDER BY CreateAt DESC limit ' + pageFrom + ',20';
+
+            me.handleSql(trans, sql, success);
         });
     },
 
@@ -352,7 +358,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         const me = this;
 
         me.getDB().transaction(function (trans) {
-            var sql = 'INSERT INTO IMRct (ChatID, ChatType, DisplayName, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType, IsTop, AtCount) VALUES ("' + data.chat_id + '","' + data.chat_type + '","' + data.chat_name + '",0,' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + data.message + '","' + data.msg_type + '","",0);';
+            var sql = 'INSERT OR REPLACE INTO IMRct (ChatID, ChatType, DisplayName, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType, IsTop, AtCount) VALUES ("' + data.chat_id + '","' + data.chat_type + '","' + data.chat_name + '",0,' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + data.message + '","' + data.msg_type + '","",0);';
 
             me.handleSql(trans, sql);
         });
@@ -415,7 +421,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
             for (var i = 0; i < data.length; i++) {
 
-                sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data.msg_id + '","' + data.chat_id + '","' + data.msg_type + '","' + data.message + '","' + data.file_path + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + status + '")';
+                sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data[i].msg_id + '","' + data[i].chat_id + '","' + data[i].msg_type + '","' + data[i].message + '","' + data[i].file_path + '",' + data[i].create_at + ',"' + data[i].user_id + '","' + data[i].user_name + '","' + status + '");';
 
                 sqls += sql;
                 // switch (msgList[i].wrapper_type) {
@@ -491,18 +497,47 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * @param {*} data
      */
     beforeSendMsgS(data) {
+        const me = this;
 
+        me.getDB().transaction(function (trans) {
+            var sql = 'INSERT INTO IMMsg ' +
+                '(ChatID, ClientID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES' +
+                '("' + data.chatID + '","' + data.clientID + '","' + data.msgType + '","' + data.content + '","' + data.filePath + '",' + data.createAt + ',"' + data.userID + '","' + data.userName + '","0");';
+
+            sql += 'UPDATE IMRct SET LastPostAt=' + data.createAt + ', LastUserID="' + data.userID + '", LastUserName="' + data.userName + '", LastMessage="' + data.content + '", LastMsgType="' + data.msg_type + '" WHERE ChatID="' + data.chatID + '";';
+
+            me.handleSql(trans, sql);
+        });
     },
 
     /**
      * 消息发送成功后调用
      */
     afterSendMsgS(data) {
+        const me = this;
 
+        me.getDB().transaction(function (trans) {
+            var sql = '';
+            for (var i = 0; i < data.length; i++) {
+                sql += 'UPDATE IMMsg SET MsgID="' + data[i].msg_id + '", MsgType="0" WHERE ClientID="' + data[i].client_id + '";';
+            }
+
+            me.handleSql(trans, sql);
+        });
     },
 
 
+    getPostEvent(data) {
+        const me = this;
 
+        me.getDB().transaction(function (trans) {
+            var sql = 'INSERT INTO IMMsg' +
+                '(MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ' +
+                '("' + data.msg_id + '","' + data.chat_id + '","' + data.msg_type + '","' + data.message + '","' + data.filePath + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","0");';
+
+            me.handleSql(trans, sql);
+        });
+    },
 
 
 

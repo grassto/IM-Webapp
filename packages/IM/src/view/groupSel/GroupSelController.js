@@ -27,20 +27,26 @@ Ext.define('IM.view.groupSel.GroupSelController', {
         var grp = this.getView().down('#grpSel-org');
 
         if (User.isFirstCon) {
-            if (Config.isPC) {
-                LocalDataMgr.initGetOrg(function() {
-                    var view = Ext.Viewport.lookup('IM'),
-                        orgTree = view.down('#left-organization');
-                    BindHelper.loadOrganization(orgTree);
-                    BindHelper.loadOrganization(grp);
+            User.isFirstCon = false;
+            // if (Config.isPC) {
+            //     LocalDataMgr.initGetOrg(function() {
+            //         var view = Ext.Viewport.lookup('IM'),
+            //             orgTree = view.down('#left-organization');
+            //         BindHelper.loadOrganization(orgTree);
 
-                    ConnectHelper.getMembers(view);
-                });
-            } else {
-                ConnectHelper.getMembers(Ext.Viewport.lookup('IM'));
+            //         BindHelper.loadOrganization(grp);
 
-                BindHelper.loadOrganization(grp);
-            }
+            //         ConnectHelper.getMembers(view);
+            //     });
+            // } else {
+            //     ConnectHelper.getMembers(Ext.Viewport.lookup('IM'));
+
+            //     BindHelper.loadOrganization(grp);
+            // }
+
+            // 直接先从服务端拉过来绑定
+            ConnectHelper.getMembers(Ext.Viewport.lookup('IM'));
+            BindHelper.loadOrganization(grp);
 
         } else {
             BindHelper.loadOrganization(grp);

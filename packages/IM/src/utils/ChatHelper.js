@@ -338,7 +338,11 @@ Ext.define('IM.utils.ChatHelper', {
 
     handleMemListStatus(mems) {
         for (var i = 0; i < mems.length; i++) {
-            mems[i].status = StatusHelper.getStatus(mems[i].user_id);
+            if (mems[i].user_id == User.ownerID) {
+                mems[i].status = 0;
+            } else {
+                mems[i].status = StatusHelper.getStatus(mems[i].user_id);
+            }
         }
         return mems;
     },
@@ -413,10 +417,13 @@ Ext.define('IM.utils.ChatHelper', {
         if (!store) {
             store = Ext.factory({
                 storeId: cid,
-                model: 'IM.model.Chat'
+                model: 'IM.model.Chat',
+                isFirst: true
             }, Ext.data.Store);
 
             isScrolToDown = true;
+        } else {
+            store.isFirst = false;
         }
 
         chatView.setStore(store);
@@ -425,18 +432,25 @@ Ext.define('IM.utils.ChatHelper', {
 
         // 从本地获取历史记录,若是web版，则不管它
         if (Config.isPC) {
-            // 查出前20条数据
-            LocalDataMgr.getHistory(me.bindLocalHistory, 0, cid);
+            if (store.isFirst) {
+                // 查出前20条数据
+                LocalDataMgr.getHistory(me.bindLocalHistory, 0, cid);
+            }
 
+            // 多少条未读
             var perPage = Ext.Viewport.lookup('IM').down('#recentChat').getStore().getById(cid).get('unReadNum');
 
-            if (!perPage) perPage = 20; // 没有未读，（新建会话时）
-
-            // 获取最后更新时间的回调函数,根据这个时间去服务器端请求数据
-            var getTimeSuc = function (resultSet) {
-                var rows = resultSet.rows;
-                if (rows.length > 0) {
-                    var lastTime = rows.item(0).CreateAt;
+            if (perPage) { // 有未读
+                perPage = 20;
+                // 获取最后更新时间的回调函数,根据这个时间去服务器端请求数据
+                var getTimeSuc = function (resultSet) {
+                    var rows = resultSet.rows,
+                        lastTime;
+                    if (rows.length > 0) {
+                        lastTime = rows.item(0).CreateAt;
+                    } else {
+                        lastTime = 0;
+                    }
 
                     // 获取未读消息,(page默认为0，per_page默认为20)
                     Utils.ajaxByZY('get', 'chats/' + cid + '/posts/unread?per_page=' + perPage + '&time=' + lastTime, {
@@ -487,11 +501,11 @@ Ext.define('IM.utils.ChatHelper', {
                             }
                         }
                     });
-                }
-            };
 
-            LocalDataMgr.getLastMsgTime(cid, getTimeSuc);
+                };
 
+                LocalDataMgr.getLastMsgTime(cid, getTimeSuc);
+            }
         } else {
             store.removeAll();
             Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
@@ -609,33 +623,26 @@ Ext.define('IM.utils.ChatHelper', {
                     // User.crtChannelId = data.chat_id;
                     // me.addChatCache(data);
 
-                    var record = BindHelper.addChannelToRecent(data, '', data.header);
+                    BindHelper.addChannelToRecent(data, '', data.header);
+
+                    // 数据绑定
+                    // var recentChatView = Ext.Viewport.down('IM').down('#recentChat'),
+                    //     chatStore = recentChatView.getStore();
+                    // chatStore.insert(0, {
+                    //     chat_id: data.chat_id,
+                    //     name: nickname,
+                    //     type: data.chat_type,
+                    //     last_post_at: data.update_at,
+                    //     status: status,
+                    //     chat_name: data.chat_name,
+                    //     members: data.members
+                    // });
 
                     if (Config.isPC) {
                         LocalDataMgr.createGrpChat(data);
                     }
 
                     me.openChatAfterCreate(data);
-
-                    // me.openGroupChat(data.chat_id, true);
-
-                    // if(Config.isPC) {
-                    //     LocalDataMgr.createGrpChat(data);
-
-                    //     Utils.ajaxByZY('get', 'chats/' + data.chat_id + '/members', {
-                    //         success: function (result) {
-                    //             record.set('members', result);
-
-                    //             me.openGroupChat(data.chat_id);
-                    //         }
-                    //     });
-
-                    // } else {
-                    //     me.addChatCache(data);
-                    //     me.openGroupChat(data.chat_id);
-                    // }
-
-
 
                 },
                 failure: function (data) {
@@ -647,32 +654,36 @@ Ext.define('IM.utils.ChatHelper', {
     },
 
     /**
-     * 新建会话后调用
+     * 新建会话后调用，主要是处理存放MSG的store
      * @param {json} data 服务端传回的数据
      * @param {string} nickname 需要展示的chat名称
      */
     openChatAfterCreate(data, nickname) {
         const me = this;
-        me.chgToIMView();
-        User.crtChannelId = data.chat_id;
+        me.chgToIMView(); // 先跳转
+        User.crtChannelId = data.chat_id; // 设置crtCID
 
-        var mainView = Ext.Viewport.lookup('IM').lookup('im-main'),
-        chatView = mainView.down('#chatView'),
-        grpView = mainView.down('#groupList');
+        var imView = Ext.Viewport.lookup('IM'),
+            mainView = imView.lookup('im-main'),
+            chatView = mainView.down('#chatView'),
+            grpView = mainView.down('#groupList');
+        
         var store = Ext.factory({
             storeId: data.chat_id,
-            model: 'IM.model.Chat'
+            model: 'IM.model.Chat',
+            isFirst: true
         }, Ext.data.Store);
 
         chatView.setStore(store);
 
-        switch(data.chat_type) {
+        switch (data.chat_type) {
             case ChatType.Direct:
                 grpView.hide();
-            break;
+                break;
             case ChatType.Group:
                 nickname = data.header;
                 // 右侧人员列表展示
+                grpView.show();
                 var grpStore = grpView.getStore();
                 grpStore.removeAll();
                 var mems = me.handleMemListStatus(data.members);
@@ -685,11 +696,13 @@ Ext.define('IM.utils.ChatHelper', {
                     GrpChangeMsg: grpMsg,
                     showGrpChange: true
                 });
-            break;
+                break;
             default:
-            break;
+                break;
         }
         BindHelper.setRightTitle(nickname, data.chat_type); // 右侧标题头
+
+        
     },
 
     /**
@@ -778,7 +791,7 @@ Ext.define('IM.utils.ChatHelper', {
 
         var isShowTime = true,
             preTime, now;
-        for (var i = 0; i < len; i++) {
+        for (var i = len - 1; i >= 0; i--) {
             row = rows.item(i);
             // 同一分钟不显示时间
             if (i > 0) {
@@ -786,6 +799,8 @@ Ext.define('IM.utils.ChatHelper', {
                 now = Utils.datetime2Ago(new Date(row.CreateAt), true);
                 if (preTime == now) {
                     isShowTime = false;
+                } else {
+                    isShowTime = true;
                 }
             }
             switch (row.MsgType) {
@@ -804,12 +819,19 @@ Ext.define('IM.utils.ChatHelper', {
                 case MsgType.FileMsg:
                     break;
                 case MsgType.GroupNotice:
+                    datas.push({
+                        showTime: isShowTime,
+                        updateTime: new Date(row.CreateAt),
+                        GrpChangeMsg: row.Content,
+                        showGrpChange: true
+                    });
                     break;
                 default:
                     break;
             }
 
         }
+        console.log(datas);
         store.add(datas);
     }
 

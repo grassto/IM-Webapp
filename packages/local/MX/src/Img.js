@@ -64,7 +64,7 @@ Ext.define('MX.Img', {
                             me.onError();
                         }
                     });
-            } else if (src instanceof File) { // input 选择的文件
+            } else if (toString.call(src) === '[object File]') { // input 选择的文件
                 var height = me.element.getHeight();
                 ImgUtil.getImageDataURL(src, height, r => { // 获取缩略图
                     if (me.getValue() === src) {

@@ -1,7 +1,0 @@
-viewer.js
-    BUTTONS中增加download，    146行
-    并在点击事件中增加了download的点击事件，   1058行
-
-
-viewer.css
-    增加 viewer-download::before样式，    35行

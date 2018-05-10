@@ -150,12 +150,37 @@ Ext.define('IM.view.chat.ChatView', {
         if (!record) return;
 
         const e = location.event,
-            t = Ext.fly(e.target);
-        if (t.hasCls('viewPic')) {
-            var src = t.dom.src;
-            ImgUtil.viewImgs(src);
-            // 请求原图浏览
-            // ImgUtil.viewImgs(thumbSrc.substring(0, thumbSrc.indexOf('thumbnail') - 1));
+            t = Ext.fly(e.target),
+            imgSelector = 'img.viewPic.loaded';
+
+        if (t.is(imgSelector)) {
+
+            var imgs = me.innerElement.dom.querySelectorAll(imgSelector),
+                imgsData = [],
+                initialIndex = -1;
+            imgs.forEach((x, i) => {
+                imgsData.push({
+                    url: x.src,
+                    original: x.getAttribute('data-original')
+                });
+                if(t.dom === x) {
+                    initialIndex = i;
+                }
+            });
+            if(window.cefMain) { // cef
+                cefMain.viewImages(imgsData, initialIndex);
+            }
+            else if(Ext.browser.is.Cordova || !Ext.os.is.Desktop) { // 移动端 或者 cordova
+                ImgMgr.showViewerOfDom(t.dom);
+            }
+            else { // web
+                ImgUtil.viewImgs(me.innerElement.dom, {
+                    initialIndex,
+                    filter(image) {
+                        return Ext.fly(image).is(imgSelector);
+                    }
+                });
+            }
         }
         if (t.hasCls('avatar')) {
             this.setHisDetails(record);

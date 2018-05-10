@@ -214,4 +214,13 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)getUUID:(CDVInvokedUrlCommand *)command {
+{
+    NSString *uuid = [[NSUUID UUID] UUIDString];
+    uuid = [uuid stringByReplacingOccurrencesOfString:@"-" withString:@""];
+
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:uuid];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 @end

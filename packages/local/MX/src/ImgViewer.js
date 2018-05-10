@@ -219,7 +219,7 @@ Ext.define('MX.ImgViewer', {
             var nId = this.getOriginNodeId();
             ImgMgr.loadAutomatic(nId);
         };
-        if (src instanceof File) {
+        if (toString.call(src) === '[object File]') {
             ImgMgr.getImageDataURL(src, -1, cb, this);
         } else {
             cb.call(this, src);

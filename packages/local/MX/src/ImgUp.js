@@ -184,7 +184,7 @@ Ext.define('MX.ImgUp', {
                 return false;
             }
         } else {
-            if (!(v instanceof File)) {
+            if (toString.call(v) !== '[object File]') {
                 return false;
             }
         }

@@ -64,8 +64,9 @@ Ext.define('MX.util.ImgUtil', {
      * 显示 dom 容器里面的 img
      * img 元素需要具有 data-original 属性表示原图，alt 属性是文件名
      * @param {Component/Element/HTMLElement/String} node
+     * @param {Object} options
      */
-    viewImgs(node) {
+    viewImgs(node, options) {
         if (!node) return;
 
         const me = this,
@@ -82,11 +83,11 @@ Ext.define('MX.util.ImgUtil', {
         }
         RM.ready(bundleId, {
             success() {
-                me.doViewImgs(node);
+                me.doViewImgs(node, options);
             }
         });
     },
-    doViewImgs(node) {
+    doViewImgs(node, options) {
         if (node.isComponent) {
             node = node.element.dom;
         } else if (node.isElement) {
@@ -100,53 +101,28 @@ Ext.define('MX.util.ImgUtil', {
 
             node = img;
         }
-        const viewer = new Viewer(node, {
+        const viewer = new Viewer(node, Ext.apply({
             url: 'data-original',
             zIndex: 2000000,
             zoomRatio: 0.25,
-            viewed() {
-                viewer.canvas.addEventListener('click', e => { // 点击旁边遮罩 隐藏当前 viewer
-                    if(e.target.className == 'viewer-canvas') {
-                        viewer.hide();
-                    }
-                });
+            transition: false,
+            toolbar: {
+              download: true,
+              oneToOne: true,
+              zoomIn: true,
+              zoomOut: true,
+              rotateLeft: true,
+              rotateRight: true
             },
             hide() {
                 viewer.destroy();
             }
-        });
-        viewer.show();
-    },
-
-    /**
-     * 移动端 点击查看大图 事件
-     */
-    addViewerListener (container) {
-        (container.innerElement || container.element).on({
-            delegate: 'img',
-            tap: 'showViewerOnTapImg',
-            scope: this
-        });
-    },
-    showViewerOnTapImg (e) {
-        this.showViewerOfDom(e.target);
-    },
-    showViewerOfDom (node) {
-        if (node.hasAttribute('data-img')) {
-            var src = this.getFullPicUrl(node.getAttribute('data-img')),
-                isThumb = node.hasAttribute('data-showthumb'),
-                loaded = node.className.indexOf('loaded') >= 0,
-                previewSrc = isThumb && loaded ? node.src : null,
-                name = FileUtil.getFileName(src);
-
-            Ext.Viewport.add({
-                xtype: 'imgviewer',
-                imgName: name,
-                saveDir: 'images/',
-                previewSrc: previewSrc,
-                originNodeId: isThumb ? null : Ext.id(node, this.prefix),
-                src: src
-            });
+        }, options));
+        if(options && options.initialIndex) { // 初始图片
+            viewer.view(options.initialIndex);
+        }
+        else {
+            viewer.show();
         }
     }
 });

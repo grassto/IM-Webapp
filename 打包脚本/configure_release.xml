@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ConfigureDebug">
-  <replaceregexp file="../.sencha/app/production.properties"
+  <!--<replaceregexp file="../.sencha/app/production.properties"
 		match="enable.resource.compression=false"
 		replace="enable.resource.compression=true"
 		byline="true"
 		encoding="UTF-8"
-	/>
+	/>-->
   <replaceregexp file="../.sencha/app/cordova-impl.xml"
 		match=" --release"
 		replace=""

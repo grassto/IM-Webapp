@@ -143,6 +143,20 @@ Ext.define('IMCommon.utils.ImgMgr', {
     },
 
     /**
+     * 网络上第三方的图片，为了防止图片地址获取不到文件名，或者多个地址文件名一样
+     * 比如 https://img-blog.csdn.net/20161109102301174?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center
+     * 我们 用这个方法生成文件名
+     */
+    getRemoteName(url) {
+        if(Ext.isEmpty(url)) return url;
+
+        var ext = FileUtil.getExtension(url); // 不带点后缀
+        if(ext) ext = `.${ext}`;
+
+        return `${url.length}_${Utils.hashCode(url)}${ext}`; // 缓存图片的名字
+    },
+
+    /**
      * 移动端 点击查看大图 事件
      */
     addViewerListener (container) {

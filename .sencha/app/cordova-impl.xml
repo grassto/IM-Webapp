@@ -75,7 +75,7 @@
     <target name="-cordova-build" depends="cordova-platform-add">
         <cordova-echo message="Attempting Cordova Build for platforms &quot;${cordova.platforms.clean}&quot;"/>
         <x-shell reloadprofile="true" dir="${app.cordova.config.path}">
-            cordova ${cordova.cli.options} build ${cordova.platforms.clean}
+            cordova ${cordova.cli.options} build ${cordova.platforms.clean} --release
         </x-shell>
     </target>
     <target name="-after-cordova-build"/>

@@ -16,6 +16,7 @@ Ext.define('IM.view.IM', {
         'Ext.panel.Resizer',
         'IM.view.leftTool.leftTool',
         'IM.view.middlePanel.MiddlePanel',
+        'IM.plugin.DraggableHandle',
 
         'IMCommon.enumType.ChatType',
         'IMCommon.enumType.MsgType',

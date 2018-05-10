@@ -324,7 +324,7 @@
             "enable": true
         },
         "compressor": {
-            "type": "none", //none yui cmd
+            "type": "cmd", //none yui cmd
             "polyfills": "all" 
         }
     },

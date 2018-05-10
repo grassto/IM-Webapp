@@ -7,9 +7,10 @@ Ext.define('IM.view.middlePanel.MiddlePanel', {
     ui: 'tab',
 
     items: [{
-        xtype: 'container',
+        xtype: 'component',
         height: 15,
         cls: 'imitateMidTitle',
+        plugins: 'draggablehandle',
         bind: {
             hidden: '{isHideBrowseTitle}'
         }

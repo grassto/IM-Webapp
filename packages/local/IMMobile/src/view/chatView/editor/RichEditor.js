@@ -211,14 +211,14 @@ Ext.define('IMMobile.view.chatView.editor.RichEditor', {
 
                         } else if (item.typeEx == 'text/html') {
                             item.getAsString(function (data) {
-                                text = me.htmlToPlain(data);
-
-                                if (document.queryCommandSupported('insertHTML')) {
-                                    document.execCommand('insertHTML', false, text);
-                                } else {
-                                    document.execCommand('paste', false, text);
-                                }
-
+                                me.htmlToPlain(data).then(text => {
+                                    if (document.queryCommandSupported('insertHTML')) {
+                                        document.execCommand('insertHTML', false, text);
+                                    } else {
+                                        document.execCommand('paste', false, text);
+                                    }
+                                });
+                                
                                 // var imgs = $('img[url]');
                                 // for (let i = 0; i < imgs.length; i++) {
                                 //     var $img = $(imgs[i]);
@@ -286,42 +286,81 @@ Ext.define('IMMobile.view.chatView.editor.RichEditor', {
 
     rtfhtmlToPlain(html) {
         let result = '';
-        let startIndex = html.indexOf('<!--StartFragment-->'),
+
+        const startIndex = html.indexOf('<!--StartFragment-->'),
             endIndex = html.lastIndexOf('<!--EndFragment-->');
         html = html.substr(startIndex + 20, endIndex - startIndex - 20);
-        html = html.replace(/\n/g, '')
-        html = html.replace(/<\/p>/g, '\n')
-            .replace(/<\/div>/g, '\n')
-            .replace(/<br\/>/g, '\n')
-            .replace(/<br>/g, '\n');
 
-        html = html.replace(/<(?!v:imagedata)[^>]*>/g, '')
+        html = html.replace(/\n/g, '<br>')
+            .replace(/<\/p>/g, '<br>')
+            .replace(/<\/div>/g, '<br>')
+            .replace(/<(?!(v:imagedata|br))[^>]*>/g, '');
         // 此处的图片暂不支持
-        // html = html.replace(/<v:imagedata[^>]*src="([^"]*)"[^>]*\/>/g, '<img src="$1">')
-        html = html.replace(/<v:imagedata[^>]*src="([^"]*)"[^>]*\/>/g, '')
-        result = html;
+        // result = html.replace(/<v:imagedata[^>]*src="([^"]*)"[^>]*\/>/g, '');
+        result = html.replace(/<v:imagedata[^>]*src="([^"]*)"[^>]*\/>/g, '<img src="$1">');
+
         console.log(result);
+
         return result;
     },
 
     htmlToPlain(html) {
         let result = '';
-        let startIndex = html.indexOf('<!--StartFragment-->'),
+
+        const startIndex = html.indexOf('<!--StartFragment-->'),
             endIndex = html.lastIndexOf('<!--EndFragment-->');
         html = html.substr(startIndex + 20, endIndex - startIndex - 20);
 
-        html = html.replace(/\n/g, '');
-        html = html.replace(/<\/p>/g, '\n')
-            .replace(/<\/div>/g, '\n')
-            .replace(/<br\/>/g, '\n')
-            .replace(/<br>/g, '\n')
-        html = html.replace(/<(?!img)[^>]*>/g, '');
+        html = html.replace(/\n/g, '<br>')
+            .replace(/<\/p>/g, '<br>')
+            .replace(/<\/div>/g, '<br>')
+            .replace(/<(?!(img|br))[^>]*>/g, '');
         console.log(html);
+
         // 处理图片
         // result = html.replace(/\<img[^\>]*src="([^"]*)"[^\>]*\>/g, '<img src="resources/images/wait.gif" url="$1">');
-        result = html.replace(/\<img[^\>]*src="([^"]*)"[^\>]*\>/g, '<img src="$1">');
+        // result = html.replace(/<img[^>]*src="([^"]*)"[^>]*>/g, '<img src="$1">');
+
+        if (Ext.browser.is.Cordova || window.cefMain) { // 保留图片并下载到本地，忽略其他标签
+            const srcArr = []; // 第三方图片原始 src 数组
+            result = html.replace(/<img[^>]*src="([^"]*)"[^>]*>/g, function () {
+                const src = arguments[1];
+                srcArr.push(src);
+
+                return `<img src="${src}">`;
+            });
+
+            const promises = [];
+            srcArr.forEach(src => {
+                if (Utils.isUrl(src)) { // 可下载的地址
+                    const tempName = ImgMgr.getRemoteName(src); // 第三方图片存储本地的文件名
+                    promises.push(FileMgr.downFileForSrc(src, 1, `cache/${tempName}`));
+                }
+            });
+
+            // 下载所有图片
+            return Ext.Promise.all(promises.map(p => p.catch(() => undefined))) // 忽略所有 下载失败 的 promise
+                .then(values => {
+                    srcArr.forEach((src, i) => {
+                        if (values[i]) { // 下载好的本地地址
+                            result = result.replace(`<img src="${src}">`, `<img src="${values[i]}">`);
+                        } else { // 下载失败的
+                            result = result.replace(`<img src="${src}">`, `<img src="${Ext.getResourcePath('images/failed.png')}">`);
+                        }
+                    });
+
+                    console.log(result);
+
+                    return result;
+                });
+        }
+
+        // 如果是网页浏览 则过滤掉所有标签
+        result = html.replace(/<img[^>]*>/g, '');
+
         console.log(result);
-        return result;
+
+        return Ext.Promise.resolve(result);
     },
 
     getTargetItem(items) {

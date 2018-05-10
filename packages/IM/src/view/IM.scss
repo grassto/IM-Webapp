@@ -14,7 +14,7 @@ $left-tab-color: black;
 .x-menu-body-el > .x-menuitem .x-icon-wrap-el { width:7px; }
 
 .imitateBrowse {
-    -webkit-app-region: drag;
+    //-webkit-app-region: drag;
 }
 
 .left_panel{
@@ -332,16 +332,12 @@ $left-tab-color: black;
     }
 }
 
-.imitateBrowse{
-    -webkit-app-region: drag;
-}
-
 .imitateLeftTitle{
     background: #286dc7;
-    -webkit-app-region: drag;
+    //-webkit-app-region: drag;
 }
 
 .imitateMidTitle{
     background: $mid-search-background;
-    -webkit-app-region: drag;
+    //-webkit-app-region: drag;
 }

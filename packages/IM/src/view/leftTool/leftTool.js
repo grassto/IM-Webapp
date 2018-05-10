@@ -5,9 +5,10 @@ Ext.define('IM.view.leftTool.leftTool', {
     layout: 'vbox',
     width: 50,
     items: [{
-        xtype: 'container',
+        xtype: 'component',
         height: 15,
         cls: 'imitateLeftTitle',
+        plugins: 'draggablehandle',
         bind: {
             hidden: '{isHideBrowseTitle}'
         }
@@ -52,7 +53,8 @@ Ext.define('IM.view.leftTool.leftTool', {
         }, {
             xtype: 'component',
             flex: 1,
-            cls: 'imitateLeftTitle'
+            cls: 'imitateLeftTitle',
+            plugins: 'draggablehandle'
         }, {
             xtype: 'button',
             ui: 'leftTool-ui',

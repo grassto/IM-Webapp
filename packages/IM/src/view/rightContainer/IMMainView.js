@@ -22,7 +22,8 @@ Ext.define('IM.view.rightContainer.IMMainView', {
         items: [{
             xtype: 'component',
             cls: 'imitateBrowse',
-            flex: 1
+            flex: 1,
+            plugins: 'draggablehandle'
         }, {
             xtype: 'button',
             ui: 'cef',

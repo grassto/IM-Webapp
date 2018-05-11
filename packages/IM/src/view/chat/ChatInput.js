@@ -3,7 +3,7 @@ Ext.define('IM.view.chat.ChatInput', {
     xtype: 'chatInput',
 
     requires: [
-        'IM.view.chat.editor.RichEditor',
+        'IMCommon.view.RichEditor',
         'MX.util.FileUtil'
     ],
 
@@ -94,10 +94,13 @@ Ext.define('IM.view.chat.ChatInput', {
             text: '消息记录'
         }]
     }, {
-        xtype: 'richEditor',
-        itemId: 'richEditor',
+        xtype: 'imCommonEditor',
         flex: 1,
-        userCls: 'rich-editor-Ct'
+        userCls: 'rich-editor-Ct',
+        itemId: 'richEditor',
+
+        placeholder: 'Ctrl+Enter换行'
+
     }],
 
     /**
@@ -108,16 +111,18 @@ Ext.define('IM.view.chat.ChatInput', {
         if (Config.isPC) {
             cefMain.selectImages((res) => {
                 res = JSON.parse(res);
-                var text;
+                var text = '';
                 for (var i = 0; i < res.length; i++) {
-                    text = '<img src="' + res[i] + '">' + '&#8203';
-
-                    editor.inputElement.dom.focus();
-                    if (document.queryCommandSupported('insertHTML')) {
-                        document.execCommand('insertHTML', false, text);
-                    } else {
-                        document.execCommand('paste', false, text);
-                    }
+                    // var index = res[i].indexOf('://'),
+                    // src = res[i].substr(index);
+                    // src = 'localfile' + src; // localfile:///xxx这样拼一个src过去，cef会崩溃
+                    text += '<img src="' + res[i] + '" data-url="' + res[i] + '">' + '&#8203';
+                }
+                editor.inputElement.dom.focus();
+                if (document.queryCommandSupported('insertHTML')) {
+                    document.execCommand('insertHTML', false, text);
+                } else {
+                    document.execCommand('paste', false, text);
                 }
             });
         }

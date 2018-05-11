@@ -221,7 +221,7 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
             success: function (data) {
                 // User.chatMemID = '';
                 // 最近会话store
-                var store = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-MainTabPanel').down('#IMMobile_Chat').getStore(), 
+                var store = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-MainTabPanel').down('#IMMobile_Chat').getStore(),
                 record = store.getById(data.chat_id);
 
                 if(!record) { // 创建的新会话

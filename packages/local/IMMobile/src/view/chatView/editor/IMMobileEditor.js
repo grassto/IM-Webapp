@@ -3,7 +3,7 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
     xtype: 'IMMobile-Editor',
 
     requires: [
-        'IMMobile.view.chatView.editor.RichEditor'
+        'IMCommon.view.RichEditor'
     ],
 
     uses: [
@@ -28,7 +28,7 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
     },
 
     items: [{
-        xtype: 'IMMobile-RichEditor',
+        xtype: 'imCommonRichEditor',
         itemId: 'MobileEditor',
         errorTarget: null,
         flex: 1

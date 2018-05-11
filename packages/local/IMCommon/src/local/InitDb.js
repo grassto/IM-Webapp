@@ -85,7 +85,7 @@ Ext.define('IMCommon.local.InitDb', {
 
         var t2 = 'CREATE TABLE IF NOT EXISTS IMRct (' +
             'ChatID NVARCHAR(50) PRIMARY KEY, ' +
-            'ChatType CHAR(1), ' +
+            'ChatType CHAR(1), ' +  // 如果是多人会话，且被管理员踢了，就在这加一个状态来标志（R）
             'DisplayName TEXT, ' +
             'UnreadCount INTEGER DEFAULT(0), ' +
             'LastPostAt BIGINT, ' +

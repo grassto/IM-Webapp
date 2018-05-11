@@ -1,110 +1,17 @@
-Ext.define('IM.view.chat.editor.RichEditor', {
+Ext.define('IMCommon.view.RichEditor', {
     extend: 'MX.field.RichTextArea',
-    xtype: 'richEditor',
-    requires: [
-        'IMCommon.model.Mention',
-        'Ext.drag.Target'
+
+    requires:[
+        'Ext.drag.Target',
+        'IMCommon.model.Mention'
     ],
-    uses: [
-        'IMCommon.utils.SendUtil'
-    ],
+
+    xtype: 'imCommonEditor',
 
     scrollable: {
         y: true
     },
-    placeholder: 'Ctrl+Enter换行',
     clearable: false,
-    // minHeight: 80,
-    // maxHeight: 300,
-    cls: 'IM-richEditor',
-
-    initialize() {
-        var me = this;
-        me.callParent(arguments);
-        me.onclickPic();
-        me.preventKeydown();
-
-        me.initDrap();
-    },
-
-    /**
-     * 允许拖拽文件至输入框
-     */
-    initDrap() {
-        this.target = new Ext.drag.Target({
-            element: this.element,
-            listeners: {
-                scope: this,
-                dragenter: this.onDragEnter,
-                dragleave: this.onDragLeave,
-                drop: this.onDrop
-            }
-        });
-    },
-    onDragEnter(a, b, c) { // 可以在此增加样式
-
-    },
-    onDragLeave(a, b, c) {
-
-    },
-    onDrop(target, info) {
-        var me = this,
-            files = info.files,
-            len = files.length,
-            type; // 图片格式jpg,jpeg,gif,png,bmp
-        for (var i = 0; i < len; i++) {
-            type = files[i].type.substr(files[i].type.indexOf('/') + 1);
-
-            if(FileUtil.imageFilter.extensions.indexOf(type) > -1) {// 图片类型，则上传并绑定到editor
-                me.uploadPic(files);
-            } else { // 其他类型再处理
-
-            }
-        }
-
-    },
-
-    /**
-     * Enter发送，Ctrl+Enter回车
-     */
-    preventKeydown() {
-        var me = this,
-            editor = this.inputElement.dom;
-        $(editor).keydown(function (event) {
-            if (event.keyCode == 13) {
-                if (event.ctrlKey) {
-                    editor.value += '<br>' + '&#8203;';
-                } else {
-                    if (editor.value) {
-                        // me.up('im-main').getController().onSend();
-                        SendUtil.sendMsg(editor.value);
-                    } else {
-                        Utils.toastShort('消息内容不能为空');
-                    }
-                    return false;
-                }
-            }
-        });
-    },
-
-    /**
-     * 点击选中img
-     */
-    onclickPic() {
-        $(this.inputElement.dom).bind('click', function (e) {
-            if (e.target.nodeName == 'IMG') {
-                var r = document.createRange();
-                r.setStartBefore(e.target);
-                r.setEndAfter(e.target);
-
-                var s = window.getSelection();
-                s.removeAllRanges();
-                s.addRange(r);
-
-                e.preventDefault();
-            }
-        });
-    },
 
     constructor(config) {
         var me = this;
@@ -114,7 +21,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         if (!atStore) {
             atStore = Ext.factory({
                 storeId: 'IM-global-mention-store',
-                model: 'IM.model.Mention'
+                model: 'IMCommon.model.Mention'
             }, Ext.data.Store);
         }
 
@@ -190,6 +97,101 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         ]);
     },
 
+    initialize() {
+        var me = this;
+        me.callParent(arguments);
+        me.onclickPic();
+
+        if(Config.isPC) {
+            me.preventKeydown();
+        }
+
+        me.initDrap();
+    },
+
+    /**
+     * 允许拖拽文件至输入框
+     */
+    initDrap() {
+        this.target = new Ext.drag.Target({
+            element: this.element,
+            listeners: {
+                scope: this,
+                dragenter: this.onDragEnter,
+                dragleave: this.onDragLeave,
+                drop: this.onDrop
+            }
+        });
+    },
+    onDragEnter(a, b, c) { // 可以在此增加样式
+
+    },
+    onDragLeave(a, b, c) {
+
+    },
+    onDrop(target, info) {
+        var me = this,
+            files = info.files,
+            len = files.length,
+            type; // 图片格式jpg,jpeg,gif,png,bmp
+        for (var i = 0; i < len; i++) {
+            type = files[i].type.substr(files[i].type.indexOf('/') + 1);
+
+            if(FileUtil.imageFilter.extensions.indexOf(type) > -1) {// 图片类型，则上传并绑定到editor
+                // me.uploadPic(files);
+            } else { // 其他类型再处理
+
+            }
+        }
+
+    },
+
+    /**
+     * Enter发送，Ctrl+Enter回车
+     */
+    preventKeydown() {
+        var editor = this.inputElement.dom;
+        $(editor).keydown(function (event) {
+            if (event.keyCode == 13) {
+                if (event.ctrlKey) {
+                    editor.value += '<br>' + '&#8203;';
+                } else {
+                    if (editor.value) {
+                        if(Config.isPhone) {
+                            // SendUtil.sendMsg(editor, User.crtChannelId, );
+                        } else {
+                            var imView = Ext.Viewport.lookup('IM');
+                            SendUtil.sendMsg(editor, User.crtChannelId, imView.down('#recentChat').getStore(), imView.lookup('im-main').down('#chatView').getStore());
+                        }
+                        
+                    } else {
+                        Utils.toastShort('消息内容不能为空');
+                    }
+                    return false;
+                }
+            }
+        });
+    },
+
+    /**
+     * 点击选中img
+     */
+    onclickPic() {
+        $(this.inputElement.dom).bind('click', function (e) {
+            if (e.target.nodeName == 'IMG') {
+                var r = document.createRange();
+                r.setStartBefore(e.target);
+                r.setEndAfter(e.target);
+
+                var s = window.getSelection();
+                s.removeAllRanges();
+                s.addRange(r);
+
+                e.preventDefault();
+            }
+        });
+    },
+
     onPickerHide() {
         var me = this;
         me.callParent(arguments);
@@ -216,7 +218,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                     var item = me.getTargetItem(items);
 
                     if (item.kind == 'string') {
-                        if (item.typeEx == 'text/plain') {
+                        if (item.typeEx == 'text/plain') { // 文本
                             text = e.clipboardData.getData('text/plain');
 
                             if (document.queryCommandSupported('insertText')) {
@@ -247,7 +249,7 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                                 // }
 
                             });
-                        } else if (item.typeEx == 'text/rtf') {
+                        } else if (item.typeEx == 'text/rtf') { // 如word中粘过来的东西
                             item.getAsString(function (data) {
                                 text = me.rtfhtmlToPlain(data) + '&#8203';
                                 // text = me.textToHtml(plainText);
@@ -263,13 +265,13 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                             });
                         }
                     } else if (item.kind == 'file') {
-                        var blob = item.getAsFile();
-                        var files = [];
-                        files.push(blob);
-                        // 图片上传,并黏贴到输入框
-                        me.uploadPic(files);
+                        // var blob = item.getAsFile();
+                        // var files = [];
+                        // files.push(blob);
+                        // // 图片上传,并黏贴到输入框
+                        // me.uploadPic(files);
 
-                        // me.bindPicToEditor(blob);
+                        Utils.toastShort('尚未支持');
                     }
 
                     me._checkRegexes(outEvent);
@@ -424,120 +426,5 @@ Ext.define('IM.view.chat.editor.RichEditor', {
             result.typeEx = result.type;
         }
         return result;
-    },
-
-    /**
-     * 上传图片,黏贴，拼凑图片img
-     * @param File类型
-     */
-    uploadPic(picInfo) {
-        var me = this,
-            formData = new FormData();
-        for (var i = 0; i < picInfo.length; i++) {
-            formData.append('files', picInfo[i]);
-        }
-        formData.append('chat_id', User.crtChannelId);
-        $.ajax({
-            url: Config.httpUrlForGo + 'files',
-            type: 'post',
-            data: formData,
-            contentType: false,
-            processData: false,
-            // async: false,
-            xhrFields: {
-                withCredentials: true
-            },
-            success: function (data) {
-                // var text, url, id;
-                for (var i = 0; i < data.files.length; i++) {
-                    User.files.push(data.files[i]);
-
-                    me.bindPicByID(data.files[i].file_id);
-                }
-            }
-        });
-    },
-
-    uploadPic2(picInfo) {
-        var me = this,
-            formData = new FormData();
-       
-        debugger;
-    },
-
-    /**
-     * 根据id绑定图片至img
-     * @param {string} infoID 图片id
-     */
-    bindPicByID(infoID) {
-        var id = infoID,
-            text = '<img id="' + id + '" class="viewPic" style="width:40px;height:40px;background:url(' + Ext.getResourcePath('images/loading.gif') + ') no-repeat center center;"/>' + '&#8203',
-            // url = Config.httpUrlForGo + 'files/' + id;// + '/thumbnail'; // 暂时使用原图展示
-
-            url = Config.httpUrlForGo + 'files/' + id + '/thumbnail';
-        this.inputElement.dom.focus();
-        if (document.queryCommandSupported('insertHTML')) {
-            document.execCommand('insertHTML', false, text);
-        } else {
-            document.execCommand('paste', false, text);
-        }
-
-        // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
-        window.imagess(url, id);
-    },
-
-
-    uploadFile(fileInfo) {
-        User.localFiles = fileInfo; // 通过缓存来存储
-        // 显示上传页面
-        const me = this;
-        if (!me.uploadList) {
-            me.uploadList = Ext.create('IM.widget.UploadList', {
-                id: 'uploadList'
-            });
-        }
-        me.uploadList.show();
-    },
-
-
-    destory() {
-        Ext.destroy(this.uploadList);
-        this.callParent();
-    },
-
-
-
-
-    bindFile(file) {
-        const me = this;
-        var html = [
-            '<div class="fileMsg">',
-            '<div class="fileWrapper">',
-            '<div class="fileIcon"></div>',
-            '<div class="fileName">' + file.file_name + '</div>',
-            '<div>' + me.bytesToSize(file.size) + '</div>',
-            '</div>',
-            '</div>',
-            '&#8203'
-        ].join('');
-
-
-        me.inputElement.dom.focus();
-        if (document.queryCommandSupported('insertHTML')) {
-            document.execCommand('insertHTML', false, html);
-        } else {
-            document.execCommand('paste', false, html);
-        }
-    },
-
-    bytesToSize(bytes) {
-        if (bytes === 0) return '0 B';
-        var k = 1000, // or 1024
-            sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-            i = Math.floor(Math.log(bytes) / Math.log(k));
-
-        return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-    },
-
-
+    }
 });

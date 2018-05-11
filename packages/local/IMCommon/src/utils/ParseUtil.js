@@ -8,7 +8,7 @@ Ext.define('IMCommon.utils.ParseUtil', {
      * @param {Array} fileIds 文件id
      */
     parsePic(message, fileId) {
-        if(fileId) {
+        if (fileId) {
             return ImgMgr.parsePic(fileId);
             // return '<img id="' + fileId + '" style="background:url(' + Ext.getResourcePath('images/loading.gif') + ') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + fileId + '/thumbnail">';
         }
@@ -26,4 +26,14 @@ Ext.define('IMCommon.utils.ParseUtil', {
         return chatName;
     },
 
+    /**
+     * 拆分图文混排消息
+     * @param {string} msg
+     * @return {Array}
+     */
+    parsePTMsg(msg) {
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        return div.childNodes;
+    }
 });

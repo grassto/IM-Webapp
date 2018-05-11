@@ -314,7 +314,15 @@ Ext.define('IM.view.chat.editor.RichEditor', {
             .replace(/<(?!(v:imagedata|br))[^>]*>/g, '');
         // 此处的图片暂不支持
         // result = html.replace(/<v:imagedata[^>]*src="([^"]*)"[^>]*\/>/g, '');
-        result = html.replace(/<v:imagedata[^>]*src="([^"]*)"[^>]*\/>/g, '<img src="$1">');
+        result = html.replace(/<v:imagedata[^>]*src="([^"]*)"[^>]*\/>/g, function () {
+            const url = arguments[1]; // file:// 地址
+            let localUrl = url;
+            if (Utils.isWeb && window.cefMain) { // http 页面 显示不了本地 file:// 图片, cef 加了一个 localfile:// 协议
+                localUrl = `local${url}`;
+            }
+
+            return `<img src="${localUrl}" data-url="${url}">`;
+        });
 
         console.log(result);
 
@@ -355,14 +363,21 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                 }
             });
 
+            const failedImg = Ext.getResourcePath('images/failed.png');
+
             // 下载所有图片
             return Ext.Promise.all(promises.map(p => p.catch(() => undefined))) // 忽略所有 下载失败 的 promise
                 .then(values => {
                     srcArr.forEach((src, i) => {
-                        if (values[i]) { // 下载好的本地地址
-                            result = result.replace(`<img src="${src}">`, `<img src="${values[i]}">`);
+                        const url = values[i];
+                        if (url) { // 下载好的本地地址
+                            let localUrl = url;
+                            if (Utils.isWeb && window.cefMain) { // http 页面 显示不了本地 file:// 图片, cef 加了一个 localfile:// 协议
+                                localUrl = `local${url}`;
+                            }
+                            result = result.replace(`<img src="${src}">`, `<img src="${localUrl}" data-url="${url}">`);
                         } else { // 下载失败的
-                            result = result.replace(`<img src="${src}">`, `<img src="${Ext.getResourcePath('images/failed.png')}">`);
+                            result = result.replace(`<img src="${src}">`, `<img src="${failedImg}">`);
                         }
                     });
 

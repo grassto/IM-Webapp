@@ -5,6 +5,9 @@ Ext.define('IM.view.chat.editor.RichEditor', {
         'IMCommon.model.Mention',
         'Ext.drag.Target'
     ],
+    uses: [
+        'IMCommon.utils.SendUtil'
+    ],
 
     scrollable: {
         y: true
@@ -73,7 +76,10 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                     editor.value += '<br>' + '&#8203;';
                 } else {
                     if (editor.value) {
-                        me.up('im-main').getController().onSend();
+                        // me.up('im-main').getController().onSend();
+                        SendUtil.sendMsg(editor.value);
+                    } else {
+                        Utils.toastShort('消息内容不能为空');
                     }
                     return false;
                 }

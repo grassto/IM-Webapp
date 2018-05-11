@@ -11,15 +11,15 @@ Ext.define('IM.view.chat.ChatInput', {
         'Common.field.comment.EmojiPanel'
     ],
 
-    initialize() {
-        const me = this;
+    // initialize() {
+    //     const me = this;
 
-        // 附件插件
-        var btnBrowse = me.down('#btnBrowse');
-        me.initUploader(btnBrowse);
-        var btnFile = me.down('#btnFile');
-        me.initFileUploader(btnFile, true);
-    },
+    //     // 附件插件
+    //     var btnBrowse = me.down('#btnBrowse');
+    //     me.initUploader(btnBrowse);
+    //     var btnFile = me.down('#btnFile');
+    //     me.initFileUploader(btnFile, true);
+    // },
 
 
     defaultListenerScope: true,
@@ -36,9 +36,6 @@ Ext.define('IM.view.chat.ChatInput', {
          */
         enableUpload: true
     },
-    // scrollable: {
-    //     y: false
-    // },
 
     layout: {
         type: 'vbox'
@@ -61,15 +58,17 @@ Ext.define('IM.view.chat.ChatInput', {
             ui: 'flat',
             itemId: 'btnBrowse',
             iconCls: 'x-fa fa-file-image-o',
-            preventDefaultAction: false,
-            tooltip: '图片'
+            // preventDefaultAction: false,
+            tooltip: '图片',
+            handler: 'onSelPic'
         }, {
             xtype: 'button',
             ui: 'flat',
             itemId: 'btnFile',
             iconCls: 'x-fa fa-folder',
-            preventDefaultAction: false,
-            tooltip: '文件'
+            // preventDefaultAction: false,
+            tooltip: '文件',
+            handler: 'onSelFile'
         }, {
             xtype: 'button',
             ui: 'flat',
@@ -100,6 +99,40 @@ Ext.define('IM.view.chat.ChatInput', {
         flex: 1,
         userCls: 'rich-editor-Ct'
     }],
+
+    /**
+     * 通过cef插件，直接获取到图片的本地路径
+     */
+    onSelPic() {
+        const editor = this.down('#richEditor');
+        if (Config.isPC) {
+            cefMain.selectImages((res) => {
+                res = JSON.parse(res);
+                var text;
+                for (var i = 0; i < res.length; i++) {
+                    text = '<img src="' + res[i] + '">' + '&#8203';
+
+                    editor.inputElement.dom.focus();
+                    if (document.queryCommandSupported('insertHTML')) {
+                        document.execCommand('insertHTML', false, text);
+                    } else {
+                        document.execCommand('paste', false, text);
+                    }
+                }
+            });
+        }
+    },
+
+    /**
+     * 通过cef插件，直接获取到文件的本地路径
+     */
+    onSelFile() {
+        if (Config.isPC) {
+            cefMain.selectFiles((res) => {
+                res = JSON.parse(res);
+            });
+        }
+    },
 
     /**
     * 显示 emoji 面板
@@ -448,7 +481,7 @@ Ext.define('IM.view.chat.ChatInput', {
     uploadInInput(fileInfo) {
         var me = this,
             formData = new FormData();
-        for(var i = 0; i < fileInfo.length; i++) {
+        for (var i = 0; i < fileInfo.length; i++) {
             formData.append('files', fileInfo[i].getNative());
         }
         formData.append('chat_id', User.crtChannelId);
@@ -461,13 +494,13 @@ Ext.define('IM.view.chat.ChatInput', {
             xhrFields: {
                 withCredentials: true
             },
-            success: function(data) {
-                 // 图片格式
+            success: function (data) {
+                // 图片格式
                 var imgType = FileUtil.imageFilter.extensions,
                     type = '';
                 for (var i = 0; i < data.files.length; i++) {
                     type = data.files[i].file_name.substr(data.files[i].file_name.indexOf('.') + 1);
-                    if(imgType.indexOf(type) > -1) { // 图片
+                    if (imgType.indexOf(type) > -1) { // 图片
                         me.down('#richEditor').bindPicByID(data.files[i].file_id);
                     } else { // 其他
                         me.down('#richEditor').bindFile(data.files[i]);

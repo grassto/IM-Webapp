@@ -257,20 +257,6 @@ Ext.define('IMCommon.utils.AddDataUtil', {
 
     wsAddGrpChatToRct(store, data) {
         // 没有人员信息，在此获取人员信息
-        // Utils.ajaxByZY('get', 'users/' + User.ownerID + '/chats/' + data.chat_id, {
-        //     success: function(res) {
-        //         store.insert(0, {
-        //             chat_id: data.chat_id,
-        //             name: data.header,
-        //             type: data.chat_type,
-        //             last_post_at: data.update_at,
-        //             status: 0, // 成功态
-        //             chat_name: data.chat_name,
-        //             members: res.members
-        //         });
-        //     }
-        // });
-
         Utils.ajaxByZY('get', 'users/' + User.ownerID + '/chats/' + data.chat_id, {
             async: false,
             success: function (res) {
@@ -301,5 +287,15 @@ Ext.define('IMCommon.utils.AddDataUtil', {
             default:
                 break;
         }
+    },
+
+    baseInsertRct(store, data) {
+        store.insert(0, {
+            
+        });
+    },
+
+    baseAddMsg(store, data) {
+
     }
 });

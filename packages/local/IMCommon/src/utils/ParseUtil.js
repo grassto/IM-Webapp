@@ -25,4 +25,5 @@ Ext.define('IMCommon.utils.ParseUtil', {
 
         return chatName;
     },
+
 });

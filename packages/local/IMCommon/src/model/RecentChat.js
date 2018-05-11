@@ -4,7 +4,6 @@ Ext.define('IMCommon.model.ChatOld', {
     fields: [
         'chat_id',
         'chat_name',
-        'notify',
         'user_id',
         'type',
         'isUnRead',
@@ -23,19 +22,10 @@ Ext.define('IMCommon.model.ChatOld', {
         {
             name: 'name',
             type: 'string' // 这个可以用css样式来替代
-            // convert: function (value, record) {
-            //     if (value) {
-            //         if (value.length > 8) {
-            //             return value.substr(0, 8) + '...';
-            //         }
-            //     }
-
-            //     return value;
-            // }
         },
         { // 用于排序
             name: 'last_post_at',
-            // type: 'date',
+            type: 'date',
             convert: function(value) {
                 if(value == 0 || value == undefined || value == null) {
                     return '';
@@ -50,16 +40,13 @@ Ext.define('IMCommon.model.ChatOld', {
         },
         {
             name: 'toTop',
-            type: 'int',
+            type: 'boolean',
             defaultValue: false
         },
 
         {
             name: 'last_post_name',
             type: 'string'
-            // convert: function(value) {
-            //     return ChatHelper.getName(value);
-            // }
         },
         'last_msg_type',
         'last_post_msg',

@@ -1,6 +1,6 @@
 Ext.define('IMCommon.model.Chat', {
     extend: 'Ext.data.Model',
-    // idProperty: 'msg_id',
+    idProperty: 'msg_id',
     fields: [
         'senderName', 'sendText',
         {

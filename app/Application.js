@@ -60,8 +60,10 @@ Ext.define('PushIM.Webapp.Application', {
         // cef版桌面程序
         if (window.cefMain) {
             Config.isPC = true;
+            Config.needLocal = true;
         } else if (Ext.browser.is.Cordova) { // 移动端
             Config.isPhone = true;
+            Config.needLocal = true;
         }
 
         if (!Ext.browser.is.Cordova) { // 非cordova环境

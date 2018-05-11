@@ -41,7 +41,9 @@ Ext.define('IM.view.IMController', {
             Utils.mask(rctView); // 遮罩
             InitDb.initDB((trans) => {
                 LocalDataMgr.getRecentChat(trans, function (ta, resultSet) {
+                    // <debug>
                     console.log('数据库初始化完毕');
+                    // </debug>
                     var rows = resultSet.rows,
                         len = rows.length;
 
@@ -78,6 +80,9 @@ Ext.define('IM.view.IMController', {
                                 members: row.mems
                             });
                         }
+                        // <debug>
+                        console.log('本地数据库最近会话', datas);
+                        // </debug>
                         recentStore.add(datas);
                     }
                     Utils.unMask(rctView);

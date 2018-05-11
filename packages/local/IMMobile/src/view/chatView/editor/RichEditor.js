@@ -299,12 +299,12 @@ Ext.define('IMMobile.view.chatView.editor.RichEditor', {
         // result = html.replace(/<v:imagedata[^>]*src="([^"]*)"[^>]*\/>/g, '');
         result = html.replace(/<v:imagedata[^>]*src="([^"]*)"[^>]*\/>/g, function () {
             const url = arguments[1]; // file:// 地址
-            let src = url;
+            let localUrl = url;
             if (Utils.isWeb && window.cefMain) { // http 页面 显示不了本地 file:// 图片, cef 加了一个 localfile:// 协议
-                src = `local${src}`;
+                localUrl = `local${url}`;
             }
 
-            return `<img src="${src}" data-url="${url}">`;
+            return `<img src="${localUrl}" data-url="${url}">`;
         });
 
         console.log(result);
@@ -354,11 +354,11 @@ Ext.define('IMMobile.view.chatView.editor.RichEditor', {
                     srcArr.forEach((src, i) => {
                         const url = values[i];
                         if (url) { // 下载好的本地地址
-                            let src = url;
+                            let localUrl = url;
                             if (Utils.isWeb && window.cefMain) { // http 页面 显示不了本地 file:// 图片, cef 加了一个 localfile:// 协议
-                                src = `local${src}`;
+                                localUrl = `local${url}`;
                             }
-                            result = result.replace(`<img src="${src}">`, `<img src="${src}" data-url="${url}">`);
+                            result = result.replace(`<img src="${src}">`, `<img src="${localUrl}" data-url="${url}">`);
                         } else { // 下载失败的
                             result = result.replace(`<img src="${src}">`, `<img src="${failedImg}">`);
                         }

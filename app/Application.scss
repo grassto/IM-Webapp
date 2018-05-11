@@ -144,3 +144,7 @@ a.link-avatar {
   .CefDrag {
     -webkit-app-region: drag;
   }
+
+  .CefNoDrag {
+    -webkit-app-region: no-drag;
+  }

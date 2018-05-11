@@ -2,6 +2,10 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.IMMobileChatController',
 
+    requires: [
+        'IMCommon.local.InitDb'
+    ],
+
     uses: [
         'IMMobile.view.chatView.IMMobileChatView',
         'IMMobile.view.group.GroupSelList'
@@ -10,39 +14,130 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
      * Called when the view is created
      */
     init: function () {
-        // 先从本地数据库拉取数据
-        if (Ext.browser.is.Cordova) {
-            this.getLocalChats();
+        if (User.isFirstConRct) {
+            User.isFirstConRct = false;
+
+            var me = this,
+                view = me.getView();
+            // 先从本地数据库拉取数据
+            if (Config.isPhone) {
+                Utils.mask(view);
+                // 确保数据库初始化完成后，进行数据绑定
+                InitDb.initDB((trans) => {
+                    LocalDataMgr.getRecentChat(trans, function (ta, resultSet) {
+                        var rows = resultSet.rows,
+                            len = rows.length,
+                            store = view.getStore();
+                        if (len > 0) {
+                            var datas = [],
+                                row = {};
+                            for (var i = 0; i < len; i++) {
+                                row = rows.item(i);
+                                if (row.ChatType == ChatType.Group) {
+                                    row.mems = [];
+                                    var us = row.UserIDs.split(','),
+                                        ns = row.UserNames.split(',');
+
+                                    for (var j = 0; j < us.length; j++) {
+                                        row.mems.push({
+                                            chat_id: row.ChatID,
+                                            user_id: us[i], // id
+                                            user_name: ns[i] // name
+                                        });
+                                    }
+                                }
+                                datas.push({
+                                    chat_id: row.ChatID,
+                                    name: row.DisplayName,
+                                    type: row.ChatType,
+                                    status: -2, // 不显示状态
+                                    isUnRead: row.UnreadCount > 0,
+                                    unReadNum: row.UnreadCount,
+                                    last_post_at: row.LastPostAt,
+                                    last_post_userName: row.LastUserName,
+                                    last_msg_type: row.LastMsgType,
+                                    last_post_msg: row.LastMsg,
+                                    members: row.mems
+                                });
+                            }
+                            store.add(datas);
+                        }
+                        Utils.unMask(view);
+
+                        // 获取未读会话进行绑定
+                        me.getUnreadChats(store);
+                    });
+                });
+            } else {
+                this.getAllChats();
+            }
         }
-        this.getAllChats();
+
     },
 
-    getLocalChats() {
-        LocalDataMgr.getRecentChat(this.bindLocalChats);
+    /**
+     * 获取未读会话进行绑定
+     * @param {*} store 
+     */
+    getUnreadChats(store) {
+        Utils.ajaxByZY('GET', 'users/me/chats/unread', {
+            success: function (data) {
+                if (data) {
+                    console.log('未读会话', data);
+
+                    LocalDataMgr.initUpdateChats(data);
+
+                    // 添加数据至store
+                    var chat, displayName;
+                    for (var i = 0; i < data.length; i++) {
+                        chat = data[i].chat,
+                            displayName = chat.chat_type == ChatType.Direct ? ParseUtil.parseDirectChatName(data[i], User.ownerID) : chat.header;
+                        store.insert(0, {
+                            chat_id: chat.chat_id,
+                            name: displayName,
+                            type: chat.chat_type,
+                            status: -2, // 不显示状态
+                            isUnRead: chat.unread_count > 0,
+                            unReadNum: chat.unread_count,
+                            last_post_at: chat.last_post_at,
+                            last_post_userName: chat.last_sender_name,
+                            last_msg_type: chat.last_msg_type,
+                            last_post_msg: chat.last_message,
+                            members: data[i].members
+                        });
+                    }
+
+                }
+            }
+        });
     },
 
-    // 处理数据绑定，作用域不在当前
-    bindLocalChats(trans, resultSet) {
-        var rows = resultSet.rows,
-            len = rows.length;
+    // getLocalChats() {
+    //     LocalDataMgr.getRecentChat(this.bindLocalChats);
+    // },
 
-        var recentStore = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-Chat').down('#ChatList').getStore(),
-            datas = [],
-            row = {};
-        for (var i = 0; i < len; i++) {
-            row = rows.items(i);
-            datas.push({
-                id: row.ChatID,
-                name: row.DisplayName,
-                type: row.ChatType,
-                status: -2, // 不显示状态
-                isUnRead: row.UnreadCount > 0,
-                unReadNum: row.UnreadCount,
-                last_post_at: row.LastPostAt
-            });
-        }
-        recentStore.add(datas);
-    },
+    // // 处理数据绑定，作用域不在当前
+    // bindLocalChats(trans, resultSet) {
+    //     var rows = resultSet.rows,
+    //         len = rows.length;
+
+    //     var recentStore = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-Chat').down('#ChatList').getStore(),
+    //         datas = [],
+    //         row = {};
+    //     for (var i = 0; i < len; i++) {
+    //         row = rows.item(i);
+    //         datas.push({
+    //             id: row.ChatID,
+    //             name: row.DisplayName,
+    //             type: row.ChatType,
+    //             status: -2, // 不显示状态
+    //             isUnRead: row.UnreadCount > 0,
+    //             unReadNum: row.UnreadCount,
+    //             last_post_at: row.LastPostAt
+    //         });
+    //     }
+    //     recentStore.add(datas);
+    // },
 
 
     getAllChats() {
@@ -80,25 +175,6 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
                 data[i].chat.channelname = data[i].chat.header;
                 User.allChannels.push(data[i]);
             }
-        }
-    },
-
-    // bindUnreadChats
-    bindUnreadChats(data) {
-        var me = this,
-            view = me.getView(),
-            store = view.down('#ChatList').getStore(),
-            isUnRead = false,
-            status;
-
-        for(let i = 0; i < data.length; i++) {
-            if(data[i].chat.chat_type == ChatType.Direct) {
-
-            } else {
-                status = -2;
-            }
-
-
         }
     },
 
@@ -148,12 +224,16 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
         }
     },
 
+    // 选中最近会话
     onSelChatList(view, location) {
         if (location.record.data.unReadNum !== 0) {
             this.setUnReadToRead(location.record);
+            if (Config.isPhone) {
+                LocalDataMgr.rctSetUnreadToRead(location.record.data.chat_id);
+            }
         }
 
-        User.crtChannelId = location.record.data.id;
+        User.crtChannelId = location.record.data.chat_id;
 
         User.crtChatName = location.record.data.name;
 
@@ -185,7 +265,7 @@ Ext.define('IMMobile.view.IMMobileMain.tabPanel.IMMobileChatController', {
 
     },
 
-
+    // 跳转到群聊选人页面
     onStartGrpChat() {
         Redirect.redirectTo('IMMobile-grpSelList');
         // const imMobile = Ext.Viewport.lookup('IMMobile').down('#navView');

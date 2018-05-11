@@ -7,7 +7,7 @@ Ext.define('PushIM.Webapp.view.setting.CEFSetting', {
         'Ext.field.Radio'
     ],
 
-    cls: 'cefSet',
+    cls: 'CefDrag',
 
     layout: 'vbox',
 
@@ -20,10 +20,10 @@ Ext.define('PushIM.Webapp.view.setting.CEFSetting', {
         height: 25,
         items: [{
             xtype: 'component',
-            cls: 'CefDrag',
             flex: 1
         }, {
             xtype: 'button',
+            cls: 'CefNoDrag',
             ui: 'cefClose',
             docked: 'right',
             iconCls: 'i-im-close',
@@ -50,6 +50,7 @@ Ext.define('PushIM.Webapp.view.setting.CEFSetting', {
             xtype: 'formpanel',
             itemId: 'netForm',
             layout: 'hbox',
+            cls: 'CefNoDrag',
             items: [{
                 xtype: 'radiofield',
                 name: 'net',
@@ -79,6 +80,7 @@ Ext.define('PushIM.Webapp.view.setting.CEFSetting', {
         }, {
             xtype: 'textfield',
             itemId: 'txSer',
+            cls: 'CefNoDrag',
             label: '服务器',
             listeners: {
                 blur: function (txf) {
@@ -93,12 +95,13 @@ Ext.define('PushIM.Webapp.view.setting.CEFSetting', {
         }, {
             xtype: 'button',
             text: '返回',
+            cls: 'CefNoDrag',
             ui: 'action',
             handler: function () {
-                Ext.Viewport.getController().showView('authlogin');
                 if (Ext.manifest.env == 'production') {
                     Ext.getApplication().setConfigUrl();
                 }
+                Ext.Viewport.getController().showView('authlogin');
             }
         }]
     }]

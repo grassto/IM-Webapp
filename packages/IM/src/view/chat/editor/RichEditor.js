@@ -47,16 +47,18 @@ Ext.define('IM.view.chat.editor.RichEditor', {
     onDrop(target, info) {
         var me = this,
             files = info.files,
-            len = files.length;
-        if (len > 0) {
-            for (var i = 0; i < len; i++) {
-                if (files[i].type == 'image/png') { // 图片类型，则上传并绑定到editor
-                    me.uploadPic(files);
-                } else { // 其他类型再处理
+            len = files.length,
+            type; // 图片格式jpg,jpeg,gif,png,bmp
+        for (var i = 0; i < len; i++) {
+            type = files[i].type.substr(files[i].type.indexOf('/') + 1);
 
-                }
+            if(FileUtil.imageFilter.extensions.indexOf(type) > -1) {// 图片类型，则上传并绑定到editor
+                me.uploadPic(files);
+            } else { // 其他类型再处理
+
             }
         }
+
     },
 
     /**
@@ -448,6 +450,13 @@ Ext.define('IM.view.chat.editor.RichEditor', {
                 }
             }
         });
+    },
+
+    uploadPic2(picInfo) {
+        var me = this,
+            formData = new FormData();
+       
+        debugger;
     },
 
     /**

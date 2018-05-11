@@ -4,6 +4,7 @@ Ext.define('IMMobile.view.IMMobileMain.MainTabController', {
 
     onTabChanges(tabpanel, tab, oldTab) {
         var me = this;
+        // 组织结构树页
         if (tab.iconCls == 'x-fa fa-list-alt') {
             if (User.isFirstCon) { // 标志是否是第一次加载
                 User.isFirstCon = false;
@@ -12,6 +13,7 @@ Ext.define('IMMobile.view.IMMobileMain.MainTabController', {
                 Utils.ajaxByZY('GET', 'users/all', {
                     success: function (data) {
                         User.allUsers = data.users;
+                        User.organization = data.organizations;
 
                         var root = me.imitateOrgData(data.users, data.organizations);
 

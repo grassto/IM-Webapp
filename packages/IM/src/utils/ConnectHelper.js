@@ -33,6 +33,7 @@ Ext.define('IM.utils.ConnectHelper', {
             orgTree = view.down('#left-organization');
         Utils.mask(orgTree);
         Utils.ajaxByZY('GET', 'users/all', {
+            async: false,
             success: function (data) {
                 var org = data.organizations, // 组织结构信息
                     usersInfo = data.users; // 所有成员信息
@@ -40,6 +41,10 @@ Ext.define('IM.utils.ConnectHelper', {
                 // 存入缓存
                 User.allUsers = usersInfo;
                 User.organization = org;
+
+                if(Config.isPC) {
+                    LocalDataMgr.initUpdateOrg(usersInfo, org);
+                }
 
                 var ids = []; // 获取状态时使用
                 for (let i = 0; i < usersInfo.length; i++) {
@@ -51,7 +56,8 @@ Ext.define('IM.utils.ConnectHelper', {
                 }
 
                 BindHelper.loadOrganization(orgTree);
-                // debugger;
+                orgTree.expandAll(); // tree展开节点
+
                 Utils.unMask(orgTree);// 不知道放这有没有用
 
                 // 定时获取状态 60s， 最近会话列表的问题，对应的是chat，没有人的信息
@@ -138,7 +144,7 @@ Ext.define('IM.utils.ConnectHelper', {
         for (let i = 0; i < data.length; i++) {
             if (data[i].chat.chat_type == 'D') { // 单人会话
                 // chat_name为C1034__C1064这种，将其拼凑为姓名
-                data[i].chat.channelname = data[i].chat.header = this.parseDirectChatName(data[i], User.ownerID);
+                data[i].chat.channelname = data[i].chat.last_sender_name;
 
                 User.allChannels.push(data[i]);
                 // for (let j = 0; j < User.allOthers.length; j++) {
@@ -161,9 +167,9 @@ Ext.define('IM.utils.ConnectHelper', {
     parseDirectChatName(dataWrap, userID) {
         var chatName = '';
         if (dataWrap.members[0].user_id !== userID) {
-            chatName = dataWrap.members[0].user_id;
+            chatName = dataWrap.members[0].user_name;
         } else {
-            chatName = dataWrap.members[1].user_id;
+            chatName = dataWrap.members[1].user_name;
         }
 
         return chatName;
@@ -178,7 +184,7 @@ Ext.define('IM.utils.ConnectHelper', {
             async: false,
             params: JSON.stringify(uArray),
             success: function (data) {
-                console.log('所有人员状态：', data);
+                // console.log('所有人员状态：', data);
                 User.allStatus = data;
             }
         });

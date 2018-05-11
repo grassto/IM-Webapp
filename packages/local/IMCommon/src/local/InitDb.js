@@ -72,6 +72,7 @@ Ext.define('IMCommon.local.InitDb', {
         var t1 = 'CREATE TABLE IF NOT EXISTS IMMsg (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
             'MsgID NVARCHAR(50), ' +
+            'ClientID NVARCHAR(50), ' +
             'ChatID NVARCHAR(50), ' +
             'MsgType CHAR(1), ' +
             'Content TEXT, ' +
@@ -130,6 +131,9 @@ Ext.define('IMCommon.local.InitDb', {
             'Mobile NVARCHAR(100),' +
             'Notes NVARCHAR(200),' +
             'CustomMark NVARCHAR(200),' +
+            'OrgIDs NVARCHAR(100),' + // 从服务端获取来的
+            'DefRoleName NVARCHAR(100),' + //
+
             'DefRolID NVARCHAR(40),' +
             'Locale NVARCHAR(5),' +
             'IsSupperUser CHAR(1),' +

@@ -122,7 +122,7 @@ Ext.define('IMCommon.utils.AddDataUtil', {
                 };
             }
 
-            if(result) {
+            if (result) {
                 result.msg_type = message.msg_type;
             }
 
@@ -130,23 +130,23 @@ Ext.define('IMCommon.utils.AddDataUtil', {
 
         return result;
     },
-    
+
     /**
     * 获取被操作者，返回数组
     * @param {string} opID 创建者id
     * @param {string} memsIdStr 参与者的id
     */
-   getNoticeMemsByContent(opID, memsIdStr) {
-       var ids = memsIdStr.split(',');
-       for (var i = 0; i < ids.length; i++) {
-           if (ids[i] == opID) {
-               ids.splice(i, 1);
-               break;
-           }
-       }
+    getNoticeMemsByContent(opID, memsIdStr) {
+        var ids = memsIdStr.split(',');
+        for (var i = 0; i < ids.length; i++) {
+            if (ids[i] == opID) {
+                ids.splice(i, 1);
+                break;
+            }
+        }
 
-       return ids;
-   },
+        return ids;
+    },
 
     onScroll(chatView) {
         var sc = chatView.getScrollable(),
@@ -210,7 +210,7 @@ Ext.define('IMCommon.utils.AddDataUtil', {
         // }
 
         var record = chatStore.add({
-            id: data.chat_id,
+            chat_id: data.chat_id,
             name: nickname,
             type: data.chat_type,
             last_post_at: new Date(data.update_at),
@@ -237,5 +237,69 @@ Ext.define('IMCommon.utils.AddDataUtil', {
             // User.allUsers.push(); // 加入缓存
         }
         return name;
+    },
+
+
+    // ws获得
+    wsAddDirectChatToRct(store, data) {
+        store.insert(0, {
+            chat_id: data.chat_id,
+            name: data.user_name,
+            type: data.chat_type,
+            status: 0, // 成功态
+            chat_name: data.chat_name,
+            last_post_at: data.update_at,
+            last_post_msg: data.message,
+            last_post_name: data.user_name,
+            last_msg_type: data.msg_type
+        });
+    },
+
+    wsAddGrpChatToRct(store, data) {
+        // 没有人员信息，在此获取人员信息
+        // Utils.ajaxByZY('get', 'users/' + User.ownerID + '/chats/' + data.chat_id, {
+        //     success: function(res) {
+        //         store.insert(0, {
+        //             chat_id: data.chat_id,
+        //             name: data.header,
+        //             type: data.chat_type,
+        //             last_post_at: data.update_at,
+        //             status: 0, // 成功态
+        //             chat_name: data.chat_name,
+        //             members: res.members
+        //         });
+        //     }
+        // });
+
+        Utils.ajaxByZY('get', 'users/' + User.ownerID + '/chats/' + data.chat_id, {
+            async: false,
+            success: function (res) {
+                store.insert(0, {
+                    chat_id: data.chat_id,
+                    name: res.chat.header,
+                    type: data.chat_type,
+                    status: 0, // 成功态
+                    chat_name: data.chat_name,
+                    members: res.members,
+                    last_post_at: data.update_at,
+                    last_post_msg: data.message,
+                    last_post_name: data.user_name,
+                    last_msg_type: data.msg_type
+                });
+            }
+        });
+    },
+
+    wsAddChatToRct(store, data) {
+        switch (data.chat_type) {
+            case ChatType.Direct:
+                this.wsAddDirectChatToRct(store, data);
+                break;
+            case ChatType.Group:
+                this.wsAddGrpChatToRct(store, data);
+                break;
+            default:
+                break;
+        }
     }
 });

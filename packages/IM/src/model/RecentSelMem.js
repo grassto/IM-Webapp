@@ -5,7 +5,7 @@ Ext.define('IM.model.RecentSelMem', {
         'chat_id',
         'chat_name',
         'userID',
-        'type',
+        'type', // chat_type
         'isUnRead', // 加这个字段是为了当前页面未读，但是不显示未读条数
         {
             name: 'status',
@@ -40,10 +40,12 @@ Ext.define('IM.model.RecentSelMem', {
         },
         { // 是否置顶
             name: 'toTop',
-            type: 'bool'
+            type: 'boolean',
+            defaultValue: false
         },
         {
-            name: 'last_post_name'
+            name: 'last_post_name',
+            type: 'string'
             // convert: function(value) {
             //     return ChatHelper.getName(value);
             // }

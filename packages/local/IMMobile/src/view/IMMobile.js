@@ -79,6 +79,9 @@ Ext.define('IMMobile.view.IMMobile', {
                     break;
             }
         });
+        WebSocketUtil.setReconnectCallback(() => {
+            User.isFirstCon = true;
+        });
     },
 
     handleNewPostEvent(msg) {

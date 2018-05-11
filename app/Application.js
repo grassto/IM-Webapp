@@ -60,6 +60,8 @@ Ext.define('PushIM.Webapp.Application', {
         // cef版桌面程序
         if (window.cefMain) {
             Config.isPC = true;
+        } else if (Ext.browser.is.Cordova) { // 移动端
+            Config.isPhone = true;
         }
 
         if (!Ext.browser.is.Cordova) { // 非cordova环境
@@ -71,7 +73,7 @@ Ext.define('PushIM.Webapp.Application', {
         me.hideAvaDetail(); // 监听document的单击事件
         // me.preventRightClick(); // 禁用页面原本右击事件
 
-        
+
 
         // The viewport controller requires xtype defined by profiles, so let's perform extra
         // initialization when the application and its dependencies are fully accessible.
@@ -80,27 +82,37 @@ Ext.define('PushIM.Webapp.Application', {
 
     },
 
+    // 根据网络设置来配置相应的url
     setConfigUrl() {
-        if(localStorage.getItem('inOrOut') == 'in') {
-            var url = localStorage.getItem('inUrl');
-            var index = url.indexOf(':');
-            if(index > -1) {
-                Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
-            } else {
-                Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
-            }
+        // 设置默认值
+        if (!localStorage.getItem('inOrOut') || !localStorage.getItem('inUrl') || !localStorage.getItem('outUrl')) {
+            Config.httpUrlForGo = Config.httpPdcGoUrl;
+            Config.wsGoUrl = Config.wsPdcUrl;
+        } else {
+            if (localStorage.getItem('inOrOut') == 'in') {
+                var url = localStorage.getItem('inUrl');
+                if (url && url.indexOf) {
+                    var index = url.indexOf(':');
+                    if (index > -1) {
+                        Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
+                    } else {
+                        Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+                    }
 
-            Config.httpUrlForGo = url + '/api/v1/';
-            
-        } else if(localStorage.getItem('inOrOut') == 'out') {
-            var url = localStorage.getItem('outUrl');
-            var index = url.indexOf(':');
-            if(index > -1) {
-                Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
-            } else {
-                Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+                    Config.httpUrlForGo = url + '/api/v1/';
+                }
+            } else if (localStorage.getItem('inOrOut') == 'out') {
+                var url = localStorage.getItem('outUrl');
+                if (url && url.indexOf) {
+                    var index = url.indexOf(':');
+                    if (index > -1) {
+                        Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
+                    } else {
+                        Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+                    }
+                    Config.httpUrlForGo = url + '/api/v1/';
+                }
             }
-            Config.httpUrlForGo = url + '/api/v1/';
         }
     },
 
@@ -158,9 +170,9 @@ Ext.define('PushIM.Webapp.Application', {
             me.statusBarHeight = statusH;
             Ext.util.CSS.createStyleSheet([
                 '.topinset { ',
-                    `padding-top: ${statusH}px; `,
-                    'padding-top: constant(safe-area-inset-top); ',
-                    'padding-top: env(safe-area-inset-top); ',
+                `padding-top: ${statusH}px; `,
+                'padding-top: constant(safe-area-inset-top); ',
+                'padding-top: env(safe-area-inset-top); ',
                 '}'
             ].join(''), 'InsetStyle');
 
@@ -204,7 +216,7 @@ Ext.define('PushIM.Webapp.Application', {
                     }
                     success(result);
                 },
-                failure() {}
+                failure() { }
             });
         }
     },

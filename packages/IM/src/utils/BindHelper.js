@@ -30,12 +30,12 @@ Ext.define('IM.utils.BindHelper', {
             //     isUnRead = false;
             // }
             if (data[i].chat.chat_type == ChatType.Group) {
-                lastUserName = '服务端暂未提供';
+                lastUserName = data[i].chat.last_post_userName;
             }
 
 
             datas.push({
-                id: data[i].chat.chat_id,
+                chat_id: data[i].chat.chat_id,
                 name: data[i].chat.channelname,
                 type: data[i].chat.chat_type,
                 status: status,
@@ -45,7 +45,8 @@ Ext.define('IM.utils.BindHelper', {
                 last_post_at: data[i].chat.last_post_at,
                 last_post_userName: lastUserName,
                 last_msg_type: data[i].chat.last_msg_type,
-                last_post_msg: data[i].chat.last_message
+                last_post_msg: data[i].chat.last_message,
+                members: data[i].members
             });
         }
 
@@ -100,6 +101,8 @@ Ext.define('IM.utils.BindHelper', {
             orgs = User.organization.concat(), // 数组的深拷贝，不会修改原数组的值
             users = User.allUsers;
         // otherUsers = User.allOthers;
+
+        // treeStore.removeAll();
 
         // 创建节点树
         for (var i = 0; i < orgs.length; i++) {
@@ -239,21 +242,21 @@ Ext.define('IM.utils.BindHelper', {
             chat_id: data.chat_id,
             name: nickname,
             type: data.chat_type,
-            last_post_at: new Date(data.update_at),
+            last_post_at: data.update_at,
             status: status,
             chat_name: data.chat_name,
             members: data.members
         });
 
         if (data.creator_id == User.ownerID) {
-            recentChatView.setSelection(record);
+            recentChatView.setSelection(record[0]);
         }
 
         return record[0];
     },
 
     /**
-     * 递归添加leaf节点id
+     * 递归添加leaf节点id, 若节点下只有一个人，则返回这个人的信息
      * @param {*} record 组织结构树节点信息
      * @param {*} memsID 需要添加的id
      */
@@ -270,7 +273,7 @@ Ext.define('IM.utils.BindHelper', {
 
         var result = [];
         if (memsID.length == 1) {
-            result.push(memsID);
+            result.push(memsID[0]);
         } else {
             for (var j = 0; j < memsID.length; j++) {
                 result.push(memsID[j].id);
@@ -278,6 +281,7 @@ Ext.define('IM.utils.BindHelper', {
         }
         return result;
     },
+
 
 
     // onAddMemToGroup(listData) {
@@ -417,6 +421,8 @@ Ext.define('IM.utils.BindHelper', {
 
                 var record = ParseHelper.getMsgData(data[i]);
                 record.showTime = isShowTime;
+                record.name = record.user_name;
+                // record.senderName = record.user_name;
                 records.push(record);
             }
 

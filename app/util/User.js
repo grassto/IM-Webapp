@@ -5,6 +5,8 @@ Ext.define('PushIM.Webapp.util.User', {
     alternateClassName: 'User',
     singleton: true,
 
+    token: '', // 服务端返回的token号
+
     ownerID: '', // 用户自己的ID
 
     allUsers: [], // 所有用户
@@ -56,6 +58,7 @@ Ext.define('PushIM.Webapp.util.User', {
     isFirstConRct: true, // 是否是第一次加载，最近会话列表（主要是移动端的websocket重连）
 
     clear() {
+        User.token = '';
         User.ownerID = '';
         User.allUsers = [];
         User.organization = [];

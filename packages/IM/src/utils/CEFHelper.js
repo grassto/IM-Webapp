@@ -9,9 +9,11 @@ Ext.define('IM.utils.CEFHelper', {
 
             // 未读条数
             var unreadNum = record.get('unReadNum');
-            if (unreadNum >= 0) {
-                unreadNum += 1;
-            }
+
+            // 这边不需要再加一了，之前加过了
+            // if (unreadNum >= 0) {
+            //     unreadNum += 1;
+            // }
 
             // 消息，分类型
             var message = '';
@@ -48,34 +50,40 @@ Ext.define('IM.utils.CEFHelper', {
 
     initNotice(data) {
         if (window.cefMain) {
-            var notices = [],
-                header = '';
+            if (data && data.length) {
 
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].chat.unread_count > 0) {
-                    // 获取header
-                    if (data[i].chat.chat_type == ChatType.Direct) {
-                        var oid = ChatHelper.getOtherUserID(data[i].chat.chat_name);
-                        header = ChatHelper.getName(oid);
-                    } else if (data[i].chat.chat_type == ChatType.Group) {
-                        header = data[i].chat.header;
+
+                var notices = [],
+                    header = '';
+
+
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].chat.unread_count > 0) {
+                        // 获取header
+                        if (data[i].chat.chat_type == ChatType.Direct) {
+                            var oid = ChatHelper.getOtherUserID(data[i].chat.chat_name);
+                            header = ChatHelper.getName(oid);
+                        } else if (data[i].chat.chat_type == ChatType.Group) {
+                            header = data[i].chat.header;
+                        }
+
+                        notices.push({
+                            chat_id: data[i].chat.chat_id,
+                            header: header,
+                            message: data[i].chat.last_message,
+                            message_type: data[i].chat.last_msg_type, // 这个应该需要的，cef还没
+                            badge: data[i].chat.unread_count,
+                            create_at: data[i].chat.last_post_at, // 这边就传这个吧
+                            chat_type: data[i].chat.chat_type,
+                            sender: data[i].chat.last_sender
+                        });
                     }
-
-                    notices.push({
-                        chat_id: data[i].chat.chat_id,
-                        header: header,
-                        message: data[i].chat.last_message,
-                        message_type: data[i].chat.last_msg_type, // 这个应该需要的，cef还没
-                        badge: data[i].chat.unread_count,
-                        create_at: data[i].chat.last_post_at, // 这边就传这个吧
-                        chat_type: data[i].chat.chat_type,
-                        sender: data[i].chat.last_sender
-                    });
                 }
+
+                notices = JSON.stringify(notices);
+                window.cefMain.initNotice(notices);
             }
 
-            notices = JSON.stringify(notices);
-            window.cefMain.initNotice(notices);
         }
     }
 });

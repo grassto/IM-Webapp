@@ -81,7 +81,7 @@ Ext.define('IMCommon.local.InitDb', {
             'SenderID NVARCHAR(20), ' +
             'SenderName NVARCHAR(30), ' +
             'MsgSeq BIGINT, ' +
-            'Status CHAR(1) );';
+            'Status CHAR(1) );'; // 0：成功，1: 失败
 
         var t2 = 'CREATE TABLE IF NOT EXISTS IMRct (' +
             'ChatID NVARCHAR(50) PRIMARY KEY, ' +
@@ -112,6 +112,7 @@ Ext.define('IMCommon.local.InitDb', {
         var t4 = 'CREATE TABLE IF NOT EXISTS IMFile (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
             'MsgID NVARCHAR(50), ' +
+            'ClientID NVARCHAR(50), ' +
             'ChatID NVARCHAR(50), ' +
             'FilePath TEXT, ' +
             'FileType CHAR(1), ' +
@@ -119,6 +120,7 @@ Ext.define('IMCommon.local.InitDb', {
             'MimeType NVARCHAR(100), ' +
             'Width INT, ' +
             'Height INT, ' +
+			'CreateAt BIGINT, ' +
             'FileSize BIGINT );';
 
         var t5 = 'CREATE TABLE IF NOT EXISTS IMUsr (' +
@@ -136,30 +138,28 @@ Ext.define('IMCommon.local.InitDb', {
 
             'DefRolID NVARCHAR(40),' +
             'Locale NVARCHAR(5),' +
-            'IsSupperUser CHAR(1),' +
-            'IsClose CHAR(1) );';
+            'IsSupperUser CHAR(1));';
 
-        var t6 = 'CREATE TABLE IF NOT EXISTS IMUsrRl (' +
-            'RoleID NVARCHAR(40) NOT NULL,' +
-            'UserID NVARCHAR(20) NOT NULL,' +
-            'IsClose CHAR(1) DEFAULT(\'N\') );';
+        // var t6 = 'CREATE TABLE IF NOT EXISTS IMUsrRl (' +
+            // 'RoleID NVARCHAR(40) NOT NULL,' +
+            // 'UserID NVARCHAR(20) NOT NULL,' +
+            // 'IsClose CHAR(1) DEFAULT(\'N\') );';
 
-        var t7 = 'CREATE TABLE IF NOT EXISTS IMRol (' +
-            'RoleID NVARCHAR(40) NOT NULL,' +
-            'RoleName NVARCHAR(40) NOT NULL,' +
-            'OrgID NVARCHAR(40),' +
-            'Remarks NVARCHAR(200),' +
-            'IsClose CHAR(1) DEFAULT(\'N\'),' +
-            'IsMaster CHAR(1) );';
+        // var t7 = 'CREATE TABLE IF NOT EXISTS IMRol (' +
+            // 'RoleID NVARCHAR(40) NOT NULL,' +
+            // 'RoleName NVARCHAR(40) NOT NULL,' +
+            // 'OrgID NVARCHAR(40),' +
+            // 'Remarks NVARCHAR(200),' +
+            // 'IsClose CHAR(1) DEFAULT(\'N\'),' +
+            // 'IsMaster CHAR(1) );';
 
         var t8 = 'CREATE TABLE IF NOT EXISTS IMOrg (' +
             'OrgID NVARCHAR(40) PRIMARY KEY,' +
             'OrgName NVARCHAR(40),' +
             'ParentID NVARCHAR(40),' +
-            'Remarks NVARCHAR(200),' +
-            'IsClose CHAR(1) DEFAULT(\'N\') );';
+            'Remarks NVARCHAR(200));';
 
-        return [t0, t1, t2, t3, t4, t5, t6, t7, t8];
+        return [t0, t1, t2, t3, t4, t5, /*t6, t7,*/ t8];
     },
 
     getV2_0: function () {

@@ -7,27 +7,39 @@ Ext.define('IMCommon.utils.SendUtil', {
      * @param {*} editor 编辑框
      * @param {*} chatID 当前会话的ID
      * @param {*} rctStore 需要绑定数据的最近回话列表的store
-     * @param {*} MsgStore 需要绑定数据的消息视图的store
+     * @param {*} msgView 需要绑定数据的消息视图
      */
-    sendMsg(editor, chatID, rctStore, msgStore) {
+    sendMsg(editor, chatID, rctStore, msgView) {
         var me = this,
-            msg = editor.value; // 消息体
+            msgStore = msgView.getStore();
 
         // if(!me.canSend(rctStore)) return;// 是否可以在此会话中发消息
 
         var msgs = [], // 消息数组
-        msgDatas = []; // msgStore中的数据
+            msgDatas = [], // msgStore中的数据
+            msg = editor.getSubmitValue(); // 消息体
 
-        var childs = ParseUtil.parsePTMsg(msg),
+        var childs = ParseUtil.parsePATMsg(msg),
             len = childs.length;
+
         for (var i = 0; i < len; i++) {
-            var msgType = '',
-                guid = LocalDataMgr.newGuid();
+            var guid = LocalDataMgr.newGuid(),
+                msgData = {};
 
             // 区分消息类型
-            if (childs[i].tagName == 'IMG') {
+            if (childs[i].type == 'img') {
+                var img = document.createElement('IMG');
+                img.innerHTML = childs[i].value;
 
-                if(childs[i].hasAttribute('data-url')) {
+                if (img.childNodes[0].hasAttribute('data-url')) {
+                    msgData = {
+                        client_id: guid,
+                        chat_id: chatID,
+                        msg_type: MsgType.ImgMsg,
+                        user_id: User.ownerID,
+                        user_name: User.crtUser.user_name
+                    };
+
                     msgs.push({
                         client_id: guid,
                         chat_id: chatID,
@@ -40,22 +52,41 @@ Ext.define('IMCommon.utils.SendUtil', {
                     msgDatas.push({
                         client_id: guid,
                         senderName: User.crtUser.user_name,
-                        sendText: childs[i], // 图片则直接放img标签上去，这个还得改
+                        sendText: childs[i].value, // 图片则直接放img标签上去
                         msg_type: MsgType.ImgMsg,
                         last_post_at: new Date(),
                         sendStatus: 1, // 发送态
                         ROL: 'right',
-                        fileURL: childs[i].getAttribute('data-url') // 上传图片时需用到的URL
+                        fileURL: img.childNodes[0].getAttribute('data-url') // 上传图片时需用到的URL
                     });
-                    
+
+                    // 发送失败的就不管它了，也不能重新发送
+                    // if (Config.needLocal) {
+                    //     // 将图片写到本地指定的路径下
+                    //     me.writeFile(img.childNodes[0].getAttribute('data-url'), function(r) {
+                    //         LocalDataMgr.execSendImg(msgData, r.nativeURL, FileUtil.getFileName(r.nativeURL));
+                    //     });
+                    // }
+                    if(Config.needLocal) {
+                        LocalDataMgr.execSendImg(msgData);
+                    }
                 } else {
                     // 第三方图片下载失败的，可能还有人直接输入<img src="">这种，先不考虑
                 }
             } else {
+                msgData = {
+                    client_id: guid,
+                    chat_id: chatID,
+                    message: childs[i].value,
+                    msg_type: MsgType.TextMsg,
+                    user_id: User.ownerID,
+                    user_name: User.crtUser.user_name
+                };
+                
                 msgs.push({
                     client_id: guid,
                     chat_id: chatID,
-                    message: childs[i].data,
+                    message: childs[i].value,
                     msg_type: MsgType.TextMsg,
                     user_id: User.ownerID,
                     user_name: User.crtUser.user_name
@@ -64,12 +95,16 @@ Ext.define('IMCommon.utils.SendUtil', {
                 msgDatas.push({
                     client_id: guid,
                     senderName: User.crtUser.user_name,
-                    sendText: childs[i].data,
+                    sendText: childs[i].value,
                     msg_type: MsgType.TextMsg,
                     last_post_at: new Date(),
                     sendStatus: 1, // 发送态
                     ROL: 'right'
                 });
+
+                if (Config.needLocal) {
+                    LocalDataMgr.execSendText(msgData);
+                }
             }
         }
 
@@ -83,6 +118,15 @@ Ext.define('IMCommon.utils.SendUtil', {
 
         // 消息数据绑定，都为未成功态
         var msgRecords = msgStore.add(msgDatas);
+        // 清空输入框
+        editor.clear();
+
+        // 滚动条滚到最下方
+        AddDataUtil.onScroll(msgView);
+
+        // if (Config.needLocal) {
+        //     LocalDataMgr.execSendMsg(msgs);
+        // }
 
         // 消息发送
         Utils.ajaxByZY('post', 'posts/post2', {
@@ -93,38 +137,84 @@ Ext.define('IMCommon.utils.SendUtil', {
                 // </debug>
 
                 var pics = [];
-                for(var i = 0; i < data.length; i++) {
+                for (var i = 0; i < data.length; i++) {
                     // 文字消息都标志为成功
-                    if(data[i].msg_type == MsgType.TextMsg) {
+                    if (data[i].msg_type == MsgType.TextMsg) {
                         // record数组是一一对应的
                         msgRecords[i].set({
                             sendStatus: 0,
                             msg_id: data[i].msg_id
                         });
-                    } else if(data[i].msg_type == MsgType.ImgMsg) {
+
+                        if(Config.needLocal) {
+                            LocalDataMgr.updateSendText(data[i]);
+                        }
+                    } else if (data[i].msg_type == MsgType.ImgMsg) { // 图片消息
                         msgRecords[i].set({
                             msg_id: data[i].msg_id
                         });
 
                         data[i].fileURL = msgDatas[i].fileURL;
                         pics.push(data[i]);
+
+                        if(Config.needLocal) {
+                            LocalDataMgr.updateSendImg(data[i]);
+                        }
                     }
                 }
 
                 // 图片上传
-                if(pics.length > 0) {
+                if (pics.length > 0) {
                     UpImgMgr.pushImgToQue(pics);
                 }
-                
+
+            },
+            failure: function (err) {
+                // 处理消息发送失败
             }
         });
+    },
 
-        // 发送消息
+    /**
+     * 将图片写入本地指定路径
+     * @param {*} fullName 
+     */
+    writeFile(fullName, success) {
+        var me = this,
+            name = FileUtil.getFileName(fullName);
 
+        if (Config.isPC) {
+            var root = {
+                name: name,
+                fullPath: fullName,
+                nativeURL: fullName
+            };
+            var fs = new FileSystem(name, root);
 
-        if (Config.needLocal) {
+            var ft = new FileEntry(name, fullName, fs);
+
+            var fsNew = new FileSystem(name, { name: name, fullPath: me.getFullImgPath() });
+
+            var directory = new DirectoryEntry('images', me.getFullImgPath(), fsNew);
+
+            ft.copyTo(directory, name, function (r) {
+                if (success) {
+                    success(r);
+                }
+
+            }, function (err) {
+                console.log('图片写入本地指定路径时发生错误', err);
+            });
+        } else if (Config.isPhone) {
 
         }
+    },
+
+    /**
+     * 获取本地存储的完整路径
+     */
+    getFullImgPath() {
+        return cefMain.file.dataDirectory + '\\' + User.ownerID + '\\images';
     },
 
     /**

@@ -26,6 +26,8 @@ Ext.define('IM.view.chat.ChatView', {
     // perPage: 0, // 分页
 
     // emptyText: '暂无会话',
+    infinite: true,
+    variableHeights: true,
 
     itemsFocusable: false,
     selectable: false,
@@ -168,6 +170,7 @@ Ext.define('IM.view.chat.ChatView', {
                 }
             });
             if(window.cefMain) { // cef
+                imgsData = JSON.stringify(imgsData);
                 cefMain.viewImages(imgsData, initialIndex);
             }
             else if(Ext.browser.is.Cordova || !Ext.os.is.Desktop) { // 移动端 或者 cordova

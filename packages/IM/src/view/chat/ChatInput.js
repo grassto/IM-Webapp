@@ -113,10 +113,10 @@ Ext.define('IM.view.chat.ChatInput', {
                 res = JSON.parse(res);
                 var text = '';
                 for (var i = 0; i < res.length; i++) {
-                    // var index = res[i].indexOf('://'),
-                    // src = res[i].substr(index);
-                    // src = 'localfile' + src; // localfile:///xxx这样拼一个src过去，cef会崩溃
-                    text += '<img src="' + res[i] + '" data-url="' + res[i] + '">' + '&#8203';
+                    var index = res[i].indexOf('://'),
+                    src = res[i].substr(index);
+                    src = 'localfile' + src; // localfile:///xxx这样拼一个src过去，cef会崩溃
+                    text += '<img src="' + src + '" data-url="' + res[i] + '">' + '&#8203';
                 }
                 editor.inputElement.dom.focus();
                 if (document.queryCommandSupported('insertHTML')) {

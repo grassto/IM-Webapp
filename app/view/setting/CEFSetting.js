@@ -97,10 +97,17 @@ Ext.define('PushIM.Webapp.view.setting.CEFSetting', {
             text: '返回',
             cls: 'CefNoDrag',
             ui: 'action',
-            handler: function () {
-                if (Ext.manifest.env == 'production') {
-                    Ext.getApplication().setConfigUrl();
+            handler: function (txf) {
+                var values = txf.up('CEFSetting').down('#netForm').getValues();
+                if (values.net == 'in') {
+                    localStorage.setItem('inOrOut', 'in');
+                } else if (values.net == 'out') {
+                    localStorage.setItem('inOrOut', 'out');
                 }
+                // if (Ext.manifest.env == 'production') {
+                //     Ext.getApplication().setConfigUrl();
+                // }
+                Ext.getApplication().setConfigUrl();
                 Ext.Viewport.getController().showView('authlogin');
             }
         }]

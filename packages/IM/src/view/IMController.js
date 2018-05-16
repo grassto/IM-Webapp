@@ -37,6 +37,12 @@ Ext.define('IM.view.IMController', {
         me.callParent(arguments);
         console.log('程序初始化');
 
+        // 设置个人头像
+        me.getViewModel().set({
+            'ownerName': User.crtUser.user_name,
+            'avatar': AvatarMgr.getAvatarHtmlByName(User.crtUser.user_name)
+        });
+
         if (Config.isPC) {
             Utils.mask(rctView); // 遮罩
             InitDb.initDB((trans) => {
@@ -140,7 +146,7 @@ Ext.define('IM.view.IMController', {
                     members: row.mems
                 });
             }
-            
+
             recentStore.add(datas);
         }
     },
@@ -209,7 +215,6 @@ Ext.define('IM.view.IMController', {
      * 打开连接
      */
     mounted(view) {
-        ConnectHelper.getMe(view.getViewModel());
         ConnectHelper.getUnreadChats(view);
         // ConnectHelper.getMembers(view); // 延期到点击组织结构的tab的时候才去加载
 
@@ -234,12 +239,13 @@ Ext.define('IM.view.IMController', {
                 case SocketEventType.updateChat:
                     SocketEventHelper.handleChgChatHeader(msg);
                     break;
+                case SocketEventType.getFile:
+                    SocketEventHelper.handleGetFile(msg);
                 default:
                     break;
             }
         });
         WebSocketHelper.setReconnectCallback(function () {
-            ConnectHelper.getMe(view.getViewModel());
             User.isFirstCon = true; // 初次加载组织结构树
             // ConnectHelper.getMembers(view);
             ConnectHelper.getUnreadChats(view);
@@ -264,11 +270,12 @@ Ext.define('IM.view.IMController', {
             // 组织结构树第一次加载
             if (User.isFirstCon) {
                 User.isFirstCon = false;
-                if(Config.isPC) {
-                    me.bindLocalOrg();
-                } else {
-                    ConnectHelper.getMembers(me.getView());
-                }
+                // if (Config.isPC) {
+                //     me.bindLocalOrg();
+                // } else {
+                //     ConnectHelper.getMembers(me.getView());
+                // }
+                ConnectHelper.getMembers(me.getView());
             }
         } else if (tab.iconCls == 'x-fa fa-th-large') {
             xtype = 'setting';
@@ -315,10 +322,14 @@ Ext.define('IM.view.IMController', {
     },
 
     bindLocalOrg() {
-        LocalDataMgr.initGetOrg(function() {
+        LocalDataMgr.initGetOrg(function (ok) {
             var view = Ext.Viewport.lookup('IM'),
-                orgTree = view.down('#left-organization');
-            BindHelper.loadOrganization(orgTree);
+            orgTree = view.down('#left-organization');
+
+            // 从本地加载的这个有点慢
+            if (ok) { // 本地存在组织结构，从先从本地绑定
+                BindHelper.loadOrganization(orgTree);
+            }
 
             ConnectHelper.getMembers(view);
         });

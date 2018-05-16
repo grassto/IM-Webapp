@@ -323,7 +323,8 @@ Ext.define('IM.view.rightContainer.IMMainViewController', {
 
     /* ********************************消息发送****************************************/
     onBtnSend(btn) {
-        this.onSend();
+        var textAreaField = this.getView().down('richEditor');
+        SendUtil.sendMsg(textAreaField, User.crtChannelId, Ext.Viewport.lookup('IM').down('#recentChat').getStore(), this.down('#chatView'));
     },
 
     onSendText() {

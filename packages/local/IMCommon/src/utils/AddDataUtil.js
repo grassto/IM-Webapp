@@ -240,9 +240,10 @@ Ext.define('IMCommon.utils.AddDataUtil', {
     },
 
 
-    // ws获得
+
+    // WS添加个人对话
     wsAddDirectChatToRct(store, data) {
-        store.insert(0, {
+        var rec = store.insert(0, {
             chat_id: data.chat_id,
             name: data.user_name,
             type: data.chat_type,
@@ -253,14 +254,18 @@ Ext.define('IMCommon.utils.AddDataUtil', {
             last_post_name: data.user_name,
             last_msg_type: data.msg_type
         });
+
+        return rec[0];
     },
 
+    // WS添加群聊
     wsAddGrpChatToRct(store, data) {
+        var rec;
         // 没有人员信息，在此获取人员信息
         Utils.ajaxByZY('get', 'users/' + User.ownerID + '/chats/' + data.chat_id, {
-            async: false,
+            async: false, // ios不能用async:false，会报错
             success: function (res) {
-                store.insert(0, {
+                rec = store.insert(0, {
                     chat_id: data.chat_id,
                     name: res.chat.header,
                     type: data.chat_type,
@@ -274,28 +279,48 @@ Ext.define('IMCommon.utils.AddDataUtil', {
                 });
             }
         });
+
+        return rec[0];
     },
 
+    /**
+     * websocket收到请求后，增加数据进Rct
+     * @param {*} store 需要加数据的store
+     * @param {*} data 数据
+     */
     wsAddChatToRct(store, data) {
+        var result;
         switch (data.chat_type) {
             case ChatType.Direct:
-                this.wsAddDirectChatToRct(store, data);
+                result = this.wsAddDirectChatToRct(store, data);
                 break;
             case ChatType.Group:
-                this.wsAddGrpChatToRct(store, data);
+                result = this.wsAddGrpChatToRct(store, data);
+                break;
+            default:
+                break;
+        }
+
+        return result;
+    },
+
+    wsUpdateRct(store, data) {
+        switch (data.chat_type) {
+            case ChatType.Direct:
+                this.wsUpdateDitRct(store, data);
+                break;
+            case ChatType.Group:
+                this.wsUpdateGrpRct(store, data);
                 break;
             default:
                 break;
         }
     },
 
-    baseInsertRct(store, data) {
-        store.insert(0, {
-            
-        });
+    wsUpdateDitRct(store, data) {
+        
     },
 
-    baseAddMsg(store, data) {
+    wsUpdateGrpRct(store, data) {},
 
-    }
 });

@@ -90,8 +90,6 @@ Ext.define('IM.utils.BindHelper', {
     },
 
 
-
-
     // 加载组织结构树信息(之后还需处理)
     loadOrganization(orgTree, defaultSelMems) {
         var me = this,
@@ -99,57 +97,69 @@ Ext.define('IM.utils.BindHelper', {
             target = orgTree.getSelections()[0] || treeStore.getRoot(),
             nodes = [],
             orgs = User.organization.concat(), // 数组的深拷贝，不会修改原数组的值
-            users = User.allUsers;
+            users = User.allUsers.concat();
         // otherUsers = User.allOthers;
 
         // treeStore.removeAll();
+        treeStore.setRootVisible(false);
 
+        // debugger;
         // 创建节点树
         for (var i = 0; i < orgs.length; i++) {
-            if (orgs[i].parent_id === '') {// 根节点
-                target.data.name = orgs[i].org_name;
-                target.data.id = orgs[i].org_id;
-                target.data.iconCls = 'x-fa fa-folder';
+            if (orgs[i].parent_id === 'Root') {// 根节点
 
-                orgs.splice(i, 1); // 从数组中将其剔除
-                nodes.push(target);
+                var node = target.appendChild({
+                    id: orgs[i].org_id,
+                    name: orgs[i].org_name,
+                    leaf: false,
+                    iconCls: 'x-fa fa-folder'
+                });
 
-                // 递归创建子节点
-                me.createNodes(nodes, orgs);
-                break;
+                me.createNodes(node, orgs);
+
+                // orgs.splice(i, 1); // 从数组中将其剔除
+                // nodes.push(node);
+
+                // // 递归创建子节点
+                // me.createNodes(nodes, orgs);
             }
         }
 
+
         // 得到tree的所有树节点，并存入nodes
         nodes = me.getNodes(target, nodes);
-        // debugger;
 
-        // 判断是否默认选中, 不用
+        // 判断是否默认选中
         var isdefUsr = false;
 
-
+        var userOrgs;
         // 将user添加到树上
         for (var j = 0; j < nodes.length; j++) {
             for (var k = 0; k < users.length; k++) {
-                // org_ids要注意
-                if (users[k].org_ids == nodes[j].data.id) {
+                userOrgs = users[k].org_ids.split(','); // 组织，可能有多个
 
-                    if (defaultSelMems) { // 多人会话框组织数据
-                        isdefUsr = me.getIsDef(users[k].user_id, defaultSelMems);
+                for (var l = 0; l < userOrgs.length; l++) {
+                    if (userOrgs[l] == nodes[j].data.id) {
+                        if (defaultSelMems) {
+                            isdefUsr = me.getIsDef(users[k].user_id, defaultSelMems);
+                        }
+
+                        nodes[j].insertChild(0, {
+                            id: users[k].user_id,
+                            name: users[k].user_name,
+                            def_role_name: users[k].def_role_name,
+                            leaf: true,
+                            isSel: isdefUsr
+                        });
+                        break;
                     }
-
-                    nodes[j].appendChild({
-                        id: users[k].user_id,
-                        name: users[k].user_name,
-                        def_role_name: users[k].def_role_name,
-                        leaf: true,
-                        isSel: isdefUsr
-                    });
                 }
             }
         }
 
         treeStore.sort();
+
+        orgTree.expandAll(); // tree展开节点
     },
 
     /**
@@ -168,46 +178,72 @@ Ext.define('IM.utils.BindHelper', {
         return flag;
     },
 
-    // 创建子节点
-    createNodes(root, orgs) {
-        var me = this,
-            // result = {},
-            nodes = [],
-            node;
+    createNodes(node, orgs) {
+        var me = this;
 
-        for (var i = 0; i < root.length; i++) { // 遍历节点
-            for (var j = 0; j < orgs.length; j++) { // 添加子节点
-                if (orgs[j].parent_id == root[i].data.id) {
-                    node = root[i].appendChild({
-                        id: orgs[j].org_id,
-                        name: orgs[j].org_name,
-                        leaf: false,
-                        iconCls: 'x-fa fa-folder'
+        for (var i = 0; i < orgs.length; i++) {
+            // me.appendUsers(node);
+            if (orgs[i].parent_id == node.data.id) {
+                var n = node.appendChild({
+                    id: orgs[i].org_id,
+                    name: orgs[i].org_name,
+                    leaf: false,
+                    iconCls: 'x-fa fa-folder'
+                });
+
+                me.createNodes(n, orgs);
+            }
+        }
+    },
+
+    appendUsers(node) {
+
+        var users = User.allUsers;
+        for (var k = 0; k < users.length; k++) {
+            var userOrgs = users[k].org_ids.split(','); // 组织，可能有多个
+
+            for (var l = 0; l < userOrgs.length; l++) {
+                if (userOrgs[l] == node.data.id) {
+
+                    node.appendChild({
+                        id: users[k].user_id,
+                        name: users[k].user_name,
+                        def_role_name: users[k].def_role_name,
+                        leaf: true
                     });
-                    nodes.push(node);
-
-                    // delete orgs[j];
-                    orgs.splice(j, 1);
-                    j = j - 1;
+                    break;
                 }
             }
         }
-
-        // for (var k = 0; k < orgs.length; k++) {
-        //     if (!orgs[k]) {
-        //         orgs.splice(k, 1);
-        //     }
-        // }
-
-        if (orgs.length > 0) {
-            me.createNodes(nodes, orgs);
-        }
-
-        // result.nodes = nodes;
-        // result.orgs = orgs;
-
-        // return result;
     },
+
+    // 创建子节点
+    // createNodes(nodes, orgs) {
+    //     var me = this,
+    //         node;
+
+    //     for (var i = 0; i < nodes.length; i++) { // 遍历节点
+    //         for (var j = 0; j < orgs.length; j++) { // 添加子节点
+    //             if (orgs[j].parent_id == nodes[i].data.id) {
+    //                 node = nodes[i].appendChild({
+    //                     id: orgs[j].org_id,
+    //                     name: orgs[j].org_name,
+    //                     leaf: false,
+    //                     iconCls: 'x-fa fa-folder'
+    //                 });
+    //                 nodes.push(node);
+
+    //                 // delete orgs[j];
+    //                 orgs.splice(j, 1);
+    //                 j = j - 1;
+    //             }
+    //         }
+    //     }
+
+    //     if (orgs.length > 0) {
+    //         me.createNodes(nodes, orgs);
+    //     }
+    // },
 
     // 获取所有的子节点
     getNodes(node, nodes) {
@@ -411,6 +447,7 @@ Ext.define('IM.utils.BindHelper', {
             var records = [];
 
             for (var i = 0; i < data.length; i++) {
+                debugger;
                 // data[i].wrapper_type  message/notice
                 var isShowTime = true; // 是否展示时间
                 if (i > 0) {

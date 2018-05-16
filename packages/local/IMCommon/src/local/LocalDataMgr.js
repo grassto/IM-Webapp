@@ -20,6 +20,13 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     },
 
     /* ********************************************** 数据库相关 *********************************************/
+    commonExecSql(sql, success) {
+        const me = this;
+
+        me.getDB().transaction(function (trans) {
+            me.handleSql(trans, sql, success);
+        });
+    },
 
     // 使用db.sqlBatch(sqlStatement, success, error) 第一个参数是数组，
 
@@ -298,7 +305,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         me.getDB().transaction(function (trans) {
             // me.ensureRChatTable(trans);
 
-            var sql = 'INSERT INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType) VALUES ("' + data.chat_id + '","' + data.display_name + '","' + data.chat_type + '",' + data.unread_count + ',' + data.last_post_at + ',"' + data.last_sender + '","' + data.last_sender_name + '","' + data.last_message + '", "' + data.last_msg_type + '");';
+            var sql = 'INSERT INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType) VALUES ("' + data.chat_id + '","' + data.display_name + '","' + data.chat_type + '",' + data.unread_count + ',' + data.last_post_at + ',"' + data.last_sender_id + '","' + data.last_sender_name + '","' + data.last_message + '", "' + data.last_msg_type + '");';
             me.handleSql(trans, sql);
         });
     },
@@ -340,14 +347,30 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * ws请求过来后，更新最近会话
      * @param {json} data
      */
-    updateRctByWS(data) {
+    updateRctByWsPost(data) {
         const me = this;
+        var content = '';
 
-        me.getDB().transaction(function (trans) {
-            var sql = 'UPDATE IMRct SET UnreadCount=UnreadCount+1,LastPostAt=' + data.create_at + ',LastUserID="' + data.user_id + '",LastUserName="' + data.user_name + '",LastMessage="' + data.message + '" WHERE ChatID="' + data.chat_id + '";';
+        // 若为多人会话，则在前面加上发送者
+        if (data.chat_type == ChatType.Group) {
+            content = data.user_name + '：';
+        }
 
-            me.handleSql(trans, sql);
-        });
+        switch (data.msg_type) {
+            case MsgType.TextMsg:
+                content += data.message;
+                break;
+            case MsgType.ImgMsg:
+                content += '[图片]';
+                break;
+            case MsgType.FileMsg:
+                break;
+            default:
+                alert('暂未支持该类型：', data.msg_type);
+        }
+
+        var sql = 'UPDATE IMRct SET UnreadCount=UnreadCount+1,LastPostAt=' + data.create_at + ',LastUserID="' + data.user_id + '",LastUserName="' + data.user_name + '",LastMessage="' + content + '" WHERE ChatID="' + data.chat_id + '";';
+        me.commonExecSql(sql);
     },
 
     /**
@@ -356,12 +379,35 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      */
     insertRctByWS(data) {
         const me = this;
+        var content = '';
 
-        me.getDB().transaction(function (trans) {
-            var sql = 'INSERT OR REPLACE INTO IMRct (ChatID, ChatType, DisplayName, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType, IsTop, AtCount) VALUES ("' + data.chat_id + '","' + data.chat_type + '","' + data.chat_name + '",0,' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + data.message + '","' + data.msg_type + '","",0);';
+        // 若为多人会话，则在前面加上发送者
+        if (data.chat_type == ChatType.Group) {
+            content = data.user_name + '：';
+        }
 
-            me.handleSql(trans, sql);
-        });
+        switch (data.msg_type) {
+            case MsgType.TextMsg:
+                content += data.message;
+                break;
+            case MsgType.ImgMsg:
+                content += '[图片]';
+                break;
+            case MsgType.FileMsg:
+                break;
+            default:
+                alert('暂未支持该类型：', data.msg_type);
+        }
+
+        var sql = 'INSERT INTO IMRct (ChatID, ChatType, DisplayName, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType, IsTop, AtCount) VALUES ("' + data.chat_id + '","' + data.chat_type + '","' + data.chat_name + '",1,' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + content + '","' + data.msg_type + '","",0);';
+
+        me.commonExecSql(sql);
+
+        // me.getDB().transaction(function (trans) {
+        //     var sql = 'INSERT INTO IMRct (ChatID, ChatType, DisplayName, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType, IsTop, AtCount) VALUES ("' + data.chat_id + '","' + data.chat_type + '","' + data.chat_name + '",1,' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + content + '","' + data.msg_type + '","",0);';
+
+        //     me.handleSql(trans, sql);
+        // });
     },
 
     /**
@@ -412,36 +458,100 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      */
     initAddToMsg(data) {
         var me = this,
-            sqls = '',
             sql = '';
 
-        me.getDB().transaction(function (trans) {
+        for (var i = 0; i < data.length; i++) {
+            var msgType = '', content = '', filePath = '', status = '0'; // 所有的消息不一样的地方
 
-            var status = '0'; // 成功状态
+            if (data[i].wrapper_type == MsgWrapperType.Notice) {
+                var grpChangeMsg = ''; // 组织提示信息
+                var memIDs = me.getNoticeMemsByContent(data[i].notice.operator_id, data[i].notice.content);
 
-            for (var i = 0; i < data.length; i++) {
+                // 这个是复制过来的，之后直接放到SocketUtil中
+                if (data[i].notice.operator_id == User.ownerID) { // 发起者的展示信息
+                    switch (data[i].notice.notice_type) {
+                        case NoticeType.CreateGrp:
+                            grpChangeMsg = SocketEventHelper.createOwnWelcomeMsg(data[i].notice.operator_id, memIDs);
+                            break;
+                        case NoticeType.AddMem:
+                            grpChangeMsg = SocketEventHelper.createMeAddSBMsg(data[i].notice.operator_id, memIDs);
+                            break;
+                        case NoticeType.RemoveMem:
+                            grpChangeMsg = SocketEventHelper.createMeRemoveSBMsg(data[i].notice.operator_id, memIDs[0]);
+                            break;
+                        case NoticeType.ChgTitle:
+                            grpChangeMsg = SocketEventHelper.createMeChgHeaderMsg(data[i].notice.content);
+                            break;
+                        case NoticeType.ChgManager:
+                            grpChangeMsg = SocketEventHelper.meChgMgrToSB(memIDs[0]);
+                            break;
+                        default:
+                            break;
+                    }
+                } else { // 被操作者的展示信息
+                    switch (data[i].notice.notice_type) {
+                        case NoticeType.CreateGrp:
+                            grpChangeMsg = SocketEventHelper.createOtherWelcomeMsg(data[i].notice.operator_id, memIDs);
+                            break;
+                        case NoticeType.AddMem:
+                            grpChangeMsg = SocketEventHelper.createSBAddSBMsg(data[i].notice.operator_id, memIDs);
+                            break;
+                        case NoticeType.RemoveMem:
+                            grpChangeMsg = SocketEventHelper.createSBRemoveMeMsg(data[i].notice.operator_id, memIDs[0]);
+                            break;
+                        case NoticeType.ChgTitle:
+                            grpChangeMsg = SocketEventHelper.createSBChgHeaderMsg(data[i].notice.content, data[i].notice.operator_id);
+                            break;
+                        case NoticeType.ChgManager:
+                            grpChangeMsg = SocketEventHelper.sbChgMgrToMe(data[i].notice.operator_id);
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
-                sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data[i].msg_id + '","' + data[i].chat_id + '","' + data[i].msg_type + '","' + data[i].message + '","' + data[i].file_path + '",' + data[i].create_at + ',"' + data[i].user_id + '","' + data[i].user_name + '","' + status + '");';
+                msgType = MsgType.GroupNotice; // G
+                content = grpChangeMsg;
 
-                sqls += sql;
-                // switch (msgList[i].wrapper_type) {
-                //     case MsgWrapperType.Message:
-                //         sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + msgList[i].message.msg_id + '","' + msgList[i].message.chat_id + '","' + msgList[i].message.msg_type + '","' + msgList[i].message.message + '","' + msgList[i].message.file_path + '",' + msgList[i].message.create_at + ',"' + msgList[i].message.user_id + '","' + msgList[i].message.user_name + '","' + status + '")';
+                sql += 'INSERT INTO IMMsg (ChatID,MsgType,Content,CreateAt,SenderID,Status) VALUES ' +
+                    '("' + data[i].notice.chat_id + '","' + msgType + '","' + content + '",' + data[i].notice.create_at + ',"' + data[i].notice.operator_id + '","' + status + '");';
 
-                //         sqls += sql;
-                //         break;
-                //     case MsgWrapperType.Notice:
-                //         // 组织一下content
-                //         break;
-                //     default:
-                //         break;
-                // }
+            } else if (data[i].wrapper_type == MsgWrapperType.Message) {
+                switch (data[i].message.msg_type) {
+                    case MsgType.TextMsg:
+                        msgType = MsgType.TextMsg;
+                        content = data[i].message.message;
+                        break;
+                    case MsgType.ImgMsg:
+                        msgType = MsgType.ImgMsg;
+                        filePath = Config.httpUrlForGo + 'files/' + data[i].message.attach_id;
+                        status = '1'; // 不是成功态
+                        break;
+                    case MsgType.FileMsg:
+                        msgType = MsgType.FileMsg;
+                        filePath = '';
+                        status = '1';
+                        break;
+                    default:
+                        break;
+                }
 
-
+                sql += 'INSERT INTO IMMsg (MsgID,ChatID,MsgType,Content,FilePath,CreateAt,SenderID,SenderName,Status) VALUES ' +
+                    '("' + data[i].message.msg_id + '","' + data[i].message.chat_id + '","' + msgType + '","' + content + '","' + filePath + '",' + data[i].message.create_at + ',"' + data[i].message.user_id + '","' + data[i].message.user_name + '","' + status + '");';
             }
 
-            me.handleSql(trans, sqls);
-        });
+        }
+
+        me.commonExecSql(sql);
+    },
+
+    /**
+     * 通过unread api获取返回的数据，组织成指定的data返回
+     * @param {*} data 
+     */
+    getComDataByUnread(data) {
+        var result = '';
+
     },
 
     /**
@@ -527,20 +637,144 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     },
 
 
-    getPostEvent(data) {
+    /**
+     * 发送文字消息(入口：SendUtil)
+     */
+    execSendText(data) {
         const me = this;
 
         me.getDB().transaction(function (trans) {
-            var sql = 'INSERT INTO IMMsg' +
-                '(MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ' +
-                '("' + data.msg_id + '","' + data.chat_id + '","' + data.msg_type + '","' + data.message + '","' + data.filePath + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","0");';
+            var sql = 'INSERT INTO IMMsg ' +
+                '(ChatID, ClientID, MsgType, Content, CreateAt, SenderID, SenderName, Status) VALUES' +
+                '("' + data.chat_id + '","' + data.client_id + '","' + data.msg_type + '","' + data.message + '",' + new Date().getTime() + ',"' + data.user_id + '","' + data.user_name + '","1");';
+
+            sql += 'UPDATE IMRct SET LastPostAt=' + new Date().getTime() + ', LastUserID="' + data.user_id + '", LastUserName="' + data.user_name + '", LastMessage="' + data.message + '", LastMsgType="' + data.msg_type + '" WHERE ChatID="' + data.chat_id + '";';
+            me.handleSql(trans, sql);
+        });
+    },
+
+    // 图片地址在上传成功后再写
+    execSendImg(data) {
+        var sql = 'INSERT INTO IMMsg ' +
+            '(ChatID, ClientID, MsgType, Content, CreateAt, SenderID, SenderName, Status) VALUES' +
+            '("' + data.chat_id + '","' + data.client_id + '","' + data.msg_type + '","' + data.message + '",' + new Date().getTime() + ',"' + data.user_id + '","' + data.user_name + '","1");';
+
+        sql += 'UPDATE IMRct SET LastPostAt=' + new Date().getTime() + ', LastUserID="' + data.user_id + '", LastUserName="' + data.user_name + '", LastMessage="' + data.message + '", LastMsgType="' + data.msg_type + '" WHERE ChatID="' + data.chat_id + '";';
+
+        this.commonExecSql(sql);
+    },
+
+    /**
+     * 发送图片消息(入口：SendUtil)
+     */
+    // execSendImg(data, nativeURL, fileName) {
+    //     const me = this;
+
+    //     me.getDB().transaction(function (trans) {
+    //         var sql = 'INSERT INTO IMMsg ' +
+    //             '(ChatID, ClientID, MsgType, filePath, CreateAt, SenderID, SenderName, Status) VALUES' +
+    //             '("' + data.chat_id + '","' + data.client_id + '","' + data.msg_type + '","' + nativeURL + '",' + new Date().getTime() + ',"' + data.user_id + '","' + data.user_name + '","1");';
+
+    //         sql += 'UPDATE IMRct SET LastPostAt=' + new Date().getTime() + ', LastUserID="' + data.user_id + '", LastUserName="' + data.user_name + '", LastMessage="' + '[图片]' + '", LastMsgType="' + data.msg_type + '" WHERE ChatID="' + data.chat_id + '";';
+
+    //         sql += 'INSERT INTO IMFile ' +
+    //             '(ChatID, ClientID, FilePath, FileName, CreateAt) VALUES ' +
+    //             '("' + data.chat_id + '", "' + data.client_id + '", "' + nativeURL + '", "' + fileName + '", ' + new Date().getTime() + ');';
+    //         me.handleSql(trans, sql);
+    //     });
+    // },
+
+    /**
+     * 消息发送成功后调用，更新Text类型的消息
+     */
+    updateSendText(data) {
+        const me = this;
+
+        me.getDB().transaction(function (trans) {
+            var sql = 'UPDATE IMMsg SET MsgID="' + data.msg_id + '", status="0" WHERE ClientID="' + data.client_id + '";';
 
             me.handleSql(trans, sql);
         });
     },
 
+    /**
+     * 消息发送成功后调用，更新IMg
+     * 只更新msg_id
+     */
+    updateSendImg(data) {
+        const me = this;
+
+        me.getDB().transaction(function (trans) {
+            var sql = 'UPDATE IMMsg SET MsgID="' + data.msg_id + '" WHERE ClientID="' + data.client_id + '";';
+
+            // sql += 'UPDATE IMFile SET MsgID="' + data.msg_id + '" WHERE ClientID="' + data.client_id + '";';
+            me.handleSql(trans, sql);
+        });
+    },
+
+    /**
+     * 上传图片成功后调用，将图片状态设为成功
+     * 更新IMFile表和IMMsg的filePath、status
+     */
+    afterUploadSuc(data, nativePath) {
+        var sql = 'UPDATE IMMsg SET FilePath="' + nativePath + '", Status="0" WHERE MsgID="' + data.msg_id + '";';
+
+        // 这边的chat_id服务器没有返回值，file表中的加入机制是上传成功后调用
+        sql += 'INSERT INTO IMFile ' +
+            '(MsgID, ChatID, ClientID, FilePath, FileType, FileName, MimeType, CreateAt, Width, Height, FileSize) VALUES ' +
+            '("' + data.msg_id + '", "' + data.chat_id + '", "' + data.client_id + '", "' + nativePath + '", "' + data.extension + '", "' + data.file_name + '", "' + data.mime_type + '", ' + data.create_at + ', ' + data.width + ', ' + data.height + ', ' + data.size + ');';
+
+        this.commonExecSql(sql);
+    },
+
+    /**
+     * websocket得到post类型的数据时，存数据进入本地数据库
+     */
+    addMsgByWS(data) {
+        const me = this;
+
+        switch (data.msg_type) {
+            case MsgType.TextMsg:
+                me.addTextMsgByWS(data);
+                break;
+            case MsgType.ImgMsg:
+                me.addImgMsgByWS(data);
+                break;
+            case MsgType.FileMsg:
+                me.addFileMsgByWS(data);
+                break;
+            default:
+                alert('暂未支持该类型：', data.msg_type);
+        }
+    },
+    addTextMsgByWS(data) {
+        var sql = 'INSERT INTO IMMsg' +
+            '(MsgID, ChatID, MsgType, Content, CreateAt, SenderID, SenderName, Status) VALUES ' +
+            '("' + data.msg_id + '","' + data.chat_id + '","' + data.msg_type + '","' + data.message + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","0");';
+
+        this.commonExecSql(sql);
+    },
+    addImgMsgByWS(data) {
+        var filePath = `${Config.httpUrlForGo}/files/${data.attach_id}`; // 本地数据库添加服务端地址
+
+        var sql = 'INSERT INTO IMMsg' +
+            '(MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ' +
+            '("' + data.msg_id + '","' + data.chat_id + '","' + data.msg_type + '","' + data.message + '","' + filePath + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","1");';
+
+        this.commonExecSql(sql);
+    },
+    addFileMsgByWS(data) { },
 
 
+    updateImgByWS(data) {
+
+    },
+
+
+    /**
+     * 本地数据库初始化加载组织结构数据
+     * @param {*} success 成功回调
+     */
     initGetOrg(success) {
         var me = this;
         me.getDB().transaction(function (trans) {
@@ -549,9 +783,8 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             me.handleSql(trans, sql, function (tas, resultSet) {
                 var rows = resultSet.rows;
                 if (rows.length > 0) {
-                    var users = [],
-                        user = {};
                     for (var i = 0; i < rows.length; i++) {
+                        var user = {};
                         user.user_id = rows.item(i).UserID;
                         user.user_name = rows.item(i).UserName;
                         user.org_ids = rows.item(i).OrgIDs;
@@ -563,31 +796,29 @@ Ext.define('IMCommon.local.LocalDataMgr', {
                         user.notes = rows.item(i).Notes;
                         user.phone = rows.item(i).Phone;
                         user.sex = rows.item(i).Sex;
-                        users.push(user);
+                        // users.push(user);
+                        User.allUsers.push(user);
                     }
-                    User.allUsers = users;
 
                     sql = 'select * from IMOrg';
                     me.handleSql(tas, sql, function (tx, rs) {
                         var rws = rs.rows;
                         if (rws.length > 0) {
-                            var orgs = [],
-                                org = {};
                             for (var i = 0; i < rws.length; i++) {
+                                var org = {};
                                 org.org_id = rws.item(i).OrgID;
                                 org.org_name = rws.item(i).OrgName;
                                 org.parent_id = rws.item(i).ParentID;
                                 org.remarks = rws.item(i).Remarks;
-                                orgs.push(org);
+                                User.organization.push(org);
                             }
-                            User.organization = orgs;
                         }
 
                         // 当数据都加载成功后调用
-                        success();
+                        success(true);
                     });
                 } else {
-                    success();
+                    success(false);
                 }
             });
         });

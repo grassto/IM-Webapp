@@ -347,66 +347,6 @@ Ext.define('IM.utils.ChatHelper', {
         return mems;
     },
 
-    /**
-     * 获取历史消息
-     * @param {string} cid chat_id
-     */
-    getHistoryOld(cid) {
-        var me = this,
-            chatView = Ext.Viewport.lookup('IM').down('#chatView'),
-            chatStore = chatView.getStore();
-
-        chatStore.removeAll(); // 清空聊天数据
-
-        // 从本地获取历史记录,若是web版，则不管它
-        if (Config.isPC) {
-            // 查出前20条数据
-            LocalDataMgr.getHistory(me.bindLocalHistory, 0, cid);
-            me.onScroll(chatView); // 滚动条滚动打最下方
-            me.onShowChatTime(chatStore);
-
-            // 获取最后更新时间的回调函数
-            var getTimeSuc = function (resultSet) {
-                var rows = resultSet.rows;
-                if (rows.length > 0) {
-                    var lastTime = rows.item(0).CreateAt;
-                    var perPage = 1000; // 这个先这样写
-
-                    // 获取未读消息,(page默认为0，per_page默认为20)
-                    Utils.ajaxByZY('get', 'chats/' + cid + '/posts/unread?per_page=' + perPage + '&time=' + lastTime, {
-                        success: function (data) {
-                            var msgList = data.message_list;
-                            if (msgList.length > 0) {
-                                // 本地数据更新
-                                LocalDataMgr.initAddToMsg(msgList);
-
-                                BindHelper.bindAllMsg(msgList, chatStore); // 绑定数据
-
-                                me.onScroll(chatView);// 可视区滚动到最下方
-                                me.onShowChatTime(chatStore);// 处理时间，一分钟内不显示
-                            }
-                        }
-                    });
-                }
-            };
-
-            LocalDataMgr.getLastMsgTime(cid, getTimeSuc);
-
-
-        } else { // 获取20条历史消息，不管时间
-            Utils.ajaxByZY('get', 'chats/' + cid + '/posts', {
-                success: function (data) {
-
-                    BindHelper.bindAllMsg(data, chatStore); // 绑定数据
-
-                    me.onScroll(chatView);// 可视区滚动到最下方
-
-                    me.onShowChatTime(chatStore);// 处理时间，一分钟内不显示
-                }
-            });
-        }
-    },
-
     getHistory(cid) {
         var me = this,
             chatView = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'),
@@ -453,54 +393,54 @@ Ext.define('IM.utils.ChatHelper', {
                     }
 
                     // 获取未读消息,(page默认为0，per_page默认为20)
-                    Utils.ajaxByZY('get', 'chats/' + cid + '/posts/unread?per_page=' + perPage + '&time=' + lastTime, {
+                    Utils.ajaxByZY('get', 'chats/' + cid + '/posts/unread', {
                         success: function (data) {
                             console.log('分页获取的历史消息：', data);
 
                             var msgList = data.message_list;
-                            if (msgList.length > 0) {
-                                var msgDatas = [],
-                                    msgData = {}; // 拼凑data数据
+                            if (msgList && msgList.length > 0) {
+                                // var msgDatas = [],
+                                //     msgData = {}; // 拼凑data数据
 
-                                for (var i = 0; i < msgList.length; i++) {
-                                    switch (msgList[i].wrapper_type) {
-                                        case MsgWrapperType.Message:
-                                            msgData = msgList[i].message;
+                                // for (var i = 0; i < msgList.length; i++) {
+                                //     switch (msgList[i].wrapper_type) {
+                                //         case MsgWrapperType.Message:
+                                //             msgData = msgList[i].message;
 
-                                            if (msgData.msg_type == MsgType.TextMsg) {// 文本消息
+                                //             if (msgData.msg_type == MsgType.TextMsg) {// 文本消息
 
-                                            } else if (msgData.msg_type == MsgType.ImgMsg) {// 图片
-                                                console.log('暂未适配该类型消息：', msgData.msg_type);
-                                            } else if (msgData.msg_type == MsgType.FileMsg) {// 文件
-                                                console.log('暂未适配该类型消息：', msgData.msg_type);
-                                            }
+                                //             } else if (msgData.msg_type == MsgType.ImgMsg) {// 图片
+                                //                 console.log('暂未适配该类型消息：', msgData.msg_type);
+                                //             } else if (msgData.msg_type == MsgType.FileMsg) {// 文件
+                                //                 console.log('暂未适配该类型消息：', msgData.msg_type);
+                                //             }
 
-                                            msgDatas.push(msgData);
+                                //             msgDatas.push(msgData);
 
 
-                                            break;
-                                        case MsgWrapperType.Notice: // 只要两个数据展示，信息、时间
-                                            msgData = msgList[i].notice;
-                                            msgData.message = ParseHelper.getNoticeMemsByContent(msgData.operator_id, msgData.content);
-                                            msgData.msg_type = MsgType.GroupNotice;
+                                //             break;
+                                //         case MsgWrapperType.Notice: // 只要两个数据展示，信息、时间
+                                //             msgData = msgList[i].notice;
+                                //             msgData.message = ParseHelper.getNoticeMemsByContent(msgData.operator_id, msgData.content);
+                                //             msgData.msg_type = MsgType.GroupNotice;
 
-                                            // msgDatas.push(msgData);
-                                            break;
-                                        default:
-                                            console.log('暂未适配该类型消息：', msgList[i].wrapper_type);
-                                            break;
-                                    }
+                                //             // msgDatas.push(msgData);
+                                //             break;
+                                //         default:
+                                //             console.log('暂未适配该类型消息：', msgList[i].wrapper_type);
+                                //             break;
+                                //     }
 
-                                }
+                                // }
 
                                 // 本地数据更新
-                                LocalDataMgr.initAddToMsg(msgDatas);
+                                LocalDataMgr.initAddToMsg(msgList);
                                 BindHelper.bindAllMsg(msgList, store); // 绑定数据
 
                                 // me.onShowChatTime(store);// 处理时间，一分钟内不显示
                             }
                         }
-                    });
+                    }, '', '&per_page=' + perPage + '&time=' + lastTime);
 
                 };
 
@@ -526,6 +466,79 @@ Ext.define('IM.utils.ChatHelper', {
             me.onScroll(chatView); // 滚动条滚动到最下方
         }
 
+    },
+
+    // 本地拉取历史记录进行绑定
+    bindLocalHistory(trans, resultSet) {
+        var rows = resultSet.rows,
+            len = rows.length;
+
+        var store = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView').getStore(),
+            datas = [],
+            row = {};
+
+        var isShowTime = true,
+            text = '',
+            preTime, now;
+        for (var i = len - 1; i >= 0; i--) {
+            row = rows.item(i);
+            // 同一分钟不显示时间
+            if (i > 0) {
+                preTime = Utils.datetime2Ago(new Date(rows.item(i - 1).CreateAt), true);
+                now = Utils.datetime2Ago(new Date(row.CreateAt), true);
+                if (preTime == now) {
+                    isShowTime = false;
+                } else {
+                    isShowTime = true;
+                }
+            } else {
+                isShowTime = true;
+            }
+            switch (row.MsgType) {
+                case MsgType.TextMsg:
+                    text = window.minEmoji(row.Content);
+                    datas.push({
+                        msg_id: row.MsgID,
+                        msg_type: row.MsgType,
+                        senderName: row.SenderName,
+                        sendText: text,
+                        ROL: row.SenderID == User.ownerID ? 'right' : '',
+                        updateTime: new Date(row.CreateAt),
+                        showTime: isShowTime
+                    });
+                    break;
+                case MsgType.ImgMsg:
+                    text = ImgMgr.parsePic(FileUtil.getFileName(row.FilePath));
+                    datas.push({
+                        msg_id: row.MsgID,
+                        msg_type: row.MsgType,
+                        senderName: row.SenderName,
+                        sendText: text,
+                        ROL: row.SenderID == User.ownerID ? 'right' : '',
+                        updateTime: new Date(row.CreateAt),
+                        showTime: isShowTime
+                    });
+                    break;
+                case MsgType.FileMsg:
+                    break;
+                case MsgType.GroupNotice:
+                    datas.push({
+                        showTime: isShowTime,
+                        updateTime: new Date(row.CreateAt),
+                        GrpChangeMsg: row.Content,
+                        showGrpChange: true
+                    });
+                    break;
+                default:
+                    console.log('暂未支持该类型消息：', row.MsgType);
+                    break;
+            }
+
+        }
+        // <debug>
+        console.log(datas);
+        // </debug>
+        store.add(datas);
     },
 
     // 获取更多的历史消息(现只从本地拉)
@@ -664,9 +677,12 @@ Ext.define('IM.utils.ChatHelper', {
         User.crtChannelId = data.chat_id; // 设置crtCID
 
         var imView = Ext.Viewport.lookup('IM'),
+            rctView = imView.down('#recentChat'),
             mainView = imView.lookup('im-main'),
             chatView = mainView.down('#chatView'),
             grpView = mainView.down('#groupList');
+
+        rctView.setSelection(rctView.getStore().getById(data.chat_id)); // 设置最近会话选中
         
         var store = Ext.factory({
             storeId: data.chat_id,
@@ -779,60 +795,5 @@ Ext.define('IM.utils.ChatHelper', {
             }
         }
     },
-
-    // 本地拉取历史记录进行绑定
-    bindLocalHistory(trans, resultSet) {
-        var rows = resultSet.rows,
-            len = rows.length;
-
-        var store = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView').getStore(),
-            datas = [],
-            row = {};
-
-        var isShowTime = true,
-            preTime, now;
-        for (var i = len - 1; i >= 0; i--) {
-            row = rows.item(i);
-            // 同一分钟不显示时间
-            if (i > 0) {
-                preTime = Utils.datetime2Ago(new Date(rows.item(i - 1).CreateAt), true);
-                now = Utils.datetime2Ago(new Date(row.CreateAt), true);
-                if (preTime == now) {
-                    isShowTime = false;
-                } else {
-                    isShowTime = true;
-                }
-            }
-            switch (row.MsgType) {
-                case MsgType.TextMsg:
-                    datas.push({
-                        msg_id: row.MsgID,
-                        senderName: row.SenderName,
-                        sendText: row.Content,
-                        ROL: row.SenderID == User.ownerID ? 'right' : '',
-                        updateTime: new Date(row.CreateAt),
-                        showTime: isShowTime
-                    });
-                    break;
-                case MsgType.ImgMsg:
-                    break;
-                case MsgType.FileMsg:
-                    break;
-                case MsgType.GroupNotice:
-                    datas.push({
-                        showTime: isShowTime,
-                        updateTime: new Date(row.CreateAt),
-                        GrpChangeMsg: row.Content,
-                        showGrpChange: true
-                    });
-                    break;
-                default:
-                    break;
-            }
-
-        }
-        console.log(datas);
-        store.add(datas);
-    }
 
 });

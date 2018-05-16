@@ -44,6 +44,8 @@ Ext.define('IMMobile.view.chatView.IMMobileChatView', {
         xtype: 'dataview',
         itemId: 'IMMobileChatView',
         cls: 'IMMobile-chatView',
+        infinite: true,
+        variableHeights: true,
         flex: 1,
         // 动态设置store
         // store: {

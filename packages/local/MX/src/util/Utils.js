@@ -405,6 +405,8 @@ Ext.define('MX.util.Utils', {
                 // }
             }
 
+            url = `${url}?token=${User.token}`;
+
             return url;
         }
 
@@ -562,7 +564,7 @@ Ext.define('MX.util.Utils', {
         return request;
     },
 
-    ajaxByZY(method, api, options, modify) {
+    ajaxByZY(method, api, options, modify, params) {
         if (navigator.onLine) { // 只有在线情况下才会去请求服务端
             // debugger;
             const me = this;
@@ -583,6 +585,13 @@ Ext.define('MX.util.Utils', {
                 mmm = me.getFullUrl1;
                 opt = me._handleOptions1(options);
             }
+
+            var url = mmm(api);
+            if (params) {
+                url += params;
+            }
+
+
             if (opt.maskTarget) {
                 this.mask(opt.maskTarget);
             }
@@ -595,7 +604,7 @@ Ext.define('MX.util.Utils', {
             }
             // debugger;
             const request = Ext.Ajax.request(Ext.applyIf({
-                url: mmm(api),
+                url: url,
                 method: method,
                 useDefaultXhrHeader: false, // 跨域
                 withCredentials: true, // 跨域时带上cookies

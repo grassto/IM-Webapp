@@ -35,6 +35,7 @@ Ext.define('IM.utils.ConnectHelper', {
         Utils.ajaxByZY('GET', 'users/all', {
             async: false,
             success: function (data) {
+                console.log(data);
                 var org = data.organizations, // 组织结构信息
                     usersInfo = data.users; // 所有成员信息
 
@@ -56,7 +57,6 @@ Ext.define('IM.utils.ConnectHelper', {
                 }
 
                 BindHelper.loadOrganization(orgTree);
-                orgTree.expandAll(); // tree展开节点
 
                 Utils.unMask(orgTree);// 不知道放这有没有用
 
@@ -89,7 +89,7 @@ Ext.define('IM.utils.ConnectHelper', {
 
                     CEFHelper.initNotice(data); // cef提示有未读
 
-                    me.pushChatToCache(data);
+                    // me.pushChatToCache(data);
 
                     if (Config.isPC) {
                         // 同步本地数据库，

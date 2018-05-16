@@ -7,5 +7,6 @@ Ext.define('IMCommon.enumType.SocketEventType', {
     memAdd: 'members_added',
     memRemove: 'member_removed',
     chgManager: 'change_manager',
-    updateChat: 'chat_updated'
+    updateChat: 'chat_updated',
+    getFile: 'get_file'
 });

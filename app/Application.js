@@ -46,16 +46,18 @@ Ext.define('PushIM.Webapp.Application', {
         Ext.Msg.defaultAllowedConfig.showAnimation = null;
 
 
-        if (Ext.manifest.env == 'production') {
-            // Config.wsGoUrl = Config.wsPdcUrl;
-            // Config.httpUrl = Config.httpAIOUrl;
-            // Config.httpUrlForGo = Config.httpPdcGoUrl;
-            me.setConfigUrl();
-        } else { // if(Ext.manifest.env == 'development')
-            Config.wsGoUrl = Config.wsDevGoUrl;
-            Config.httpUrl = Config.httpAIOUrl;
-            Config.httpUrlForGo = Config.httpDevGoUrl;
-        }
+        me.setConfigUrl();
+
+        // if (Ext.manifest.env == 'production') {
+        //     // Config.wsGoUrl = Config.wsPdcUrl;
+        //     // Config.httpUrl = Config.httpAIOUrl;
+        //     // Config.httpUrlForGo = Config.httpPdcGoUrl;
+        //     me.setConfigUrl();
+        // } else { // if(Ext.manifest.env == 'development')
+        //     Config.wsGoUrl = Config.wsDevGoUrl;
+        //     Config.httpUrl = Config.httpAIOUrl;
+        //     Config.httpUrlForGo = Config.httpDevGoUrl;
+        // }
 
         // cef版桌面程序
         if (window.cefMain) {
@@ -87,18 +89,23 @@ Ext.define('PushIM.Webapp.Application', {
     // 根据网络设置来配置相应的url
     setConfigUrl() {
         // 设置默认值
-        if (!localStorage.getItem('inOrOut') || !localStorage.getItem('inUrl') || !localStorage.getItem('outUrl')) {
+        if (!((localStorage.getItem('inOrOut') == 'in' && localStorage.getItem('inUrl')) || (localStorage.getItem('inOrOut') == 'out' && localStorage.getItem('outUrl')))) {
             Config.httpUrlForGo = Config.httpPdcGoUrl;
             Config.wsGoUrl = Config.wsPdcUrl;
         } else {
+            var security = 'wss';
+
             if (localStorage.getItem('inOrOut') == 'in') {
                 var url = localStorage.getItem('inUrl');
                 if (url && url.indexOf) {
+                    if (url.toLowerCase().startsWith('http')) {
+                        security = 'ws';
+                    }
                     var index = url.indexOf(':');
                     if (index > -1) {
-                        Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
+                        Config.wsGoUrl = security + url.substring(index) + '/api/v1/websocket';
                     } else {
-                        Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+                        Config.wsGoUrl = security + '://' + url + '/api/v1/websocket';
                     }
 
                     Config.httpUrlForGo = url + '/api/v1/';
@@ -106,11 +113,14 @@ Ext.define('PushIM.Webapp.Application', {
             } else if (localStorage.getItem('inOrOut') == 'out') {
                 var url = localStorage.getItem('outUrl');
                 if (url && url.indexOf) {
+                    if (url.toLowerCase().startsWith('http')) {
+                        security = 'ws';
+                    }
                     var index = url.indexOf(':');
                     if (index > -1) {
-                        Config.wsGoUrl = 'wss' + url.substring(index) + '/api/v1/websocket';
+                        Config.wsGoUrl = security + url.substring(index) + '/api/v1/websocket';
                     } else {
-                        Config.wsGoUrl = 'wss://' + url + '/api/v1/websocket';
+                        Config.wsGoUrl = security + '://' + url + '/api/v1/websocket';
                     }
                     Config.httpUrlForGo = url + '/api/v1/';
                 }

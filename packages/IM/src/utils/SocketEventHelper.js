@@ -13,206 +13,6 @@ Ext.define('IM.utils.SocketEventHelper', {
      * websocket接收请求后执行，将数据绑定至页面
      * @param {object} msg 服务器返回的数据
      */
-    handleNewPostEvent1(msg) {
-        var me = this,
-            data = JSON.parse(msg.data.message),
-            cName = msg.data.chat_name,
-            cid = msg.broadcast.chat_id,
-            text = data.message,
-            fileIDs = [], // 要改
-            userName = ChatHelper.getName(data.user_id),
-            flag = true; // 缓存中是否需要新增频道,是true，否false
-
-        // 首先判断人，再判断是否存在频道
-
-        const IMView = Ext.Viewport.lookup('IM');
-
-        /* ****************************************** 未读提示 ********************************************************************/
-        if (msg.data.chat_type == 'G') {
-
-            // 当前页面是否有该频道
-            for (var i = 0; i < User.allChannels.length; i++) {
-                if (User.allChannels[i].chat.chat_id == cid) {
-                    flag = false;
-
-                    if (data.user_id !== User.ownerID) { // 不是自己发的
-                        me.notify('多人会话：' + userName, data.message);
-                        CEFHelper.addNotice(data, '多人会话：' + userName);
-                    }
-                    break;
-                }
-            }
-
-            if (flag) {
-                ChatHelper.addChatToRecent(data.chat_id);
-
-                me.notify('多人会话：' + userName, data.message);
-                CEFHelper.addNotice(data, '多人会话：' + userName);
-            }
-
-            // 选中的不是当前频道，给未读通知
-            if (User.ownerID != data.user_id) { // 不是自己发的
-                if (User.crtChannelId !== cid) {
-                    me.promptUnRead(cid, IMView);
-                } else { // 在当前频道，有未读数量，但是不展示
-                    me.promptFakeRead(cid, IMView);
-                }
-
-            }
-
-        }
-        else if (msg.data.chat_type == 'D') { // 直接频道
-
-            if (cName.indexOf(User.ownerID) > -1) {
-                // 当前缓存中的所有频道中包含该频道
-                for (var i = 0; i < User.allChannels.length; i++) {
-                    // 找到了,给未读提示，直接退出
-                    if (User.allChannels[i].chat.chat_id == cid) {
-                        flag = false;
-
-                        if (data.user_id !== User.ownerID) { // 不是自己发的
-                            me.notify(userName, data.message);
-                            CEFHelper.addNotice(data, userName);
-                        }
-                        break;
-                    }
-                }
-                // 未找到相同的channelid，则添加
-                if (flag) {
-
-                    ChatHelper.addChatToRecent(data.chat_id);
-
-                    me.notify(userName, data.message);
-                    CEFHelper.addNotice(data, userName);
-                }
-
-
-                // 选中的不是当前频道
-                if (User.ownerID != data.user_id) {
-                    if (User.crtChannelId !== cid) {
-                        me.promptUnRead(cid, IMView);
-                    } else { // 在当前频道，有未读数量，但是不展示
-                        me.promptFakeRead(cid, IMView);
-                    }
-                }
-            }
-        }
-
-
-        /* ****************************************** 当前频道，消息展示 ********************************************************************/
-
-        // 若选中的是当前频道，则在聊天区展示数据
-        if (User.crtChannelId == data.chat_id) {
-            var ROL = '',
-                afterAdd = true;
-            if (User.ownerID == data.user_id) {
-                ROL = 'right';
-                afterAdd = false;
-            }
-
-            var chatView = IMView.lookup('im-main').down('#chatView'),
-                chatStore = chatView.getStore(),
-                record;
-            if (data.msg_type == 'F') {
-                if (User.ownerID !== data.user_id) {
-                    record = chatStore.add({
-                        msg_type: MsgType.FileMsg,
-                        fileID: data.attach_id,
-                        fileName: data.name,
-                        fileSize: data.size,
-                        fileStatus: 2,
-                        senderName: userName,
-                        updateTime: new Date(data.update_at)
-                    });
-                }
-            } else {
-                if (data.msg_type == 'T') {
-                    text = window.minEmoji(text);
-                } else if (data.msg_type == 'I') {
-                    text = '<img id="' + data.attach_id + '" style="/*width:40px;height:40px;*/background:url(' + Ext.getResourcePath('images/loading.gif') +') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail">';
-                }
-                record = chatStore.add({ ROL: ROL, senderName: userName, sendText: text, updateTime: new Date(data.update_at) });
-                if (data.msg_type == 'I') {
-                    var url = Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail';
-                    // 图片若未加载完成，则显示loading,加载出现异常，显示默认图片
-                    window.imagess(url, data.attach_id);
-                }
-            }
-
-
-            if (afterAdd) {
-                /* ****************************************************** 滚动条 ******************************************************************************************************/
-                ChatHelper.onScroll(chatView);
-
-                // 根据store的最后一个时间来判断新的时间是否需要展示
-                me.isShowTime(chatStore, record);
-            }
-
-
-        }
-        /* ****************************************************** 最近会话重新排序 ******************************************************************************************************/
-        me.reSortRecentList(IMView, data);
-    },
-
-    /**
-     * websocket接收请求后执行，将数据绑定至页面
-     * @param {object} msg 服务器返回的数据
-     */
-    handleNewPostEvent2(msg) {
-        const me = this,
-            data = JSON.parse(msg.data.message);
-
-        // 自己发送的就在本地展示,并且不给消息提醒
-        if (data.user_id != User.ownerID) {
-            // 区分一个在当前会话，和不在当前会话
-            const view = Ext.Viewport.lookup('IM'), // 总容器
-                recentChat = view.down('#recentChat'),
-                mainView = view.lookup('im-main');
-            if (!mainView) { // 不存在mainView
-                ChatHelper.addChatToRecent(data.chat_id);
-                var store = recentChat.getStore();
-                // 最近会话提示未读
-                me.promptUnRead(data, store);
-                me.notifyWrapper(msg.data);
-            } else {
-                var chatView = mainView.down('#chatView'); // 聊天展示页面
-                if (chatView && User.crtChannelId == data.chat_id) { // 有这个页面并且是当前会话
-
-                    var store = chatView.getStore();
-
-                    switch (data.msg_type) {
-                        case MsgType.TextMsg:
-                            me.addTextMsg(store, data);
-                            break;
-                        case MsgType.ImgMsg:
-                            me.addImgMsg(store, data);
-                            break;
-                        case MsgType.FileMsg:
-                            me.addFileMsg(store, data);
-                            break;
-                        default:
-                            alert('暂未支持该类型：', data.msg_type);
-                    }
-                    store = recentChat.getStore();
-                    me.promptFakeRead(data, store);
-                } else { // 不在当前会话
-                    // 判断频道，没有，加(最近会话列表)
-                    var has = me.hasChat(data.chat_id);
-                    if (!has) {
-                        ChatHelper.addChatToRecent(data.chat_id);
-                    }
-
-                    var store = recentChat.getStore();
-                    // 最近会话提示未读
-                    me.promptUnRead(data, store);
-                }
-
-                me.notifyWrapper(msg.data);
-            }
-
-        }
-    },
-
     handleNewPostEvent(msg) {
         const me = this,
             data = JSON.parse(msg.data.message);
@@ -222,19 +22,18 @@ Ext.define('IM.utils.SocketEventHelper', {
             data.chat_type = msg.data.chat_type; // 会话类型（D/G）
             data.chat_name = msg.data.chat_name; // 会话名称
             // 本地客户端数据保存,IMMsg
-            if (Config.isPC) {
-                // me.localNewMsg(data);
-                LocalDataMgr.getPostEvent(data);
-            }
+            // if (Config.isPC) {
+            //     LocalDataMgr.addMsgByWS(data);
+            // }
 
             const view = Ext.Viewport.lookup('IM'), // 总容器
                 recentChat = view.down('#recentChat'),
                 mainView = view.lookup('im-main');
-            if(!mainView) {
-                ChatHelper.chgToIMView();
+            if (!mainView) {
+                // ChatHelper.chgToIMView();
             }
             // 先判断有没有这个chat
-            if (me.hasRctChat(data.chat_id)) { // 有
+            if (me.hasRctChat(data.chat_id)) { // 有Rct
                 recentChat.getStore().getById(data.chat_id).set({
                     last_msg_type: MsgType.TextMsg, // 先只管文本的
                     last_post_msg: data.message,
@@ -244,13 +43,15 @@ Ext.define('IM.utils.SocketEventHelper', {
 
                 // 本地数据更新
                 if (Config.isPC) {
-                    LocalDataMgr.updateRctByWS(data);
+                    LocalDataMgr.updateRctByWsPost(data);
                 }
                 var chatView;
-                if(mainView) {
+                if (mainView) {
                     chatView = mainView.down('#chatView'); // 聊天展示页面
                 }
                 if (chatView && User.crtChannelId == data.chat_id) { // 有这个页面并且是当前会话
+                    LocalDataMgr.addMsgByWS(data);
+                    
                     var store = chatView.getStore();
 
                     switch (data.msg_type) {
@@ -270,15 +71,13 @@ Ext.define('IM.utils.SocketEventHelper', {
                     store = recentChat.getStore();
                     me.promptFakeRead(data, store);
                 } else {
-                    if(Config.isPC) {
-                        LocalDataMgr.insertRctByWS(data);
-                    }
                     me.promptUnRead(data, recentChat.getStore());
                 }
 
-            } else {
-                // ChatHelper.addChatToRecent(data.chat_id);
-                // BindHelper.addChannelToRecent(data, data.user_id, data.user_name);
+            } else { // 没有Rct
+                if (Config.isPC) {
+                    LocalDataMgr.insertRctByWS(data);
+                }
                 AddDataUtil.wsAddChatToRct(recentChat.getStore(), data);
                 me.promptUnRead(data, recentChat.getStore());
             }
@@ -287,34 +86,11 @@ Ext.define('IM.utils.SocketEventHelper', {
         }
     },
 
-    /**
-     * 根据不同的msg_type将数据组织好，通过统一入口存入本地数据库
-     * @param {json} data
-     */
-    localNewMsg(data) {
-
-        switch (data.msg_type) {
-            case MsgType.TextMsg:
-                
-                break;
-            case MsgType.ImgMsg:
-                
-                break;
-            case MsgType.FileMsg:
-                
-                break;
-            default:
-                alert('暂未支持该类型：', data.msg_type);
-        }
-            
-
-        LocalDataMgr.insertOMsg(data);
-    },
-
     addTextMsg(store, data) {
         const text = window.minEmoji(data.message);
         store.add({
             msg_id: data.msg_id,
+            msg_type: MsgType.TextMsg,
             senderName: data.user_name,
             sendText: text,
             updateTime: new Date(data.update_at),
@@ -324,14 +100,16 @@ Ext.define('IM.utils.SocketEventHelper', {
     },
     addImgMsg(store, data) {
         // const text = ParseHelper.parseToPic(data.message, data.attach_id);
-        var text = ImgMgr.parsePic(data.attach_id);
+        // var text = ImgMgr.parsePic(data.attach_id);
+        var text = ImgMgr.setPicIndex();
         store.add({
             msg_id: data.msg_id,
-            senderName: ChatHelper.getName(data.user_id),
+            msg_type: MsgType.ImgMsg,
+            senderName: data.user_name,
             sendText: text,
             updateTime: new Date(data.update_at),
             last_post_at: new Date(data.update_at),
-            ROL: data.ROL
+            ROL: data.user_id == User.ownerID ? 'right' : ''
         });
 
         // var url = Config.httpUrlForGo + 'files/' + data.attach_id + '/thumbnail';
@@ -346,10 +124,10 @@ Ext.define('IM.utils.SocketEventHelper', {
             fileName: data.name,
             fileSize: data.size,
             fileStatus: 2,
-            senderName: ChatHelper.getName(data.user_id),
+            senderName: data.user_name,
             updateTime: new Date(data.update_at),
             last_post_at: new Date(data.update_at),
-            ROL: data.ROL
+            ROL: data.user_id == User.ownerID ? 'right' : ''
         });
     },
 
@@ -912,5 +690,50 @@ Ext.define('IM.utils.SocketEventHelper', {
         var chat = PreferenceHelper.getChatFromCacheByID(chatID);
         chat.chat.header = header;
         chat.chat.is_manual = 'Y';
+    },
+
+
+
+
+    /**
+     * 服务器告诉你可以来下载文件、图片，只有我正在和当前这个人会话的时候才会去执行
+     * @param {*} msg
+     */
+    handleGetFile(msg) {
+        var data = JSON.parse(msg.data.response);
+
+        // 只有在当前chat的时候，才去存储数据库
+        var nativePath = (window.cordova || window.cefMain).file.dataDirectory;
+
+        var imMain = Ext.Viewport.lookup('IM').lookup('im-main');
+        if (imMain && imMain.down('#chatView') && imMain.down('#chatView').getStore()) {
+            for (var i = 0; i < data.files.length; i++) {
+                if(User.ownerID !== data.files[i].creator_id) { // 不是本人发送的消息
+                    // 消息展示区的store是当前的store，本应该使用chat_id进行判断，但是服务器没有传回该数据
+                    var record = imMain.down('#chatView').getStore().getById(data.files[i].msg_id);
+                    if (record) { // 在当前的会话
+                        var text = ImgMgr.parsePic(data.files[i].file_id);
+
+                        record.set('sendText', text);
+
+                        // 存储本地
+                        var path = nativePath + User.ownerID + '/images/' + data.files[i].file_id;
+                        LocalDataMgr.afterUploadSuc(data.files[i], path);
+                    }
+                }
+            }
+        }
+        // else {
+        //     for (var i = 0; i < data.files.length; i++) {
+        //         // 这边下载图片，先默认为成功
+        //         var text = ImgMgr.parsePic(data.files[i].file_id);
+
+        //         var path = nativePath + User.ownerID + '/images/' + data.files[i].file_id;
+        //         LocalDataMgr.afterUploadSuc(data.files[i], path);
+        //     }
+        // }
+
+
+
     }
 });

@@ -52,14 +52,25 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
             form.clearErrors();
 
             if (form.validate()) {
+                var devID = me.getDevID(),
+                platform = me.getPlatform();
 
                 // 对params有过封装改动
                 Utils.ajaxByZY('post', 'users/login', {
                     params: JSON.stringify({
                         user_id: values.userId,
-                        password: values.password
+                        password: values.password,
+                        device_id: devID,
+                        platform: platform,
+                        app_id: 'PushIM'
                     }),
                     success(r) {
+                        // <debug>
+                        console.log('登录成功：', r);
+                        // </debug>
+                        User.token = r.Session.token;
+
+                        r = r.User;
                         if (r.user_name) {
                             if (Config.isPC) {
                                 cefMain.setUserInfo('{user_id: "' + r.user_id + '", user_name: "' + r.user_name + '"}');
@@ -93,6 +104,25 @@ Ext.define('PushIM.Webapp.view.login.LoginController', {
         } else {
             Utils.toastLong('用户名或密码不能为空');
         }
+    },
+
+    getDevID() {
+        var dev = '';
+        if (Config.isPC) {
+            dev = cefMain.getDeviceID();
+        }
+
+        return dev;
+    },
+
+    getPlatform() {
+        var r = '';
+        if (Config.isPC) {
+            // r = PlatformType.PC;
+            r = 'PC';
+        }
+
+        return r;
     },
 
 

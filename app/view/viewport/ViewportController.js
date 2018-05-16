@@ -4,7 +4,8 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
     requires: [
         'Ext.Package',
         'PushIM.Webapp.view.login.Login',
-        'MX.util.Utils'
+        'MX.util.Utils',
+        // 'IMCommon.enumType.PlatformType'
     ],
 
     // uses: [
@@ -39,7 +40,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
         //             if (r.user_name) {
         //                 User.crtUser = r; // 个人信息
         //                 User.ownerID = r.user_id;
-                        
+
         //                 if (Config.isPC) {
         //                     cefMain.setUserInfo('{user_id: "' + r.user_id + '", user_name: "' + r.user_name + '"}');
         //                 }

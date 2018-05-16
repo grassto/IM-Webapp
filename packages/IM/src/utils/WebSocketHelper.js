@@ -18,6 +18,7 @@ Ext.define('IM.utils.WebSocketHelper', {
   errorCallback: null, // 错误回调
   closeCallback: null, // 关闭回调
   initialize(connectionUrl, token) {
+    connectionUrl = connectionUrl + '?token=' + User.token;
     console.log('websocket initialize');
     // debugger;
     if (this.conn) {

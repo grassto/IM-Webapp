@@ -150,7 +150,8 @@ Ext.define('IMCommon.view.RichEditor', {
      * Enter发送，Ctrl+Enter回车
      */
     preventKeydown() {
-        var editor = this.inputElement.dom;
+        var me = this,
+            editor = this.inputElement.dom;
         $(editor).keydown(function (event) {
             if (event.keyCode == 13) {
                 if (event.ctrlKey) {
@@ -161,7 +162,7 @@ Ext.define('IMCommon.view.RichEditor', {
                             // SendUtil.sendMsg(editor, User.crtChannelId, );
                         } else {
                             var imView = Ext.Viewport.lookup('IM');
-                            SendUtil.sendMsg(editor, User.crtChannelId, imView.down('#recentChat').getStore(), imView.lookup('im-main').down('#chatView').getStore());
+                            SendUtil.sendMsg(me, User.crtChannelId, imView.down('#recentChat').getStore(), imView.lookup('im-main').down('#chatView'));
                         }
                         
                     } else {

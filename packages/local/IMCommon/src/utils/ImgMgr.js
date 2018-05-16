@@ -22,17 +22,40 @@ Ext.define('IMCommon.utils.ImgMgr', {
         return Ext.getBody().isAncestor(node);
     },
 
-    parsePic(attId) {
+    // parsePic(attId) {
+    //     const me = this,
+    //         previewUrl = me.getFullPicUrl(`${attId}/thumbnail`),
+    //         originalUrl = me.getFullPicUrl(attId);
+
+    //     return [
+    //         '<div class="imgBlock">',
+    //         `<img class="viewPic" src="${Ext.getResourcePath('images/loading.gif')}" onload="ImgMgr.loadPic(this)" data-preview="${previewUrl}" data-original="${originalUrl}" data-showpreview="Y"/>`,
+    //         '</div>'
+    //     ].join('');
+    // },
+
+    parsePic(attId, showpreview) {
         const me = this,
             previewUrl = me.getFullPicUrl(`${attId}/thumbnail`),
             originalUrl = me.getFullPicUrl(attId);
 
         return [
             '<div class="imgBlock">',
-            `<img class="viewPic" src="${Ext.getResourcePath('images/loading.gif')}" onload="ImgMgr.loadPic(this)" data-preview="${previewUrl}" data-original="${originalUrl}" data-showpreview="Y"/>`,
+            `<img class="viewPic" src="${Ext.getResourcePath('images/loading.gif')}" onload="ImgMgr.loadPic(this)" data-preview="${previewUrl}" data-original="${originalUrl}" ${showpreview ? 'data-showpreview="Y"' : ''}/>`,
             '</div>'
         ].join('');
     },
+
+    // 给图片一个占位，然后根据msg_id来找到store对应的record
+    setPicIndex() {
+        return [
+            '<div class="imgBlock">',
+            `<img class="viewPic" src="${Ext.getResourcePath('images/loading.gif')}"/>`,
+            '<div class="img-tip">加载中</div>',
+            '</div>'
+        ].join('');
+    },
+
 
     loadPic(node) {
         var me = this;
@@ -115,6 +138,11 @@ Ext.define('IMCommon.utils.ImgMgr', {
         node.addEventListener('load', imgLoaded, false);
         node.addEventListener('error', imgLoadErr, false);
 
+        // http 页面 显示不了本地 file:// 图片, cef 加了一个 localfile:// 协议
+        if (Utils.isWeb && window.cefMain && FileUtil.isFileUri(src)) {
+            src = `local${src}`;
+        }
+
         node.src = src;
     },
 
@@ -148,10 +176,10 @@ Ext.define('IMCommon.utils.ImgMgr', {
      * 我们 用这个方法生成文件名
      */
     getRemoteName(url) {
-        if(Ext.isEmpty(url)) return url;
+        if (Ext.isEmpty(url)) return url;
 
         var ext = FileUtil.getExtension(url); // 不带点后缀
-        if(ext) ext = `.${ext}`;
+        if (ext) ext = `.${ext}`;
 
         return `${url.length}_${Utils.hashCode(url)}${ext}`; // 缓存图片的名字
     },
@@ -159,17 +187,17 @@ Ext.define('IMCommon.utils.ImgMgr', {
     /**
      * 移动端 点击查看大图 事件
      */
-    addViewerListener (container) {
+    addViewerListener(container) {
         (container.innerElement || container.element).on({
             delegate: 'img',
             tap: 'showViewerOnTapImg',
             scope: this
         });
     },
-    showViewerOnTapImg (e) {
+    showViewerOnTapImg(e) {
         this.showViewerOfDom(e.target);
     },
-    showViewerOfDom (node) {
+    showViewerOfDom(node) {
         if (node.hasAttribute('data-original')) {
             var src = node.getAttribute('data-original'),
                 isPreview = node.hasAttribute('data-showpreview'),

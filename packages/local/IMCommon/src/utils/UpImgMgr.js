@@ -2,6 +2,15 @@ Ext.define('IMCommon.utils.UpImgMgr', {
     alternateClassName: 'UpImgMgr',
     singleton: true,
 
+    /**
+     * 
+     * @param {*} attid 
+     * @param {*} localPath 本地路径
+     */
+    parsePic(attid, localPath) {
+
+    },
+
     pushImgToQue(datas) {
         var chatID = datas[0].chat_id,
             isNew = false;
@@ -51,13 +60,26 @@ Ext.define('IMCommon.utils.UpImgMgr', {
             // 更新本地数据库状态
             var wrapData = JSON.parse(res.response);
 
-            var nativePath = '', surePath = '';
             for (var i = 0; i < wrapData.files.length; i++) {
-                surePath = `${User.ownerID}/images/${wrapData.files[i].file_id}`; // 指定路径
-                // 移动图片到指定路径,假定都是成功的
-                FileMgr.copyTo(null, data.fileURL, 1, surePath);
-
+                var surePath = `${User.ownerID}/images/${wrapData.files[i].file_id}`, // 指定路径
                 nativePath = (window.cordova || window.cefMain).file.dataDirectory;
+                // 移动图片到指定路径
+                FileMgr.copyTo(null, data.fileURL, 1, surePath).then(path => {
+                    // 更换页面上图片的路径
+                    if (Config.isPC) {
+                        var chat = Ext.StoreManager.getByKey(data.chat_id);
+                        if (chat) {
+                            if (chat.getById(data.msg_id)) {
+                                chat.getById(data.msg_id).set('sendText', ParseUtil.getLocalPic(path));
+                            }
+                        }
+
+                    }
+                }).catch(err => {
+                    console.error('UpImgMgr', 'movePic failed', err);
+                });
+
+                // 保存本地
                 LocalDataMgr.afterUploadSuc(wrapData.files[i], `${nativePath}${surePath}`);
             }
             // var msgID = wrapData.files[0].msg_id;

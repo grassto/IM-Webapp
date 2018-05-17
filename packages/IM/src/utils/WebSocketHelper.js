@@ -18,7 +18,6 @@ Ext.define('IM.utils.WebSocketHelper', {
   errorCallback: null, // 错误回调
   closeCallback: null, // 关闭回调
   initialize(connectionUrl, token) {
-    connectionUrl = connectionUrl + '?token=' + User.token;
     console.log('websocket initialize');
     // debugger;
     if (this.conn) {
@@ -31,7 +30,8 @@ Ext.define('IM.utils.WebSocketHelper', {
     if (this.connectFailCount === 0) {
       console.log('websocket 正在连接 ' + connectionUrl);
     }
-    this.conn = new WebSocket(connectionUrl);
+
+    this.conn = new WebSocket(connectionUrl + '?token=' + User.token);
     this.connectionUrl = connectionUrl;
 
     this.conn.onopen = () => {

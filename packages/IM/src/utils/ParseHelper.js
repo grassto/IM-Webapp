@@ -180,7 +180,10 @@ Ext.define('IM.utils.ParseHelper', {
                 };
             } else if (message.msg_type == MsgType.ImgMsg) {
                 // text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(' + Ext.getResourcePath('images/loading.gif') +') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';
-                text = ImgMgr.parsePic(message.attach_id);
+                text = ImgMgr.parsePic(message.attach_id); // 这边是要给本地数据库的回调的
+
+                // 处理本地数据库
+                // LocalDataMgr.afterUploadSuc(data.files[i], path);
 
                 // 处理滚动条
                 //var url = Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail';

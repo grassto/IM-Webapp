@@ -395,7 +395,12 @@ Ext.define('MX.util.Utils', {
             if (Utils.isUrl(path) || /\.json$/i.test(path)) {
                 url = path;
             } else {
+                if (path != 'users/login') {
+                    path = path + '?token=' + User.token;
+                }
+    
                 url = Utils.joinPath(Config.httpUrlForGo, path);
+                
                 // 后台路由丢失session，所以 暂时 先fix
                 // if (/^(ajax|store)\/[^/]+\/[^/]+$/.test(path)) {
                 //     const arr = path.split('/');
@@ -404,8 +409,6 @@ Ext.define('MX.util.Utils', {
                 //     url = Utils.joinPath(config.httpUrl, path);
                 // }
             }
-
-            url = `${url}?token=${User.token}`;
 
             return url;
         }

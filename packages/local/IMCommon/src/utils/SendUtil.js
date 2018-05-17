@@ -24,7 +24,12 @@ Ext.define('IMCommon.utils.SendUtil', {
 
         for (var i = 0; i < len; i++) {
             var guid = LocalDataMgr.newGuid(),
+                showTime = true,
                 msgData = {};
+
+            if (Utils.datetime2Ago(msgStore.getAt(msgStore.data.length - 1).get('last_post_at')) == Utils.datetime2Ago(new Date())) {
+                showTime = false;
+            }
 
             // 区分消息类型
             if (childs[i].type == 'img') {
@@ -52,11 +57,13 @@ Ext.define('IMCommon.utils.SendUtil', {
                     msgDatas.push({
                         client_id: guid,
                         senderName: User.crtUser.user_name,
-                        sendText: childs[i].value, // 图片则直接放img标签上去
+                        // sendText: childs[i].value, // 图片则直接放img标签上去
+                        sendText: ParseUtil.getLocalImg(childs[i].value),
                         msg_type: MsgType.ImgMsg,
                         last_post_at: new Date(),
                         sendStatus: 1, // 发送态
                         ROL: 'right',
+                        showTime: showTime,
                         fileURL: img.childNodes[0].getAttribute('data-url') // 上传图片时需用到的URL
                     });
 
@@ -67,7 +74,7 @@ Ext.define('IMCommon.utils.SendUtil', {
                     //         LocalDataMgr.execSendImg(msgData, r.nativeURL, FileUtil.getFileName(r.nativeURL));
                     //     });
                     // }
-                    if(Config.needLocal) {
+                    if (Config.needLocal) {
                         LocalDataMgr.execSendImg(msgData);
                     }
                 } else {
@@ -82,7 +89,7 @@ Ext.define('IMCommon.utils.SendUtil', {
                     user_id: User.ownerID,
                     user_name: User.crtUser.user_name
                 };
-                
+
                 msgs.push({
                     client_id: guid,
                     chat_id: chatID,
@@ -99,7 +106,8 @@ Ext.define('IMCommon.utils.SendUtil', {
                     msg_type: MsgType.TextMsg,
                     last_post_at: new Date(),
                     sendStatus: 1, // 发送态
-                    ROL: 'right'
+                    ROL: 'right',
+                    showTime: showTime
                 });
 
                 if (Config.needLocal) {
@@ -146,10 +154,11 @@ Ext.define('IMCommon.utils.SendUtil', {
                             msg_id: data[i].msg_id
                         });
 
-                        if(Config.needLocal) {
+                        if (Config.needLocal) {
                             LocalDataMgr.updateSendText(data[i]);
                         }
                     } else if (data[i].msg_type == MsgType.ImgMsg) { // 图片消息
+                        // 学习江工写的下载图片的方法，使用img标签去上传图片并移动文件路径
                         msgRecords[i].set({
                             msg_id: data[i].msg_id
                         });
@@ -157,7 +166,7 @@ Ext.define('IMCommon.utils.SendUtil', {
                         data[i].fileURL = msgDatas[i].fileURL;
                         pics.push(data[i]);
 
-                        if(Config.needLocal) {
+                        if (Config.needLocal) {
                             LocalDataMgr.updateSendImg(data[i]);
                         }
                     }

@@ -508,7 +508,8 @@ Ext.define('IM.utils.ChatHelper', {
                     });
                     break;
                 case MsgType.ImgMsg:
-                    text = ImgMgr.parsePic(FileUtil.getFileName(row.FilePath));
+                    // text = ImgMgr.parsePic(FileUtil.getFileName(row.FilePath));
+                    text = ParseUtil.getLocalPic(row.FilePath);
                     datas.push({
                         msg_id: row.MsgID,
                         msg_type: row.MsgType,

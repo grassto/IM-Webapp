@@ -50,6 +50,7 @@ Ext.define('IM.view.IMController', {
                     // <debug>
                     console.log('数据库初始化完毕');
                     // </debug>
+
                     var rows = resultSet.rows,
                         len = rows.length;
 
@@ -72,6 +73,7 @@ Ext.define('IM.view.IMController', {
                                     });
                                 }
                             }
+                            
                             datas.push({
                                 chat_id: row.ChatID,
                                 name: row.DisplayName,
@@ -125,7 +127,7 @@ Ext.define('IM.view.IMController', {
             var recentStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
                 datas = [],
                 row = {};
-            debugger;
+
             for (var i = 0; i < len; i++) {
                 row = rows.item(i);
                 if (row.ChatType == ChatType.Group) {

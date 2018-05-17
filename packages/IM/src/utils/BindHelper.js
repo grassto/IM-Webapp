@@ -15,6 +15,7 @@ Ext.define('IM.utils.BindHelper', {
             isUnRead = true,
             status,
             lastUserName,
+            header,
             datas = [];
 
         for (let i = 0; i < data.length; i++) {
@@ -30,13 +31,16 @@ Ext.define('IM.utils.BindHelper', {
             //     isUnRead = false;
             // }
             if (data[i].chat.chat_type == ChatType.Group) {
-                lastUserName = data[i].chat.last_post_userName;
+                lastUserName = data[i].chat.last_sender_name;
+                header = data[i].chat.header;
+            } else if (data[i].chat.chat_type == ChatType.Direct) {
+                header = ParseUtil.getDctNameFromMems(data[i].members);
             }
 
 
             datas.push({
                 chat_id: data[i].chat.chat_id,
-                name: data[i].chat.channelname,
+                name: header,
                 type: data[i].chat.chat_type,
                 status: status,
                 chat_name: data[i].chat.chat_name,
@@ -447,7 +451,6 @@ Ext.define('IM.utils.BindHelper', {
             var records = [];
 
             for (var i = 0; i < data.length; i++) {
-                debugger;
                 // data[i].wrapper_type  message/notice
                 var isShowTime = true; // 是否展示时间
                 if (i > 0) {

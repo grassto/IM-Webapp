@@ -41,7 +41,7 @@ Ext.define('IM.utils.SocketEventHelper', {
                     last_post_name: data.user_name
                 });
 
-                // 本地数据更新
+                // 本地数据更新Rct
                 if (Config.isPC) {
                     LocalDataMgr.updateRctByWsPost(data);
                 }
@@ -712,7 +712,7 @@ Ext.define('IM.utils.SocketEventHelper', {
                     // 消息展示区的store是当前的store，本应该使用chat_id进行判断，但是服务器没有传回该数据
                     var record = imMain.down('#chatView').getStore().getById(data.files[i].msg_id);
                     if (record) { // 在当前的会话
-                        var text = ImgMgr.parsePic(data.files[i].file_id);
+                        var text = ImgMgr.parsePic(data.files[i].file_id); // 需要保存本地
 
                         record.set('sendText', text);
 

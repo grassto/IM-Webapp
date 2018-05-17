@@ -95,7 +95,7 @@ Ext.define('IMCommon.utils.AddDataUtil', {
                     updateTime: new Date(message.update_at)
                 };
             } else if (message.msg_type == MsgType.ImgMsg) {
-                text = ImgMgr.parsePic(message.attach_id);
+                text = ImgMgr.parsePic(message.attach_id); // 需保存本地
                 // text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(' + Ext.getResourcePath('images/loading.gif') +') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';;
 
                 // 处理滚动条

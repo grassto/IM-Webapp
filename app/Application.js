@@ -98,7 +98,7 @@ Ext.define('PushIM.Webapp.Application', {
             if (localStorage.getItem('inOrOut') == 'in') {
                 var url = localStorage.getItem('inUrl');
                 if (url && url.indexOf) {
-                    if (url.toLowerCase().startsWith('http')) {
+                    if (url.toLowerCase().startsWith('http://')) {
                         security = 'ws';
                     }
                     var index = url.indexOf(':');
@@ -113,7 +113,7 @@ Ext.define('PushIM.Webapp.Application', {
             } else if (localStorage.getItem('inOrOut') == 'out') {
                 var url = localStorage.getItem('outUrl');
                 if (url && url.indexOf) {
-                    if (url.toLowerCase().startsWith('http')) {
+                    if (url.toLowerCase().startsWith('http://')) {
                         security = 'ws';
                     }
                     var index = url.indexOf(':');

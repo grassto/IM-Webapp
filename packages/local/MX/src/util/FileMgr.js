@@ -384,6 +384,7 @@ Ext.define('MX.util.FileMgr', {
     /**
      * 打开文件
      * @param {String/FileEntry} file 文件Entry 或者 fileUri
+     * @returns {Ext.Promise}
      */
     open(file) {
         const me = this;
@@ -407,6 +408,67 @@ Ext.define('MX.util.FileMgr', {
                 });
             }
         });
+    },
+
+    /**
+     * 文件另存为（只支持 CEF，弹出另存为对话框）
+     * @param {String} filePath 文件路径/URI
+     */
+    saveAs(filePath) {
+        if (Ext.isEmpty(filePath)) return;
+
+        if (window.cefMain) {
+            if (FileUtil.isFileUri(filePath)) {
+                filePath = decodeURIComponent(filePath);
+            }
+            cefMain.saveFileAs(filePath, Ext.emptyFn, err => {
+                Utils.toastShort(err.message || '');
+            });
+        }
+    },
+
+    /**
+     * 分享文件，只支持移动端
+     * cordova-plugin-x-socialsharing
+     * @param {String/String[]} filePath 文件路径/URI，可以是多个
+     * @returns {Ext.Promise}
+     */
+    share(filePath) {
+        return new Ext.Promise((resolve, reject) => {
+            if (window.plugins && plugins.socialsharing) {
+
+                const files = Ext.isString(filePath) ? [filePath] : Ext.isArray(filePath) ? filePath : [];
+                files.filter(x => !Ext.isEmpty(x));
+
+                if (!files.length) return;
+
+                var options = {
+                    subject: `文件: ${FileUtil.getFileName(files[0])}${files.length > 1 ? ' 等' : ''}`, // fi. for email
+                    files: files
+                };
+
+                plugins.socialsharing.shareWithOptions(options, result => {
+                    resolve();
+                    // <debug>
+                    console.log('分享成功', result);
+                    // </debug>
+                }, msg => {
+                    reject(msg);
+                    // <debug>
+                    console.log(`分享失败: ${msg}`);
+                    // </debug>
+                });
+            }
+        });
+    },
+
+    /**
+     * 选择文件，支持CEF、Cordova
+     * Android: cordova-plugin-filechooser
+     * iOS: cordova-plugin-filepicker
+     */
+    chooseFile() {
+
     },
 
     privates: {

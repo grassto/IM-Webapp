@@ -28,6 +28,7 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
         },
         items: [{
             iconCls: 'x-fa fa-plus',
+            userCls: 'round-border',
             handler: 'onTapShowMore'
         }, {
             xtype: 'imCommonEditor',
@@ -35,7 +36,8 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
             errorTarget: null,
             flex: 1
         }, {
-            iconCls: 'x-fa fa-smile-o',
+            iconCls: 'im-mobile-smile',
+            userCls: 'round-border',
             handler: 'onTapShowEmj'
         }, {
             xtype: 'button',
@@ -140,11 +142,12 @@ Ext.define('IMMobile.view.chatView.editor.IMMobileEditor', {
             field = this.down('#MobileEditor');
         if (t.hasCls('emj')) {
             var ch = e.target.textContent;
-            // field.insertText(ch);
-            field.insertObject(`<span class="em emj${window.minEmojiIdx(ch)}"></span>`, ch);
-            /* if (Ext.os.is.Android44) {
+            // 原生支持 emoji 显示，不需要替换成 emoji 图片
+            field.insertText(ch);
+            if (Ext.os.is.Android44) {
                 field.insertText('\u200B');
-            }*/
+            }
+            // field.insertObject(`<span class="em emj${window.minEmojiIdx(ch)}"></span>`, ch);
         } else if (t.hasCls('backspace')) {
             field.simulateBackspace();
         }

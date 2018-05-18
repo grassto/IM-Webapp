@@ -17,7 +17,7 @@
 		
 		&.backspace:before {
 			font-family: 'im-mobile';
-			content: '\e900';
+			content: $im-mobile-var-backspace; //'\e900';
 			color: #888;
 		}
 	}

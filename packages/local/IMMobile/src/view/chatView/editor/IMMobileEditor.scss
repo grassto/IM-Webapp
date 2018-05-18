@@ -10,3 +10,12 @@
 	  padding-bottom: env(safe-area-inset-bottom);
     }
 }
+
+.x-button.round-border {
+    .x-inner-el {
+        border-radius: 100%;
+    }
+    .x-icon-el {
+        color: #888;
+    }
+}

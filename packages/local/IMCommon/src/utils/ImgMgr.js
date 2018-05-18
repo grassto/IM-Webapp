@@ -130,8 +130,7 @@ Ext.define('IMCommon.utils.ImgMgr', {
             if (errTip) {
                 // "加载失败"提示
                 me._setNodeTipText(n, n.getAttribute('data-errtip') || '加载失败');
-            }
-            else {
+            } else {
                 me._removeNodeTip(n);
             }
         };
@@ -182,6 +181,64 @@ Ext.define('IMCommon.utils.ImgMgr', {
         if (ext) ext = `.${ext}`;
 
         return `${url.length}_${Utils.hashCode(url)}${ext}`; // 缓存图片的名字
+    },
+
+    /**
+     * 选择图片，得到图片 Uri 数组，支持CEF、Cordova
+     * CEF: 支持多选
+     * 移动端：暂时只能单选
+     *      Android: cordova-plugin-filechooser
+     *      iOS: cordova-plugin-filepicker
+     *
+     * 使用方法 ImgMgr.chooseImage().then(result => { }).catch(err => { })
+     * result 格式 { images: ['file://......jpg', 'file://......jpg'], isOrigin: true/false }
+     * @returns {Ext.Promise}
+     */
+    chooseImages() {
+        return new Ext.Promise((resolve, reject) => {
+            if (window.cefMain) {
+                cefMain.selectImages(fileUris => {
+                    resolve({
+                        images: fileUris,
+                        isOrigin: true // 表示 原图
+                    });
+                });
+            } else if (Ext.browser.is.Cordova) {
+                ImagePicker.getPictures(resolve, reject);
+            }
+        });
+    },
+
+    /**
+     * 拍照
+     * 使用方法 ImgMgr.takePhoto().then(result => { }).catch(err => { })
+     * result 格式 { images: ['file://......jpg'], isOrigin: false }
+     * @returns {Ext.Promise}
+     */
+    takePhoto() {
+        return new Ext.Promise((resolve, reject) => {
+            if (Ext.browser.is.Cordova) {
+                if (Ext.os.is.Android) {
+                    ImagePicker.takePhoto(resolve, reject);
+                } else {
+                    navigator.camera.getPicture(uri => {
+                        uri = Utils.stripQueryStr(uri);
+                        resolve({
+                            images: [uri],
+                            isOrigin: false
+                        });
+                    }, reject, {
+                        quality: 50,
+                        targetWidth: 100,
+                        targetHeight: 100,
+                        correctOrientation: true,
+                        destinationType: navigator.camera.DestinationType.FILE_URI,
+                        sourceType: navigator.camera.PictureSourceType.CAMERA,
+                        saveToPhotoAlbum: true
+                    });
+                }
+            }
+        });
     },
 
     /**

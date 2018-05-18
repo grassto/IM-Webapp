@@ -398,9 +398,9 @@ Ext.define('MX.util.Utils', {
                 if (path != 'users/login') {
                     path = path + '?token=' + User.token;
                 }
-    
+
                 url = Utils.joinPath(Config.httpUrlForGo, path);
-                
+
                 // 后台路由丢失session，所以 暂时 先fix
                 // if (/^(ajax|store)\/[^/]+\/[^/]+$/.test(path)) {
                 //     const arr = path.split('/');
@@ -483,7 +483,7 @@ Ext.define('MX.util.Utils', {
                 if (!Ext.isEmpty(result) && isJson) {
                     try {
                         result = Ext.decode(result);
-                    } catch (e) { }
+                    } catch (e) {}
                 }
                 if (result && result.hasOwnProperty('success')) { // 或者 result有success属性且为true时
                     succeed = result.success;
@@ -506,7 +506,7 @@ Ext.define('MX.util.Utils', {
                 if (!Ext.isEmpty(err)) {
                     try {
                         err = eval(`(${err})`);
-                    } catch (e) { }
+                    } catch (e) {}
                 } else {
                     err = r.statusText;
                 }
@@ -626,7 +626,7 @@ Ext.define('MX.util.Utils', {
                     if (!Ext.isEmpty(result) && isJson) {
                         try {
                             result = Ext.decode(result);
-                        } catch (e) { }
+                        } catch (e) {}
                     }
                     if (result && result.hasOwnProperty('success')) { // 或者 result有success属性且为true时
                         succeed = result.success;
@@ -655,7 +655,7 @@ Ext.define('MX.util.Utils', {
                     if (!Ext.isEmpty(err)) {
                         try {
                             err = eval(`(${err})`);
-                        } catch (e) { }
+                        } catch (e) {}
                     } else {
                         err = r.statusText;
                     }
@@ -1423,6 +1423,7 @@ Ext.define('MX.util.Utils', {
      * 去除 开头的问号
      * 比如 ?a=b&c=d 变成 a=b&c=d
      * @param {String} query 如 ?a=b&c=d
+     * @returns {String}
      */
     stripQuestionMark(query) {
         if (!Ext.isEmpty(query)) {
@@ -1432,6 +1433,22 @@ Ext.define('MX.util.Utils', {
         }
 
         return query;
+    },
+
+    /**
+     * 去除 url 中?后面的内容
+     * @param {String} url 如 http://........jpg?1526635610542
+     * @returns {String} 如 如 http://........jpg
+     */
+    stripQueryStr(url) {
+        if (!Ext.isEmpty(url)) {
+            var idx = url.lastIndexOf('?');
+            if (idx >= 0) {
+                return url.substring(0, idx);
+            }
+        }
+
+        return url;
     },
 
     /**
@@ -1559,5 +1576,15 @@ Ext.define('MX.util.Utils', {
 
             return (prefix || '') + guid + (counter++).toString(32);
         };
-    }())
+    }()),
+
+    /**
+     * 显示键盘
+     * android 调用 field.focus() 的时候是不会弹出键盘的，所以要自己调用下面的方法
+     */
+    showKeyboard() { // android only
+        if (Ext.os.is.Android && window.Keyboard && Keyboard.show) {
+            Keyboard.show();
+        }
+    }
 });

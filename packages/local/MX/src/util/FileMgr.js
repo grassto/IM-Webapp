@@ -390,28 +390,31 @@ Ext.define('MX.util.FileMgr', {
         const me = this;
 
         return new Ext.Promise((resolve, reject) => {
-            let url = file;
-            if (window.FileEntry && file instanceof window.FileEntry) {
-                url = file.toURL();
-            }
-            url = decodeURIComponent(url);
+            if (file) {
+                let fileUri = file;
+                if (window.FileEntry && file instanceof window.FileEntry) {
+                    fileUri = file.toURL();
+                }
+                fileUri = decodeURIComponent(fileUri);
 
-            if (window.plugins && plugins.fileOpener) {
-                plugins.fileOpener.open(url, resolve, err => {
-                    reject(err);
-                    Utils.toastShort(err.message || '');
-                });
-            } else if (window.cefMain) {
-                cefMain.open(url, resolve, err => {
-                    reject(err);
-                    Utils.toastShort(err.message || '');
-                });
+                if (window.plugins && plugins.fileOpener) {
+                    plugins.fileOpener.open(fileUri, resolve, err => {
+                        reject(err);
+                        Utils.toastShort(err.message || '');
+                    });
+                } else if (window.cefMain) {
+                    cefMain.open(fileUri, resolve, err => {
+                        reject(err);
+                        Utils.toastShort(err.message || '');
+                    });
+                }
             }
         });
     },
 
     /**
-     * 文件另存为（只支持 CEF，弹出另存为对话框）
+     * 根据一个文件路径，将文件另存为（只支持 CEF，弹出另存为对话框）
+     * 直接调用，没有回调，没有 then
      * @param {String} filePath 文件路径/URI
      */
     saveAs(filePath) {
@@ -428,8 +431,10 @@ Ext.define('MX.util.FileMgr', {
     },
 
     /**
-     * 分享文件，只支持移动端
+     * 分享文件到第三方 app，只支持移动端
      * cordova-plugin-x-socialsharing
+     *
+     * 使用方法 FileMgr.share(单个或多个路径).then(fileArr => { }).catch(err => { })
      * @param {String/String[]} filePath 文件路径/URI，可以是多个
      * @returns {Ext.Promise}
      */
@@ -437,14 +442,14 @@ Ext.define('MX.util.FileMgr', {
         return new Ext.Promise((resolve, reject) => {
             if (window.plugins && plugins.socialsharing) {
 
-                const files = Ext.isString(filePath) ? [filePath] : Ext.isArray(filePath) ? filePath : [];
-                files.filter(x => !Ext.isEmpty(x));
+                const fileUris = Ext.isString(filePath) ? [filePath] : Ext.isArray(filePath) ? filePath : [];
+                fileUris.filter(x => !Ext.isEmpty(x));
 
-                if (!files.length) return;
+                if (!fileUris.length) return;
 
                 var options = {
-                    subject: `文件: ${FileUtil.getFileName(files[0])}${files.length > 1 ? ' 等' : ''}`, // fi. for email
-                    files: files
+                    subject: `文件: ${FileUtil.getFileName(fileUris[0])}${fileUris.length > 1 ? ' 等' : ''}`, // fi. for email
+                    files: fileUris
                 };
 
                 plugins.socialsharing.shareWithOptions(options, result => {
@@ -463,12 +468,63 @@ Ext.define('MX.util.FileMgr', {
     },
 
     /**
-     * 选择文件，支持CEF、Cordova
-     * Android: cordova-plugin-filechooser
-     * iOS: cordova-plugin-filepicker
+     * 选择文件，得到文件 Uri 数组，支持CEF、Cordova
+     * CEF: 支持多选
+     * 移动端：暂时只能单选
+     *      Android: cordova-plugin-filechooser
+     *      iOS: cordova-plugin-filepicker
+     *
+     * 使用方法 FileMgr.chooseFile().then(fileUris => { }).catch(err => { })
+     * @returns {Ext.Promise}
      */
-    chooseFile() {
+    chooseFiles() {
+        return new Ext.Promise((resolve, reject) => {
+            if (window.cefMain) {
+                cefMain.selectFiles(fileUris => {
+                    resolve(fileUris);
+                });
+            } else if (Ext.browser.is.Cordova) {
+                if (window.fileChooser) { // Android
+                    fileChooser.open(path => {
+                        if (!FileUtil.isFileUri(path)) {
+                            resolve([`file://${path}`]);
+                        }
+                    }, reject);
+                } else if (window.FilePicker) { // iOS
+                    FilePicker.pickFile(path => {
+                        if (!FileUtil.isFileUri(path)) {
+                            resolve([`file://${path}`]);
+                        }
+                    }, reject);
+                }
+            }
+        });
+    },
 
+    /**
+     * 获取文件体积
+     * 注：如果要格式化文件大小，使用 Ext.util.Format.fileSize 方法
+     *
+     * 使用方法 FileMgr.getFileSize(filePath).then(size => { }).catch(errMsg => { })
+     * @param {String} filePath 文件Uri
+     * @returns {Ext.Promise}
+     */
+    getFileSize(filePath) {
+        return new Ext.Promise((resolve, reject) => {
+            if (!Ext.isEmpty(filePath)) {
+                var fileUri = FileUtil.isFileUri(filePath) ? filePath : `file://${filePath}`;
+
+                window.resolveLocalFileSystemURL(fileUri, entry => {
+                    entry.getMetadata(data => {
+                        resolve(data.size);
+                    }, err => {
+                        reject(err.code ? FSUtil.FILEERROR[err.code] : err);
+                    });
+                }, err => {
+                    reject(err.code ? FSUtil.FILEERROR[err.code] : err);
+                });
+            }
+        });
     },
 
     privates: {

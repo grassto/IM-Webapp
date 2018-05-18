@@ -119,6 +119,7 @@ static char customImageName;
     }
     
     double size = (double)actualWidth * actualHeight / 4000;
+    size = size < 60 ? 60 : size;
     
     return [self compressWithImage:image thumbW:actualWidth thumbH:actualHeight size:size withMask:nil];
 }

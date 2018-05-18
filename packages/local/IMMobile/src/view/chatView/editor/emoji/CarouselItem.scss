@@ -1,0 +1,24 @@
+.emj-carousel-item
+{
+    //font-family: Segoe UI Emoji, Segoe UI Symbol;
+    color: #F47C12;
+    
+    font-size: 1.4em;
+    padding-bottom: 18px;
+    
+	.x-innerhtml
+	{
+		height:100%
+	}
+	
+	table td
+	{
+		text-align:center;
+		
+		&.backspace:before {
+			font-family: 'im-mobile';
+			content: '\e900';
+			color: #888;
+		}
+	}
+}

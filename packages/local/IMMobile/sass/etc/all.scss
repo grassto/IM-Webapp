@@ -1,0 +1,10 @@
+//字体路径 变量只能放在此处
+//因为 sencha app watch 时，此包中的css会进入应用程序的css文件中
+//而 sencha app build 时，此包中的css不会包含到应用程序的css文件中
+//最终导致 watch 时字体路径404
+$im-mobile-font-path: get-resource-path('fonts');
+
+//具体的字体和图标scss不能包含在此处，否则应用程序build的时候，这些css会进入应用程序的css文件中
+//这些scss应该包含在package的main界面里面
+//@import "fonts/path";
+//@import "fonts/icons";

@@ -103,12 +103,11 @@ Ext.define('PushIM.Webapp.Application', {
                     }
                     var index = url.indexOf(':');
                     if (index > -1) {
-                        Config.wsGoUrl = security + url.substring(index) + '/api/v1/websocket';
+                        Config.wsGoUrl = Utils.joinPath(security + url.substring(index), 'api/v1/websocket');
                     } else {
-                        Config.wsGoUrl = security + '://' + url + '/api/v1/websocket';
+                        Config.wsGoUrl = Utils.joinPath(security + '://' + url, 'api/v1/websocket');
                     }
-
-                    Config.httpUrlForGo = url + '/api/v1/';
+                    Config.httpUrlForGo = Utils.joinPath(url, 'api/v1/');
                 }
             } else if (localStorage.getItem('inOrOut') == 'out') {
                 var url = localStorage.getItem('outUrl');
@@ -118,11 +117,11 @@ Ext.define('PushIM.Webapp.Application', {
                     }
                     var index = url.indexOf(':');
                     if (index > -1) {
-                        Config.wsGoUrl = security + url.substring(index) + '/api/v1/websocket';
+                        Config.wsGoUrl = Utils.joinPath(security + url.substring(index), 'api/v1/websocket');
                     } else {
-                        Config.wsGoUrl = security + '://' + url + '/api/v1/websocket';
+                        Config.wsGoUrl = Utils.joinPath(security + '://' + url, 'api/v1/websocket');
                     }
-                    Config.httpUrlForGo = url + '/api/v1/';
+                    Config.httpUrlForGo = Utils.joinPath(url, 'api/v1/');
                 }
             }
         }

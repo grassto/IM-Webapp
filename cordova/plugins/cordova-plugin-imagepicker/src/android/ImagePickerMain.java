@@ -75,6 +75,18 @@ public class ImagePickerMain extends CordovaPlugin {
 
             return true;
         }
+        else if (action.equals("takePhoto")) {
+            image_limit_width = params.getInt("width");
+            image_limit_height = params.getInt("height");
+            image_limit_quality = params.getInt("quality");
+
+            Intent intent = new Intent(cordova.getActivity().getApplicationContext(), ImageGridActivity.class);
+            intent.putExtra(ImageGridActivity.EXTRAS_TAKE_PICKERS, true);
+            cordova.startActivityForResult((CordovaPlugin)this,intent, 100);
+
+
+            return true;
+        }
 
         return false;
     }
@@ -125,7 +137,7 @@ public class ImagePickerMain extends CordovaPlugin {
 
                             File newFile = null;
 
-                            if(image_limit_width > 0 && image_limit_height > 0) {
+                            if(image_limit_width > 0 && image_limit_height > 0 && image_limit_quality > 0) {
                                 newFile = new CompressHelper.Builder(context)
                                         .setMaxWidth(image_limit_width)  // 默认最大宽度
                                         .setMaxHeight(image_limit_height) // 默认最大高度

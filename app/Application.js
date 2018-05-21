@@ -103,12 +103,11 @@ Ext.define('PushIM.Webapp.Application', {
                     }
                     var index = url.indexOf(':');
                     if (index > -1) {
-                        Config.wsGoUrl = security + url.substring(index) + '/api/v1/websocket';
+                        Config.wsGoUrl = Utils.joinPath(security + url.substring(index), 'api/v1/websocket');
                     } else {
-                        Config.wsGoUrl = security + '://' + url + '/api/v1/websocket';
+                        Config.wsGoUrl = Utils.joinPath(security + '://' + url, 'api/v1/websocket');
                     }
-
-                    Config.httpUrlForGo = url + '/api/v1/';
+                    Config.httpUrlForGo = Utils.joinPath(url, 'api/v1/');
                 }
             } else if (localStorage.getItem('inOrOut') == 'out') {
                 var url = localStorage.getItem('outUrl');
@@ -118,11 +117,11 @@ Ext.define('PushIM.Webapp.Application', {
                     }
                     var index = url.indexOf(':');
                     if (index > -1) {
-                        Config.wsGoUrl = security + url.substring(index) + '/api/v1/websocket';
+                        Config.wsGoUrl = Utils.joinPath(security + url.substring(index), 'api/v1/websocket');
                     } else {
-                        Config.wsGoUrl = security + '://' + url + '/api/v1/websocket';
+                        Config.wsGoUrl = Utils.joinPath(security + '://' + url, 'api/v1/websocket');
                     }
-                    Config.httpUrlForGo = url + '/api/v1/';
+                    Config.httpUrlForGo = Utils.joinPath(url, 'api/v1/');
                 }
             }
         }
@@ -240,24 +239,21 @@ Ext.define('PushIM.Webapp.Application', {
     getClientInfo() {
         var me = this,
             isCdv = !!Ext.browser.is.Cordova,
-            //user = User.getUser(),
             isDebug = Utils.isDebug();
         var result = {
             '_appid': Ext.manifest.name,
-            '_os': Ext.os.name, //系统类型
-            '_version': me.versionCode || 0, //app版本
-            '_cordova': isCdv, //是否cordova
-            '_deviceid': isCdv ? device.uuid : Utils.getLsItem('deviceuuid') //设备编号
+            '_os': Ext.os.name, // 系统类型
+            '_version': me.versionCode || 0, // app版本
+            '_cordova': isCdv, // 是否cordova
+            '_deviceid': isCdv ? device.uuid : Utils.getLsItem('deviceuuid') // 设备编号
         };
-        /*if (user) {
-            if (!Ext.isEmpty(user.UserID)) {
-                result['_userid'] = user.UserID; //用户编号
-            }
-            var token = Utils.getLsItem('token');
-            if (!Ext.isEmpty(token)) {
-                result['_token'] = token; //用户令牌
-            }
-        }*/
+        if (!Ext.isEmpty(User.ownerID)) {
+            result['_userid'] = User.ownerID; // 用户编号
+        }
+        var token = Utils.getLsItem('token');
+        if (!Ext.isEmpty(token)) {
+            result['_token'] = token; // 用户令牌
+        }
         if (isDebug) result['_isdebug'] = true;
 
         return result;

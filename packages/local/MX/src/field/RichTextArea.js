@@ -30,6 +30,41 @@
 })();
 // </debug>
 
+Ext.define('UX.event.KeyEvent', {
+    isDefaultPrevented: false,
+
+    set(name, value) {
+        if (arguments.length === 1 && typeof name != 'string') {
+            var info = name;
+
+            for (name in info) {
+                if (info.hasOwnProperty(name)) {
+                    this[name] = info[name];
+                }
+            }
+        }
+        else {
+            this[name] = value;
+        }
+    },
+
+    preventDefault() {
+        this.isDefaultPrevented = true;
+
+        return this;
+    },
+
+    isSpecialKey() {
+        return false;
+    },
+
+    fireKey(e) {
+        /*if (e.isSpecialKey()) {
+            this.fireEvent('specialkey', this, e);
+        }*/
+    }
+});
+
 Ext.define('MX.field.RichTextArea', {
     extend: 'Ext.field.Text',
     uses: [
@@ -4812,5 +4847,17 @@ Ext.define('MX.field.RichTextArea', {
         sel.removeAllRanges();
         sel.addRange(range);
         this._saveRange();
+    },
+
+    //模拟回退键
+    simulateBackspace() {
+        var e = Ext.create('UX.event.KeyEvent');
+        e.set('browserEvent', { keyCode: 8 });
+        this.onKeyDown(e);
+        this.onKeyUp(e);
+
+        if(!e.isDefaultPrevented) {
+            this._backspaceZeroSpace(true);
+        }
     }
 });

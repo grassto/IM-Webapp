@@ -1,0 +1,12 @@
+/* FONT PATH
+ * -------------------------- */
+
+//# fashion -inline
+@font-face {
+  font-family: 'im-mobile';
+  src: url('#{$im-mobile-font-path}/im-mobile.woff?v=#{$im-mobile-version}') format('woff'),
+    url('#{$im-mobile-font-path}/im-mobile.ttf?v=#{$im-mobile-version}') format('truetype'),
+    url('#{$im-mobile-font-path}/im-mobile.svg?v=#{$im-mobile-version}') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}

@@ -341,7 +341,7 @@ Ext.define('IMCommon.view.RichEditor', {
                 localUrl = `local${url}`;
             }
 
-            return `<img src="${localUrl}" data-url="${url}">`;
+            return `<img class="viewPic" src="${localUrl}" data-url="${url}">`;
         });
 
         console.log(result);
@@ -395,7 +395,7 @@ Ext.define('IMCommon.view.RichEditor', {
                             if (Utils.isWeb && window.cefMain) { // http 页面 显示不了本地 file:// 图片, cef 加了一个 localfile:// 协议
                                 localUrl = `local${url}`;
                             }
-                            result = result.replace(`<img src="${src}">`, `<img src="${localUrl}" data-url="${url}">`);
+                            result = result.replace(`<img class="viewPic" src="${src}">`, `<img src="${localUrl}" data-url="${url}">`);
                         } else { // 下载失败的
                             result = result.replace(`<img src="${src}">`, `<img src="${failedImg}">`);
                         }

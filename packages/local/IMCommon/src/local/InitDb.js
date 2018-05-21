@@ -18,7 +18,7 @@ Ext.define('IMCommon.local.InitDb', {
             if (data.rows.length == 0) {
                 me.execSQL(db, '0.0', callback);
             } else {
-                var v = data.rows.items(0).Version;
+                var v = data.rows.item(0).Version;
                 me.execSQL(db, v, callback);
             }
 
@@ -33,14 +33,13 @@ Ext.define('IMCommon.local.InitDb', {
         var sqlArray = [];
         switch (dbVer) {
             case '0.0':
-                sqlArray = sqlArray.concat(me.getV1_0());
-                // case '2.0':
-                //     sqlArray.concat(getV2_0());
-                break;
+                sqlArray = sqlArray.concat(me.getV0_0());
+            case '1.0':
+                sqlArray.push(me.getV1_0());
             default:
                 break;
         }
-        sqlArray.push(me.getUpdateVer('1.0'));
+        sqlArray.push(me.getUpdateVer('2.0'));
 
         db.transaction(function (tx) {
             var sqls = '';
@@ -49,7 +48,7 @@ Ext.define('IMCommon.local.InitDb', {
             }
             tx.executeSql(sqls, null, function (tx) {
                 console.log('ok!');
-    
+
                 InitDb.isOK = true;
                 callback(tx); // 语句执行成功后调用
             }, function (tx, error) {
@@ -63,11 +62,12 @@ Ext.define('IMCommon.local.InitDb', {
         return upSql;
     },
 
-    getV1_0: function () {
+    getV0_0: function () {
 
         var t0 = 'CREATE TABLE IF NOT EXISTS IMAdm (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-            'Version NVARCHAR(20));';
+            'Version NVARCHAR(20));' +
+            'INSERT INTO IMAdm (Version) VALUES ("1.0");';
 
         var t1 = 'CREATE TABLE IF NOT EXISTS IMMsg (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
@@ -120,7 +120,7 @@ Ext.define('IMCommon.local.InitDb', {
             'MimeType NVARCHAR(100), ' +
             'Width INT, ' +
             'Height INT, ' +
-			'CreateAt BIGINT, ' +
+            'CreateAt BIGINT, ' +
             'FileSize BIGINT );';
 
         var t5 = 'CREATE TABLE IF NOT EXISTS IMUsr (' +
@@ -141,17 +141,17 @@ Ext.define('IMCommon.local.InitDb', {
             'IsSupperUser CHAR(1));';
 
         // var t6 = 'CREATE TABLE IF NOT EXISTS IMUsrRl (' +
-            // 'RoleID NVARCHAR(40) NOT NULL,' +
-            // 'UserID NVARCHAR(20) NOT NULL,' +
-            // 'IsClose CHAR(1) DEFAULT(\'N\') );';
+        // 'RoleID NVARCHAR(40) NOT NULL,' +
+        // 'UserID NVARCHAR(20) NOT NULL,' +
+        // 'IsClose CHAR(1) DEFAULT(\'N\') );';
 
         // var t7 = 'CREATE TABLE IF NOT EXISTS IMRol (' +
-            // 'RoleID NVARCHAR(40) NOT NULL,' +
-            // 'RoleName NVARCHAR(40) NOT NULL,' +
-            // 'OrgID NVARCHAR(40),' +
-            // 'Remarks NVARCHAR(200),' +
-            // 'IsClose CHAR(1) DEFAULT(\'N\'),' +
-            // 'IsMaster CHAR(1) );';
+        // 'RoleID NVARCHAR(40) NOT NULL,' +
+        // 'RoleName NVARCHAR(40) NOT NULL,' +
+        // 'OrgID NVARCHAR(40),' +
+        // 'Remarks NVARCHAR(200),' +
+        // 'IsClose CHAR(1) DEFAULT(\'N\'),' +
+        // 'IsMaster CHAR(1) );';
 
         var t8 = 'CREATE TABLE IF NOT EXISTS IMOrg (' +
             'OrgID NVARCHAR(40) PRIMARY KEY,' +
@@ -162,8 +162,12 @@ Ext.define('IMCommon.local.InitDb', {
         return [t0, t1, t2, t3, t4, t5, /*t6, t7,*/ t8];
     },
 
-    getV2_0: function () {
-
+    /**
+     * 由于0.0存在的问题，需要给表增加字段，为防止已存在clientID列的用户更新失败，
+     * 将原有表先改为临时表，再将数据复制后，删除
+     */
+    getV1_0: function () {
+        // var t1 = 'ALTER TABLE '
     },
 
     updateVer: function (ver) {

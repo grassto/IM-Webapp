@@ -110,7 +110,7 @@ Ext.define('IM.utils.BindHelper', {
         // debugger;
         // 创建节点树
         for (var i = 0; i < orgs.length; i++) {
-            if (orgs[i].parent_id === 'Root') {// 根节点
+            if (orgs[i].parent_id === 'Root' || orgs[i].parent_id === '') {// 根节点
 
                 var node = target.appendChild({
                     id: orgs[i].org_id,

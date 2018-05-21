@@ -1,4 +1,4 @@
-Ext.define('IMCommon.model.ChatOld', {
+Ext.define('IMCommon.model.RctChat', {
     extend: 'Ext.data.Model',
     idProperty: 'chat_id', // 组织结构
     fields: [
@@ -54,3 +54,4 @@ Ext.define('IMCommon.model.ChatOld', {
         'members'
     ]
 });
+

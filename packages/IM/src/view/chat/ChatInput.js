@@ -116,7 +116,7 @@ Ext.define('IM.view.chat.ChatInput', {
                     var index = res[i].indexOf('://'),
                     src = res[i].substr(index);
                     src = 'localfile' + src; // localfile:///xxx这样拼一个src过去，cef会崩溃
-                    text += '<img src="' + src + '" data-url="' + res[i] + '">' + '&#8203';
+                    text += '<img class="ect-img" src="' + src + '" data-url="' + res[i] + '">' + '&#8203';
                 }
                 editor.inputElement.dom.focus();
                 if (document.queryCommandSupported('insertHTML')) {

@@ -1,11 +1,12 @@
-.IMMobile-chat-container{
-    .IMMobile-RecentChat{
-        background: rgb(242,243,245);
-        
+.rctChat{
+    // 未读提示
+    .wrapAva{
+        float: left;
+
         a.link-RecentUnRead{
             text-decoration: none;
         }
-        
+
         .RecentUnRead{
             display: none;
             -webkit-border-radius: 20%;
@@ -17,9 +18,9 @@
             text-align: center;
             // color: #fff;
             overflow: hidden;
-            height: 20px;
-            width: 20px;
-            line-height: 20px;
+            height: 18px;
+            width: 18px;
+            line-height: 18px;
             background-color: #bd4107;
             top: 3px;
             left: 35px;
@@ -30,5 +31,24 @@
             content: attr(unRead);
             font-size: 10px;
         }
+    }
+
+    // 最近会话时间及状态
+    .evt {
+        float: right;
+        p{
+            display: inline;
+            margin: 0;
+        }
+    }
+
+    // 最近会话展示名称
+    .displayInfo {
+        div {
+            white-space:nowrap;
+            cursor:default;
+            overflow:hidden;
+            text-overflow:ellipsis; 
+        }  
     }
 }

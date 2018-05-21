@@ -185,6 +185,7 @@ Ext.define('PushIM.Webapp.view.viewport.ViewportController', {
 
                 // localStorage.setItem('USERID', '');
                 // localStorage.setItem('PASSWORD', '');
+
                 User.clear();
                 Ext.StoreManager.removeAll();
                 me.onNeedLogin();

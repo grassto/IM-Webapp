@@ -337,13 +337,18 @@ Ext.define('IM.utils.ChatHelper', {
     },
 
     handleMemListStatus(mems) {
-        for (var i = 0; i < mems.length; i++) {
-            if (mems[i].user_id == User.ownerID) {
-                mems[i].status = 0;
-            } else {
-                mems[i].status = StatusHelper.getStatus(mems[i].user_id);
+        if(mems && mems.length > 0) {
+            for (var i = 0; i < mems.length; i++) {
+                if (mems[i].user_id == User.ownerID) {
+                    mems[i].status = 0;
+                } else {
+                    mems[i].status = StatusHelper.getStatus(mems[i].user_id);
+                }
             }
+        } else {
+            // 先去本地数据库取，若没有，则去服务器取
         }
+
         return mems;
     },
 
@@ -367,12 +372,14 @@ Ext.define('IM.utils.ChatHelper', {
         }
 
         chatView.setStore(store);
+        AddDataUtil.onScroll(chatView);
 
         // isScrolToDown = true; // 若是第一次打开这个会话，则滚动到最下方
 
         // 从本地获取历史记录,若是web版，则不管它
         if (Config.isPC) {
             if (store.isFirst) {
+
                 // 查出前20条数据
                 LocalDataMgr.getHistory(me.bindLocalHistory, 0, cid);
             }
@@ -399,43 +406,13 @@ Ext.define('IM.utils.ChatHelper', {
 
                             var msgList = data.message_list;
                             if (msgList && msgList.length > 0) {
-                                // var msgDatas = [],
-                                //     msgData = {}; // 拼凑data数据
 
-                                // for (var i = 0; i < msgList.length; i++) {
-                                //     switch (msgList[i].wrapper_type) {
-                                //         case MsgWrapperType.Message:
-                                //             msgData = msgList[i].message;
-
-                                //             if (msgData.msg_type == MsgType.TextMsg) {// 文本消息
-
-                                //             } else if (msgData.msg_type == MsgType.ImgMsg) {// 图片
-                                //                 console.log('暂未适配该类型消息：', msgData.msg_type);
-                                //             } else if (msgData.msg_type == MsgType.FileMsg) {// 文件
-                                //                 console.log('暂未适配该类型消息：', msgData.msg_type);
-                                //             }
-
-                                //             msgDatas.push(msgData);
-
-
-                                //             break;
-                                //         case MsgWrapperType.Notice: // 只要两个数据展示，信息、时间
-                                //             msgData = msgList[i].notice;
-                                //             msgData.message = ParseHelper.getNoticeMemsByContent(msgData.operator_id, msgData.content);
-                                //             msgData.msg_type = MsgType.GroupNotice;
-
-                                //             // msgDatas.push(msgData);
-                                //             break;
-                                //         default:
-                                //             console.log('暂未适配该类型消息：', msgList[i].wrapper_type);
-                                //             break;
-                                //     }
-
-                                // }
-
+                                LocalDataMgr.insertOrUpdateRct(cid); // 更新Rct，应该在ws接收到post消息的时候就去更新
                                 // 本地数据更新
                                 LocalDataMgr.initAddToMsg(msgList);
                                 BindHelper.bindAllMsg(msgList, store); // 绑定数据
+
+                                AddDataUtil.onScroll(chatView);
 
                                 // me.onShowChatTime(store);// 处理时间，一分钟内不显示
                             }
@@ -473,7 +450,8 @@ Ext.define('IM.utils.ChatHelper', {
         var rows = resultSet.rows,
             len = rows.length;
 
-        var store = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView').getStore(),
+        var view = Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'),
+        store = view.getStore(),
             datas = [],
             row = {};
 
@@ -483,8 +461,8 @@ Ext.define('IM.utils.ChatHelper', {
         for (var i = len - 1; i >= 0; i--) {
             row = rows.item(i);
             // 同一分钟不显示时间
-            if (i > 0) {
-                preTime = Utils.datetime2Ago(new Date(rows.item(i - 1).CreateAt), true);
+            if (i < len - 1) {
+                preTime = Utils.datetime2Ago(new Date(rows.item(i + 1).CreateAt), true);
                 now = Utils.datetime2Ago(new Date(row.CreateAt), true);
                 if (preTime == now) {
                     isShowTime = false;
@@ -494,6 +472,7 @@ Ext.define('IM.utils.ChatHelper', {
             } else {
                 isShowTime = true;
             }
+
             switch (row.MsgType) {
                 case MsgType.TextMsg:
                     text = window.minEmoji(row.Content);
@@ -540,6 +519,8 @@ Ext.define('IM.utils.ChatHelper', {
         console.log(datas);
         // </debug>
         store.add(datas);
+
+        AddDataUtil.onScroll(view);
     },
 
     // 获取更多的历史消息(现只从本地拉)

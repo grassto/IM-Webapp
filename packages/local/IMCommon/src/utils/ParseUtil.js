@@ -38,11 +38,13 @@ Ext.define('IMCommon.utils.ParseUtil', {
     },
 
     /**
-     * 利用正则拆分img标签
+     * 之后再改
+     * 利用正则拆分img标签,这边应该都是html，因为要放到页面展示，在存入数据库的时候，再改为text
      * @param {string} msg 消息体
      * @return {Array} [{type:xxx,value:xxx},{type:xxx,value:xxx}...]
      */
     parsePATMsg(msg) {
+        var me = this;
         var reg = /\<img[^\>]*src="([^"]*)"[^\>]*\>/g;
 
         var out = [], // 返回值
@@ -55,10 +57,13 @@ Ext.define('IMCommon.utils.ParseUtil', {
                     value: msg.substr(0, r[0].length)
                 });
             } else {
-                out.push({
-                    type: 'text',
-                    value: msg.substring(startIndex, r.index)
-                }); // 文本
+                // 若去除了两边的空格还有值，则加入
+                if (me.trim(me.replaceBrNbsp(msg.substring(startIndex, r.index)))) {
+                    out.push({// 文本
+                        type: 'text',
+                        value: me.replaceBrNbsp(msg.substring(startIndex, r.index))
+                    });
+                }
                 out.push({
                     type: 'img',
                     value: msg.substr(r.index, r[0].length + 1)
@@ -71,7 +76,7 @@ Ext.define('IMCommon.utils.ParseUtil', {
         if (msg.length > startIndex) {
             out.push({
                 type: 'text',
-                value: msg.substr(startIndex)
+                value: me.replaceBrNbsp(msg.substr(startIndex))
             });
         }
 
@@ -79,8 +84,62 @@ Ext.define('IMCommon.utils.ParseUtil', {
     },
 
     /**
+     * 去除<br>
+     * nbsp;改为空格
+     * @param {*} html
+     */
+    replaceBrNbsp(html) {
+        // 空格直接存为nbsp;也好去取
+        return html.replace(/<br\s*\/?>/gi, '\r\n').replace(/&nbsp;/gi, ' ');
+    },
+
+    /**
+     * 替换字符串中的空格和回车为&nbsp; <br>
+     * @param {*} str
+     */
+    parseToHtml(str) {
+        return str.replace(/\r\n/g, '<br>').replace(/\s/g, '&nbsp;');
+    },
+
+    /**
+     * 去除字符串两端的空格
+     * @param {string} str
+     */
+    trim(str) {
+        return str.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, '');
+    },
+
+    /**
+     * 根据不同的情况拼凑Rct的lastMsg
+     * @param {*} chatType 
+     * @param {*} msgType 
+     * @param {*} msg 
+     * @param {*} username 
+     */
+    getRctLastMsg(chatType, msgType, msg, username) {
+        var content = '';
+        if(chatType == ChatType.Group) {
+            content += `${username}：`;
+        }
+
+        switch(msgType) {
+            case MsgType.TextMsg:
+                content += msg;
+                break;
+            case MsgType.ImgMsg:
+                content += '[图片]';
+                break;
+            case MsgType.FileMsg:
+                content += '[文件]';
+                break;
+            default:
+            break;
+        }
+    },
+
+    /**
      * 给传入的string类型的img标签添加样式类，使其可以浏览
-     * @param {string} img 
+     * @param {string} img
      */
     getLocalImg(img) {
         var ss = $(img).addClass('viewPic loaded');
@@ -112,7 +171,7 @@ Ext.define('IMCommon.utils.ParseUtil', {
             path = this.getLocalFileURL(path);
             return [
                 '<div class="imgBlock">',
-                `<img class="viewPic loaded" src="${path}"/>`,
+                `<img class="viewPic loaded" src="${path}" data-original="${path}"/>`,
                 '</div>'
             ].join('');
         }

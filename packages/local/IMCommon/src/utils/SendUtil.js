@@ -13,23 +13,32 @@ Ext.define('IMCommon.utils.SendUtil', {
         var me = this,
             msgStore = msgView.getStore();
 
-        // if(!me.canSend(rctStore)) return;// 是否可以在此会话中发消息
+        // if(!me.canSend(chatID, rctStore)) return;// 是否可以在此会话中发消息
+
+        var msg = editor.getSubmitValue(), // 消息体
+            childs = ParseUtil.parsePATMsg(msg),
+            len = childs.length;
+
+        if (len <= 0) {
+            Utils.toastShort('不能发送空白消息');
+            return;
+        }
 
         var msgs = [], // 消息数组
-            msgDatas = [], // msgStore中的数据
-            msg = editor.getSubmitValue(); // 消息体
-
-        var childs = ParseUtil.parsePATMsg(msg),
-            len = childs.length;
+            msgDatas = []; // msgStore中的数据
+            
 
         for (var i = 0; i < len; i++) {
             var guid = LocalDataMgr.newGuid(),
                 showTime = true,
                 msgData = {};
 
-            if (Utils.datetime2Ago(msgStore.getAt(msgStore.data.length - 1).get('last_post_at')) == Utils.datetime2Ago(new Date())) {
-                showTime = false;
+            if (msgStore.data.length > 0) {
+                if (Utils.datetime2Ago(msgStore.getAt(msgStore.data.length - 1).get('last_post_at')) == Utils.datetime2Ago(new Date())) {
+                    showTime = false;
+                }
             }
+
 
             // 区分消息类型
             if (childs[i].type == 'img') {
@@ -61,6 +70,7 @@ Ext.define('IMCommon.utils.SendUtil', {
                         sendText: ParseUtil.getLocalImg(childs[i].value),
                         msg_type: MsgType.ImgMsg,
                         last_post_at: new Date(),
+                        updateTime: new Date(),
                         sendStatus: 1, // 发送态
                         ROL: 'right',
                         showTime: showTime,
@@ -81,48 +91,55 @@ Ext.define('IMCommon.utils.SendUtil', {
                     // 第三方图片下载失败的，可能还有人直接输入<img src="">这种，先不考虑
                 }
             } else {
-                msgData = {
-                    client_id: guid,
-                    chat_id: chatID,
-                    message: childs[i].value,
-                    msg_type: MsgType.TextMsg,
-                    user_id: User.ownerID,
-                    user_name: User.crtUser.user_name
-                };
+                if (ParseUtil.trim(childs[i].value)) {
+                    msgData = {
+                        client_id: guid,
+                        chat_id: chatID,
+                        message: childs[i].value,
+                        msg_type: MsgType.TextMsg,
+                        user_id: User.ownerID,
+                        user_name: User.crtUser.user_name
+                    };
 
-                msgs.push({
-                    client_id: guid,
-                    chat_id: chatID,
-                    message: childs[i].value,
-                    msg_type: MsgType.TextMsg,
-                    user_id: User.ownerID,
-                    user_name: User.crtUser.user_name
-                });
+                    msgs.push({
+                        client_id: guid,
+                        chat_id: chatID,
+                        message: childs[i].value,
+                        msg_type: MsgType.TextMsg,
+                        user_id: User.ownerID,
+                        user_name: User.crtUser.user_name
+                    });
 
-                msgDatas.push({
-                    client_id: guid,
-                    senderName: User.crtUser.user_name,
-                    sendText: childs[i].value,
-                    msg_type: MsgType.TextMsg,
-                    last_post_at: new Date(),
-                    sendStatus: 1, // 发送态
-                    ROL: 'right',
-                    showTime: showTime
-                });
+                    msgDatas.push({
+                        client_id: guid,
+                        senderName: User.crtUser.user_name,
+                        sendText: childs[i].value,
+                        msg_type: MsgType.TextMsg,
+                        last_post_at: new Date(),
+                        updateTime: new Date(),
+                        sendStatus: 1, // 发送态
+                        ROL: 'right',
+                        showTime: showTime
+                    });
 
-                if (Config.needLocal) {
-                    LocalDataMgr.execSendText(msgData);
+                    if (Config.needLocal) {
+                        LocalDataMgr.execSendText(msgData);
+                    }
                 }
+
             }
         }
 
         // 最近会话数据绑定,应该也有消息的发送状态
         rctStore.getById(chatID).set({
-            last_msg_type: msgs[len - 1].msg_type == MsgType.TextMsg ? msgs[len - 1].message : '[图片]',
-            last_post_msg: msgs[len - 1].msg_type,
+            last_post_msg: msgs[len - 1].message, // ParseUtil.getRctLastMsg(rctStore.getById(chatID).get('chat_type'), msgs[len - 1].msg_type, msgs[len - 1].message, User.crtUser.user_name),
+            last_msg_type: msgs[len - 1].msg_type,
             last_post_at: new Date(),
             last_post_name: User.crtUser.user_name
         });
+
+        var content = ParseUtil.getRctLastMsg(rctStore.getById(chatID).get('chat_type'), msgs[len - 1].msg_type, msgs[len - 1].message, User.crtUser.user_name);
+        LocalDataMgr.updateRctBySend(content, new Date(), chatID);
 
         // 消息数据绑定，都为未成功态
         var msgRecords = msgStore.add(msgDatas);

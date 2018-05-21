@@ -1,7 +1,7 @@
 Ext.define('IMCommon.view.RichEditor', {
     extend: 'MX.field.RichTextArea',
 
-    requires:[
+    requires: [
         'Ext.drag.Target',
         'IMCommon.model.Mention'
     ],
@@ -102,7 +102,7 @@ Ext.define('IMCommon.view.RichEditor', {
         me.callParent(arguments);
         me.onclickPic();
 
-        if(Config.isPC) {
+        if (Config.isPC) {
             me.preventKeydown();
         }
 
@@ -137,7 +137,7 @@ Ext.define('IMCommon.view.RichEditor', {
         for (var i = 0; i < len; i++) {
             type = files[i].type.substr(files[i].type.indexOf('/') + 1);
 
-            if(FileUtil.imageFilter.extensions.indexOf(type) > -1) {// 图片类型，则上传并绑定到editor
+            if (FileUtil.imageFilter.extensions.indexOf(type) > -1) {// 图片类型，则上传并绑定到editor
                 // me.uploadPic(files);
             } else { // 其他类型再处理
 
@@ -158,15 +158,15 @@ Ext.define('IMCommon.view.RichEditor', {
                     editor.value += '<br>' + '&#8203;';
                 } else {
                     if (editor.value) {
-                        if(Config.isPhone) {
+                        if (Config.isPhone) {
                             // SendUtil.sendMsg(editor, User.crtChannelId, );
                         } else {
                             var imView = Ext.Viewport.lookup('IM');
                             SendUtil.sendMsg(me, User.crtChannelId, imView.down('#recentChat').getStore(), imView.lookup('im-main').down('#chatView'));
                         }
-                        
+
                     } else {
-                        Utils.toastShort('消息内容不能为空');
+                        Utils.toastShort('不能发送空白消息');
                     }
                     return false;
                 }
@@ -271,8 +271,25 @@ Ext.define('IMCommon.view.RichEditor', {
                         // files.push(blob);
                         // // 图片上传,并黏贴到输入框
                         // me.uploadPic(files);
-
-                        Utils.toastShort('尚未支持');
+                        var blob = item.getAsFile();
+                        // 只能new一个这个FileReader对象
+                        if(!User.fileReader) {
+                            User.fileReader = new FileReader();
+                        }
+                        User.fileReader.readAsDataURL(blob);
+                        User.fileReader.onloadend = function () {
+                            var base64data = User.fileReader.result;
+                            if (Config.isPC) {
+                                cefMain.saveFile(base64data, function (url) {
+                                    var text = '<img src="' + `localfile:///${url}` + '" data-url="' + `file:///${url}` + '">' + '&#8203';
+                                    if (document.queryCommandSupported('insertHTML')) {
+                                        document.execCommand('insertHTML', false, text);
+                                    } else {
+                                        document.execCommand('paste', false, text);
+                                    }
+                                });
+                            }
+                        };
                     }
 
                     me._checkRegexes(outEvent);

@@ -70,7 +70,8 @@ Ext.define('IMCommon.utils.UpImgMgr', {
                         var chat = Ext.StoreManager.getByKey(data.chat_id);
                         if (chat) {
                             if (chat.getById(data.msg_id)) {
-                                chat.getById(data.msg_id).set('sendText', ParseUtil.getLocalPic(path));
+                                // 这边只改变页面的消息状态即可
+                                // chat.getById(data.msg_id).set('sendText', ParseUtil.getLocalPic(path));
                             }
                         }
 

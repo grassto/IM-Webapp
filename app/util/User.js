@@ -83,6 +83,11 @@ Ext.define('PushIM.Webapp.util.User', {
         // User.historySet = 20;
         User.isFirstCon = true;
         User.isFirstConRct = true;
+
+        if(User.DB && User.DB.close) {
+            User.DB.close(); // 本地数据库关闭
+            User.DB = '';
+        }
     },
 
     /**

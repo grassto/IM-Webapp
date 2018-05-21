@@ -10,7 +10,8 @@ Ext.define('IM.view.IMController', {
     ],
     uses: [
         'IMCommon.local.LocalDataMgr',
-        'IMCommon.local.InitDb'
+        'IMCommon.local.InitDb',
+        'IMCommon.utils.SocketEventUtil1'
     ],
 
     listen: {
@@ -61,32 +62,50 @@ Ext.define('IM.view.IMController', {
                         for (var i = 0; i < len; i++) {
                             row = rows.item(i);
                             if (row.ChatType == ChatType.Group) {
-                                row.mems = [];
-                                var us = row.UserIDs.split(','),
-                                    ns = row.UserNames.split(',');
+                                if (row.UserIDs && row.UserNames) {
+                                    row.mems = [];
 
-                                for (var j = 0; j < us.length; j++) {
-                                    row.mems.push({
+                                    var us = row.UserIDs.split(','),
+                                        ns = row.UserNames.split(',');
+
+                                    for (var j = 0; j < us.length; j++) {
+                                        row.mems.push({
+                                            chat_id: row.ChatID,
+                                            user_id: us[j], // id
+                                            user_name: ns[j] // name
+                                        });
+                                    }
+
+                                    datas.push({
                                         chat_id: row.ChatID,
-                                        user_id: us[j], // id
-                                        user_name: ns[j] // name
+                                        name: row.DisplayName,
+                                        type: row.ChatType,
+                                        status: -2, // 不显示状态
+                                        isUnRead: row.UnreadCount > 0,
+                                        unReadNum: row.UnreadCount,
+                                        last_post_at: row.LastPostAt,
+                                        last_post_userName: row.LastUserName,
+                                        last_msg_type: row.LastMsgType,
+                                        last_post_msg: row.LastMessage,
+                                        members: row.mems
                                     });
                                 }
+                            } else if(row.ChatType == ChatType.Direct) {
+                                datas.push({
+                                    chat_id: row.ChatID,
+                                    name: row.DisplayName,
+                                    type: row.ChatType,
+                                    status: -2, // 不显示状态
+                                    isUnRead: row.UnreadCount > 0,
+                                    unReadNum: row.UnreadCount,
+                                    last_post_at: row.LastPostAt,
+                                    last_post_userName: row.LastUserName,
+                                    last_msg_type: row.LastMsgType,
+                                    last_post_msg: row.LastMessage,
+                                    members: row.mems
+                                });
                             }
-                            
-                            datas.push({
-                                chat_id: row.ChatID,
-                                name: row.DisplayName,
-                                type: row.ChatType,
-                                status: -2, // 不显示状态
-                                isUnRead: row.UnreadCount > 0,
-                                unReadNum: row.UnreadCount,
-                                last_post_at: row.LastPostAt,
-                                last_post_userName: row.LastUserName,
-                                last_msg_type: row.LastMsgType,
-                                last_post_msg: row.LastMessage,
-                                members: row.mems
-                            });
+
                         }
                         // <debug>
                         console.log('本地数据库最近会话', datas);
@@ -186,7 +205,6 @@ Ext.define('IM.view.IMController', {
     * @param {string} oldType 需要删除的xtype
     */
     showRightView(xtype, oldType) {
-        // debugger;
         const view = Ext.Viewport.lookup('IM');
 
         // oldType = view.lookup(oldType);
@@ -224,7 +242,7 @@ Ext.define('IM.view.IMController', {
         WebSocketHelper.setEventCallback((msg) => {
             switch (msg.event) {
                 case SocketEventType.posted:
-                    SocketEventHelper.handleNewPostEvent(msg);
+                    SocketEventUtil1.handleNewPostEvent(msg, Ext.Viewport.lookup('IM').down('#recentChat'), Ext.Viewport.lookup('IM'));
                     break;
                 case SocketEventType.createGrp:
                     SocketEventHelper.handleGrpAddEvent(msg);
@@ -326,7 +344,7 @@ Ext.define('IM.view.IMController', {
     bindLocalOrg() {
         LocalDataMgr.initGetOrg(function (ok) {
             var view = Ext.Viewport.lookup('IM'),
-            orgTree = view.down('#left-organization');
+                orgTree = view.down('#left-organization');
 
             // 从本地加载的这个有点慢
             if (ok) { // 本地存在组织结构，从先从本地绑定

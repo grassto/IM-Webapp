@@ -390,7 +390,8 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     insertRctByWS(data) {
         const me = this;
         var content = '',
-            cName = '';
+            cName = '',
+            sql = '';
 
         // 若为多人会话，则在前面加上发送者
         if (data.chat_type == ChatType.Group) {
@@ -414,7 +415,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
                 alert('暂未支持该类型：', data.msg_type);
         }
 
-        var sql = 'INSERT INTO IMRct (ChatID, ChatType, DisplayName, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType, IsTop, AtCount) VALUES ("' + data.chat_id + '","' + data.chat_type + '","' + cName + '",1,' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + content + '","' + data.msg_type + '","",0);';
+        sql += 'INSERT OR REPLACE INTO IMRct (ChatID, ChatType, DisplayName, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType, IsTop, AtCount) VALUES ("' + data.chat_id + '","' + data.chat_type + '","' + cName + '",1,' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + content + '","' + data.msg_type + '","",0);';
 
         me.commonExecSql(sql);
 
@@ -427,13 +428,12 @@ Ext.define('IMCommon.local.LocalDataMgr', {
 
     /**
      * 发送消息，更新最近会话列表
-     * @param {json} data
      */
-    updateRctBySend(data) {
+    updateRctBySend(content, time, chatID) {
         const me = this;
 
         me.getDB().transaction(function (trans) {
-            var sql = 'UPDATE IMRct SET LastPostAt=' + data.createAt + ', LastUserID="' + data.userID + '", LastUserName="' + data.userName + '", LastMessage="' + data.content + '" WHERE ChatID="' + data.chatID + '";';
+            var sql = 'UPDATE IMRct SET LastPostAt=' + time + ', LastUserID="' + User.ownerID + '", LastUserName="' + User.crtUser.user_name + '", LastMessage="' + content + '" WHERE ChatID="' + chatID + '";';
 
             me.handleSql(trans, sql);
         });
@@ -443,12 +443,9 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * 发送成功后调用，更新最近会话列表
      */
     updateRctBySendS() {
-        const me = this;
+        var sql = '';
 
-        me.getDB().transaction(function (trans) {
-            var sql = ''; // Rct表应该也有一个字段标志是否成功发送
-
-        });
+        this.commonExecSql(sql);
     },
 
     /**
@@ -780,9 +777,33 @@ Ext.define('IMCommon.local.LocalDataMgr', {
     },
     addFileMsgByWS(data) { },
 
+    /**
+     * 通过ws更新最近会话，可以解决上一版遗留的问题
+     * data.chatInfo
+     * data.members 都是通过调用users/userid/chat/chatid调用后获得的
+     * @param {*} data
+     */
+    handleRctByWsPost(data) {
+        var me = this;
+        var sql = '',
+            name = '';
+        if (data.chat_type == ChatType.Direct) {
+            name = data.user_name;
+        } else if (data.chat_type == ChatType.Group) {
+            name = data.header;
 
-    updateImgByWS(data) {
+            var res = me.getUsersMsg(data.members),
+                ids = res.ids,
+                names = res.names;
 
+            sql += 'INSERT OR REPLACE INTO IMChat ' +
+                '(ChatID, DisplayName, CreatorID, CreatorName, ManagerID, ManagerName, CreateAt, UserIDs, UserNames) VALUES' +
+                '("' + data.chat_id + '", "' + data.header + '", "' + data.chatInfo.creator_id + '", "' + data.chatInfo.creator_name + '", "' + data.chatInfo.manager_id + '", "' + data.chatInfo.manager_name + '", ' + data.update_at + ', "' + ids + '", "' + names + '");';
+        }
+
+        sql += 'INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType) VALUES ("' + data.chat_id + '","' + name + '","' + data.chat_type + '",' + data.chatInfo.unread_count + ',' + data.update_at + ',"' + data.user_id + '","' + data.user_name + '","' + data.content + '","' + data.msg_type + '");';
+
+        me.commonExecSql(sql);
     },
 
 
@@ -865,5 +886,34 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             me.handleSql(trans, sqls);
         });
 
+    },
+
+
+    insertOrUpdateRct(chatID) {
+        var me = this;
+        Utils.ajaxByZY('get', `users/${User.ownerID}/chats/${chatID}`, {
+            success: function (data) {
+                var sql = '',
+                    name = '';
+                if (data.chat.chat_type == ChatType.Direct) {
+                    name = ParseUtil.getDctNameFromMems(data.members);
+                } else if (data.chat.chat_type == ChatType.Group) {
+                    name = data.chat.header;
+
+                    var res = me.getUsersMsg(data.members),
+                        ids = res.ids,
+                        names = res.names;
+
+                    sql += 'INSERT OR REPLACE INTO IMChat ' +
+                        '(ChatID, DisplayName, CreatorID, CreatorName, ManagerID, ManagerName, CreateAt, UserIDs, UserNames) VALUES' +
+                        '("' + data.chat.chat_id + '", "' + data.chat.header + '", "' + data.chat.creator_id + '", "' + data.chat.creator_name + '", "' + data.chat.manager_id + '", "' + data.chat.manager_name + '", ' + data.chat.create_at + ', "' + ids + '", "' + names + '");';
+                }
+
+                sql += 'INSERT OR REPLACE INTO IMRct (ChatID, DisplayName, ChatType, UnreadCount, LastPostAt, LastUserID, LastUserName, LastMessage, LastMsgType) VALUES ("' + data.chat.chat_id + '","' + name + '","' + data.chat.chat_type + '",' + data.chat.unread_count + ',' + data.chat.last_post_at + ',"' + data.chat.last_sender + '","' + data.chat.last_sender_name + '","' + data.chat.last_message + '","' + data.chat.last_msg_type + '");';
+
+                me.commonExecSql(sql);
+            }
+        });
     }
+
 });

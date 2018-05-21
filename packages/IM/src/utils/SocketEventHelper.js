@@ -42,9 +42,10 @@ Ext.define('IM.utils.SocketEventHelper', {
                 });
 
                 // 本地数据更新Rct
-                if (Config.isPC) {
-                    LocalDataMgr.updateRctByWsPost(data);
-                }
+                // if (Config.isPC) {
+                //     LocalDataMgr.updateRctByWsPost(data);
+                // }
+
                 var chatView;
                 if (mainView) {
                     chatView = mainView.down('#chatView'); // 聊天展示页面
@@ -75,14 +76,17 @@ Ext.define('IM.utils.SocketEventHelper', {
                 }
 
             } else { // 没有Rct
-                if (Config.isPC) {
-                    LocalDataMgr.insertRctByWS(data);
-                }
+                // if (Config.isPC) {
+                //     LocalDataMgr.insertRctByWS(data);
+                // }
                 AddDataUtil.wsAddChatToRct(recentChat.getStore(), data);
                 me.promptUnRead(data, recentChat.getStore());
             }
 
-            me.notifyWrapper(msg.data);// 未读提示
+
+            LocalDataMgr.insertOrUpdateRct(data.chat_id);
+
+            me.notifyWrapper(data);// 未读提示
         }
     },
 
@@ -131,17 +135,15 @@ Ext.define('IM.utils.SocketEventHelper', {
         });
     },
 
-    notifyWrapper(dataWrapper) {
-        var me = this,
-            data = JSON.parse(dataWrapper.message),
-            // userName = ChatHelper.getName(data.chat_id);
-            userName = dataWrapper.sender_name;
-        if (dataWrapper.chat_type == ChatType.Direct) { // 单人
-            me.notify(dataWrapper.sender_name, data.message);
-            CEFHelper.addNotice(data, userName);
-        } else if (dataWrapper.chat_type == ChatType.Group) { // 多人
-            me.notify('多人会话：' + userName, data.message);
-            CEFHelper.addNotice(data, '多人会话：' + userName);
+    notifyWrapper(data) {
+        var me = this;
+
+        if (data.chat_type == ChatType.Direct) { // 单人
+            me.notify(data.user_name, data.message);
+            CEFHelper.addNotice(data);
+        } else if (data.chat_type == ChatType.Group) { // 多人
+            me.notify('多人会话：' + data.user_name, data.message);
+            CEFHelper.addNotice(data);
         }
     },
 

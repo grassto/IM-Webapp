@@ -1,6 +1,6 @@
 Ext.define('IM.view.msgManager.msgView.MsgView', {
     extend: 'Ext.tab.Panel',
-    xtype: 'msgView',
+    xtype: 'msg_View',
 
     defaults: {
         tab: {

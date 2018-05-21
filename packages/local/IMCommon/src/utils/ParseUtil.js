@@ -118,11 +118,11 @@ Ext.define('IMCommon.utils.ParseUtil', {
      */
     getRctLastMsg(chatType, msgType, msg, username) {
         var content = '';
-        if(chatType == ChatType.Group) {
+        if (chatType == ChatType.Group) {
             content += `${username}：`;
         }
 
-        switch(msgType) {
+        switch (msgType) {
             case MsgType.TextMsg:
                 content += msg;
                 break;
@@ -133,7 +133,7 @@ Ext.define('IMCommon.utils.ParseUtil', {
                 content += '[文件]';
                 break;
             default:
-            break;
+                break;
         }
     },
 
@@ -223,4 +223,62 @@ Ext.define('IMCommon.utils.ParseUtil', {
 
         return ids;
     },
+
+
+    getGrpNotice(data) {
+        var me = this,
+            res = '';
+        switch (data.notice_type) {
+            case NoticeType.CreateGrp:
+                res = me.getCreateNotice(data);
+                break;
+            default:
+                break;
+        }
+
+        return res;
+    },
+
+    /**
+     * 拼新建会话信息
+     * @param {*} data
+     */
+    getCreateNotice(data) {
+        var ids = '', names = '', res = '';
+        if(data.content instanceof Array) {
+            ids = data.content;
+        } else {
+            ids = data.content.split(',');
+        }
+        if(data.content_ex instanceof Array) {
+            names = data.content_ex;
+        } else {
+            names = data.content_ex.split(',');
+        }
+
+        if (data.operator_id == User.ownerID) {
+            res += '你邀请';
+
+            var mems = [];
+            for (var i = 0; i < ids.length; i++) {
+                if (data.operator_id != ids[i]) {
+                    mems.push(names[i]);
+                }
+                res += mems.join('、');
+            }
+        } else {
+            res += `${data.operator_name}邀请你和`;
+
+            var mems = [];
+            for (var i = 0; i < ids.length; i++) {
+                if (data.operator_id != ids[i] && User.owner != ids[i]) {
+                    mems.push(names[i]);
+                }
+            }
+            res += mems.join('、');
+        }
+
+        res += '加入群聊';
+        return res;
+    }
 });

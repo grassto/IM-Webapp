@@ -1,9 +1,9 @@
 /**
  * 一个tabpanel，作为主页面
  */
-Ext.define('IMMobile.view.IMMobileMain.IMMobileMainTabPanel', {
+Ext.define('IMMobile.view.main.MainTabPanel', {
     extend: 'Ext.tab.Panel',
-    xtype: 'IMMobile-MainTabPanel',
+    xtype: 'mainTabPanel',
 
     requires: [
         'IMMobile.view.IMMobileMain.tabPanel.IMMobileChat',

@@ -26,12 +26,14 @@ Ext.define('IMCommon.model.RctChat', {
         { // 用于排序
             name: 'last_post_at',
             type: 'date',
-            convert: function(value) {
-                if(value == 0 || value == undefined || value == null) {
-                    return '';
-                }
-                return Utils.datetime2Ago(value, true);
-            }
+
+            // 不能使用convert  动态设置值的时候，设置不上
+            // convert: function(value) {
+            //     if(value == 0 || value == undefined || value == null) {
+            //         return '';
+            //     }
+            //     return Utils.datetime2Ago(value, true);
+            // }
         },
         {
             name: 'unReadNum',

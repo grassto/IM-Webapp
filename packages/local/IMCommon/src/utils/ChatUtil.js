@@ -21,5 +21,23 @@ Ext.define('IMCommon.utils.ChatUtil', {
                 console.log('创建多人会话失败', data);
             }
         });
+    },
+
+    setUnreadToRead(store, chatID) {
+        Utils.ajaxByZY('post', 'chats/members/' + User.ownerID + '/view', {
+            params: JSON.stringify({ chat_id: User.crtChannelId }),
+            success: function (data) {
+                if (data.Status == 'OK') {
+                    store.getById(chatID).set({
+                        'isUnRead': false,
+                        'unReadNum': 0
+                    });
+
+                    if (Config.isPC) {
+                        LocalDataMgr.rctSetUnreadToRead(chatID);
+                    }
+                }
+            }
+        });
     }
 });

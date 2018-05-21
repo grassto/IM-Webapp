@@ -337,7 +337,8 @@ Ext.define('IM.utils.ChatHelper', {
     },
 
     handleMemListStatus(mems) {
-        if(mems && mems.length > 0) {
+        if(mems) {
+            if(!mems.length) return;
             for (var i = 0; i < mems.length; i++) {
                 if (mems[i].user_id == User.ownerID) {
                     mems[i].status = 0;

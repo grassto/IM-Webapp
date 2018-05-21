@@ -1,4 +1,4 @@
-Ext.define('IMCommon.model.Chat', {
+Ext.define('IMCommon.model.Msg', {
     extend: 'Ext.data.Model',
     idProperty: 'msg_id',
     fields: [

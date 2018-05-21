@@ -73,7 +73,7 @@ Ext.define('IMCommon.utils.SendUtil', {
                         updateTime: new Date(),
                         sendStatus: 1, // 发送态
                         ROL: 'right',
-                        showTime: showTime,
+                        showTime: i ==0 ?showTime:false,
                         fileURL: img.childNodes[0].getAttribute('data-url') // 上传图片时需用到的URL
                     });
 
@@ -119,7 +119,7 @@ Ext.define('IMCommon.utils.SendUtil', {
                         updateTime: new Date(),
                         sendStatus: 1, // 发送态
                         ROL: 'right',
-                        showTime: showTime
+                        showTime: i ==0 ?showTime:false
                     });
 
                     if (Config.needLocal) {
@@ -138,7 +138,7 @@ Ext.define('IMCommon.utils.SendUtil', {
             last_post_name: User.crtUser.user_name
         });
 
-        var content = ParseUtil.getRctLastMsg(rctStore.getById(chatID).get('chat_type'), msgs[len - 1].msg_type, msgs[len - 1].message, User.crtUser.user_name);
+        var content = ParseUtil.getRctLastMsg(rctStore.getById(chatID).get('chat_type')||rctStore.getById(chatID).get('type'), msgs[len - 1].msg_type, msgs[len - 1].message, User.crtUser.user_name);
         LocalDataMgr.updateRctBySend(content, new Date(), chatID);
 
         // 消息数据绑定，都为未成功态

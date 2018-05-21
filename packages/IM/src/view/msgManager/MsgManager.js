@@ -40,7 +40,7 @@ Ext.define('IM.view.msgManager.MsgManager', {
                 }]
             }, {
                 // html: '<div style="color:#aaa;">暂无结果</div>',
-                xtype: 'msgView',
+                xtype: 'msg_View',
                 style: {
                     paddingLeft: '10px'
                 },

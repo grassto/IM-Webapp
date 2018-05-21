@@ -2,6 +2,10 @@ Ext.define('IM.utils.ParseHelper', {
     alternateClassName: 'ParseHelper',
     singleton: true,
 
+    uses: [
+        'IMCommon.utils.ParseUtil'
+    ],
+
     /**
      * 发送图片前，拆分图文混排数据
      * @param {string} msg 消息内容（html）
@@ -107,49 +111,51 @@ Ext.define('IM.utils.ParseHelper', {
 
         if (data.wrapper_type == MsgWrapperType.Notice) { // 多人通知信息
             var grpChangeMsg = ''; // 组织提示信息
-            var memIDs = me.getNoticeMemsByContent(data.notice.operator_id, data.notice.content);
+            // var memIDs = me.getNoticeMemsByContent(data.notice.operator_id, data.notice.content);
 
-            if (data.notice.operator_id == User.ownerID) { // 发起者的展示信息
-                switch (data.notice.notice_type) {
-                    case NoticeType.CreateGrp:
-                        grpChangeMsg = SocketEventHelper.createOwnWelcomeMsg(data.notice.operator_id, memIDs);
-                        break;
-                    case NoticeType.AddMem:
-                        grpChangeMsg = SocketEventHelper.createMeAddSBMsg(data.notice.operator_id, memIDs);
-                        break;
-                    case NoticeType.RemoveMem:
-                        grpChangeMsg = SocketEventHelper.createMeRemoveSBMsg(data.notice.operator_id, memIDs[0]);
-                        break;
-                    case NoticeType.ChgTitle:
-                        grpChangeMsg = SocketEventHelper.createMeChgHeaderMsg(data.notice.content);
-                        break;
-                    case NoticeType.ChgManager:
-                        grpChangeMsg = SocketEventHelper.meChgMgrToSB(memIDs[0]);
-                        break;
-                    default:
-                        break;
-                }
-            } else { // 被操作者的展示信息
-                switch (data.notice.notice_type) {
-                    case NoticeType.CreateGrp:
-                        grpChangeMsg = SocketEventHelper.createOtherWelcomeMsg(data.notice.operator_id, memIDs);
-                        break;
-                    case NoticeType.AddMem:
-                        grpChangeMsg = SocketEventHelper.createSBAddSBMsg(data.notice.operator_id, memIDs);
-                        break;
-                    case NoticeType.RemoveMem:
-                        grpChangeMsg = SocketEventHelper.createSBRemoveMeMsg(data.notice.operator_id, memIDs[0]);
-                        break;
-                    case NoticeType.ChgTitle:
-                        grpChangeMsg = SocketEventHelper.createSBChgHeaderMsg(data.notice.content, data.notice.operator_id);
-                        break;
-                    case NoticeType.ChgManager:
-                        grpChangeMsg = SocketEventHelper.sbChgMgrToMe(data.notice.operator_id);
-                        break;
-                    default:
-                        break;
-                }
-            }
+            // if (data.notice.operator_id == User.ownerID) { // 发起者的展示信息
+            //     switch (data.notice.notice_type) {
+            //         case NoticeType.CreateGrp:
+            //             grpChangeMsg = SocketEventHelper.createOwnWelcomeMsg(data.notice.operator_id, memIDs);
+            //             break;
+            //         case NoticeType.AddMem:
+            //             grpChangeMsg = SocketEventHelper.createMeAddSBMsg(data.notice.operator_id, memIDs);
+            //             break;
+            //         case NoticeType.RemoveMem:
+            //             grpChangeMsg = SocketEventHelper.createMeRemoveSBMsg(data.notice.operator_id, memIDs[0]);
+            //             break;
+            //         case NoticeType.ChgTitle:
+            //             grpChangeMsg = SocketEventHelper.createMeChgHeaderMsg(data.notice.content);
+            //             break;
+            //         case NoticeType.ChgManager:
+            //             grpChangeMsg = SocketEventHelper.meChgMgrToSB(memIDs[0]);
+            //             break;
+            //         default:
+            //             break;
+            //     }
+            // } else { // 被操作者的展示信息
+            //     switch (data.notice.notice_type) {
+            //         case NoticeType.CreateGrp:
+            //             grpChangeMsg = SocketEventHelper.createOtherWelcomeMsg(data.notice.operator_id, memIDs);
+            //             break;
+            //         case NoticeType.AddMem:
+            //             grpChangeMsg = SocketEventHelper.createSBAddSBMsg(data.notice.operator_id, memIDs);
+            //             break;
+            //         case NoticeType.RemoveMem:
+            //             grpChangeMsg = SocketEventHelper.createSBRemoveMeMsg(data.notice.operator_id, memIDs[0]);
+            //             break;
+            //         case NoticeType.ChgTitle:
+            //             grpChangeMsg = SocketEventHelper.createSBChgHeaderMsg(data.notice.content, data.notice.operator_id);
+            //             break;
+            //         case NoticeType.ChgManager:
+            //             grpChangeMsg = SocketEventHelper.sbChgMgrToMe(data.notice.operator_id);
+            //             break;
+            //         default:
+            //             break;
+            //     }
+            // }
+
+            grpChangeMsg = ParseUtil.getGrpNotice(data.notice);
 
             result = {
                 updateTime: new Date(data.create_at),
@@ -182,8 +188,16 @@ Ext.define('IM.utils.ParseHelper', {
                 // text = '<img id="' + message.attach_id + '" style="/*width:40px;height:40px;*/background:url(' + Ext.getResourcePath('images/loading.gif') +') no-repeat center center;" class="viewPic" src="' + Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail">';
                 text = ImgMgr.parsePic(message.attach_id); // 这边是要给本地数据库的回调的
 
-                // 处理本地数据库
-                // LocalDataMgr.afterUploadSuc(data.files[i], path);
+                // 处理本地数据库,默认都为下载成功的
+                // 这边没有file的数据，去服务端请求
+                Utils.ajaxByZY('get', `files/${message.attach_id}/info`, {
+                    success: function(fileData) {
+                        var nativePath = (window.cordova || window.cefMain).file.dataDirectory;
+                        var path = nativePath + User.ownerID + '/images/' + message.attach_id;
+                        LocalDataMgr.afterUploadSuc(fileData, path);
+                    }
+                });
+                
 
                 // 处理滚动条
                 //var url = Config.httpUrlForGo + 'files/' + message.attach_id + '/thumbnail';

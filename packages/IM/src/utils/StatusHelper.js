@@ -26,6 +26,7 @@ Ext.define('IM.utils.StatusHelper', {
     },
 
     getStatus(userId) {
+        if(!User.allStatus) return '';
         for (var i = 0; i < User.allStatus.length; i++) {
             if (User.allStatus[i].user_id == userId) {
                 return User.allStatus[i].user_status;

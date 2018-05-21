@@ -14,7 +14,6 @@ Ext.define('IM.utils.BindHelper', {
         var store = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
             isUnRead = true,
             status,
-            lastUserName,
             header,
             datas = [];
 
@@ -37,24 +36,57 @@ Ext.define('IM.utils.BindHelper', {
                 header = ParseUtil.getDctNameFromMems(data[i].members);
             }
 
+            var record = store.getById(data[i].chat.chat_id);
+            if (record) {
+                record.set({
+                    chat_id: data[i].chat.chat_id,
+                    name: header,
+                    type: data[i].chat.chat_type,
+                    status: status,
+                    chat_name: data[i].chat.chat_name,
+                    isUnRead: isUnRead,
+                    unReadNum: data[i].chat.unread_count,
+                    last_post_at: new Date(data[i].chat.last_post_at),
+                    last_post_name: data[i].chat.last_sender_name,
+                    last_msg_type: data[i].chat.last_msg_type,
+                    last_post_msg: data[i].chat.last_message,
+                    members: data[i].members
+                });
+            } else {
+                store.add({
+                    chat_id: data[i].chat.chat_id,
+                    name: header,
+                    type: data[i].chat.chat_type,
+                    status: status,
+                    chat_name: data[i].chat.chat_name,
+                    isUnRead: isUnRead,
+                    unReadNum: data[i].chat.unread_count,
+                    last_post_at: new Date(data[i].chat.last_post_at),
+                    last_post_name: data[i].chat.last_sender_name,
+                    last_msg_type: data[i].chat.last_msg_type,
+                    last_post_msg: data[i].chat.last_message,
+                    members: data[i].members
+                });
+            }
 
-            datas.push({
-                chat_id: data[i].chat.chat_id,
-                name: header,
-                type: data[i].chat.chat_type,
-                status: status,
-                chat_name: data[i].chat.chat_name,
-                isUnRead: isUnRead,
-                unReadNum: data[i].chat.unread_count,
-                last_post_at: data[i].chat.last_post_at,
-                last_post_userName: lastUserName,
-                last_msg_type: data[i].chat.last_msg_type,
-                last_post_msg: data[i].chat.last_message,
-                members: data[i].members
-            });
+            // datas.push({
+            //     chat_id: data[i].chat.chat_id,
+            //     name: header,
+            //     type: data[i].chat.chat_type,
+            //     status: status,
+            //     chat_name: data[i].chat.chat_name,
+            //     isUnRead: isUnRead,
+            //     unReadNum: data[i].chat.unread_count,
+            //     last_post_at: new Date(data[i].chat.last_post_at),
+            //     last_post_name: data[i].chat.last_sender_name,
+            //     last_msg_type: data[i].chat.last_msg_type,
+            //     last_post_msg: data[i].chat.last_message,
+            //     members: data[i].members
+            // });
         }
 
-        store.add(datas);
+        // 这边若是直接add，会导致不能排序等错误
+        // store.add(datas);
     },
 
     // 最近会话，不用了
@@ -282,7 +314,7 @@ Ext.define('IM.utils.BindHelper', {
             chat_id: data.chat_id,
             name: nickname,
             type: data.chat_type,
-            last_post_at: data.update_at,
+            last_post_at: new Date(data.update_at),
             status: status,
             chat_name: data.chat_name,
             members: data.members

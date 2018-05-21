@@ -72,7 +72,7 @@ Ext.define('IMCommon.local.InitDb', {
         var t1 = 'CREATE TABLE IF NOT EXISTS IMMsg (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
             'MsgID NVARCHAR(50), ' +
-            'ClientID NVARCHAR(50), ' +
+            'ClientID NVARCHAR(50), ' + // TODO
             'ChatID NVARCHAR(50), ' +
             'MsgType CHAR(1), ' +
             'Content TEXT, ' +
@@ -112,7 +112,7 @@ Ext.define('IMCommon.local.InitDb', {
         var t4 = 'CREATE TABLE IF NOT EXISTS IMFile (' +
             'ID INTEGER PRIMARY KEY AUTOINCREMENT, ' +
             'MsgID NVARCHAR(50), ' +
-            'ClientID NVARCHAR(50), ' +
+            'ClientID NVARCHAR(50), ' + // 删了再加
             'ChatID NVARCHAR(50), ' +
             'FilePath TEXT, ' +
             'FileType CHAR(1), ' +
@@ -167,7 +167,7 @@ Ext.define('IMCommon.local.InitDb', {
      * 将原有表先改为临时表，再将数据复制后，删除
      */
     getV1_0: function () {
-        // var t1 = 'ALTER TABLE '
+        // var t0 = 'ALTER'
     },
 
     updateVer: function (ver) {

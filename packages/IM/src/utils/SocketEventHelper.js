@@ -718,7 +718,7 @@ Ext.define('IM.utils.SocketEventHelper', {
 
                         record.set('sendText', text);
 
-                        // 存储本地
+                        // 存储本地,默认都是下载成功的，不成功的不管
                         var path = nativePath + User.ownerID + '/images/' + data.files[i].file_id;
                         LocalDataMgr.afterUploadSuc(data.files[i], path);
                     }

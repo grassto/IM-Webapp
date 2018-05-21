@@ -6,12 +6,12 @@ Ext.define('IM.view.IMController', {
         'IM.utils.AvatarMgr',
         'IM.utils.WebSocketHelper',
         'IM.utils.BindHelper',
-        'MX.util.Utils'
+        'MX.util.Utils',
+        'IMCommon.utils.SocketEventUtil'
     ],
     uses: [
         'IMCommon.local.LocalDataMgr',
-        'IMCommon.local.InitDb',
-        'IMCommon.utils.SocketEventUtil1'
+        'IMCommon.local.InitDb'
     ],
 
     listen: {
@@ -61,6 +61,19 @@ Ext.define('IM.view.IMController', {
                             row = {};
                         for (var i = 0; i < len; i++) {
                             row = rows.item(i);
+                            var lastMsg = '';
+                            if(row.ChatType == ChatType.Group) {
+                                lastMsg += row.LastUserName + '：';
+                            }
+
+                            if(row.LastMsgType == MsgType.TextMsg) {
+                                lastMsg += row.LastMessage;
+                            } else if(row.LastMsgType == MsgType.ImgMsg) {
+                                lastMsg += '[图片]';
+                            } else if(row.LastMsgType == MsgType.FileMsg) {
+                                lastMsg += '[文件]';
+                            }
+
                             if (row.ChatType == ChatType.Group) {
                                 if (row.UserIDs && row.UserNames) {
                                     row.mems = [];
@@ -83,10 +96,10 @@ Ext.define('IM.view.IMController', {
                                         status: -2, // 不显示状态
                                         isUnRead: row.UnreadCount > 0,
                                         unReadNum: row.UnreadCount,
-                                        last_post_at: row.LastPostAt,
-                                        last_post_userName: row.LastUserName,
+                                        last_post_at: new Date(row.LastPostAt),
+                                        last_post_name: row.LastUserName,
                                         last_msg_type: row.LastMsgType,
-                                        last_post_msg: row.LastMessage,
+                                        last_post_msg: lastMsg,
                                         members: row.mems
                                     });
                                 }
@@ -98,10 +111,10 @@ Ext.define('IM.view.IMController', {
                                     status: -2, // 不显示状态
                                     isUnRead: row.UnreadCount > 0,
                                     unReadNum: row.UnreadCount,
-                                    last_post_at: row.LastPostAt,
-                                    last_post_userName: row.LastUserName,
+                                    last_post_at: new Date(row.LastPostAt),
+                                    last_post_name: row.LastUserName,
                                     last_msg_type: row.LastMsgType,
-                                    last_post_msg: row.LastMessage,
+                                    last_post_msg: lastMsg,
                                     members: row.mems
                                 });
                             }
@@ -128,58 +141,6 @@ Ext.define('IM.view.IMController', {
 
         ChatHelper.showRightView('pageblank');// 右侧页面展示
     },
-
-    // 展示本地数据库数据
-    showLocalData() {
-        var me = this;
-
-        // ownData = LocalDataMgr.getOwnInfo(User.ownerID, me.bindLocalAva),
-        LocalDataMgr.getRecentChat(me.bindRecChats); // 最近会话
-    },
-
-    // 初始化绑定本地最近会话数据
-    bindRecChats(trans, resultSet) {
-        var rows = resultSet.rows,
-            len = rows.length;
-
-        if (len > 0) {
-            var recentStore = Ext.Viewport.lookup('IM').down('#recentChat').getStore(),
-                datas = [],
-                row = {};
-
-            for (var i = 0; i < len; i++) {
-                row = rows.item(i);
-                if (row.ChatType == ChatType.Group) {
-                    row.mems = [];
-
-                }
-                datas.push({
-                    id: row.ChatID,
-                    name: row.DisplayName,
-                    type: row.ChatType,
-                    status: -2, // 不显示状态
-                    isUnRead: row.UnreadCount > 0,
-                    unReadNum: row.UnreadCount,
-                    last_post_at: row.LastPostAt,
-                    last_post_userName: row.LastUserName,
-                    last_msg_type: row.LastMsgType,
-                    last_post_msg: row.LastMsg,
-                    members: row.mems
-                });
-            }
-
-            recentStore.add(datas);
-        }
-    },
-
-
-    // bindLocalAva(trans, resultSet) {
-    //     debugger;
-    //     var rows = resultSet.rows,
-    //     len = rows.length;
-    //     if(len > 0) {
-    //     }
-    // },
 
     // 是否展示关闭头
     handleCEF() {
@@ -242,10 +203,10 @@ Ext.define('IM.view.IMController', {
         WebSocketHelper.setEventCallback((msg) => {
             switch (msg.event) {
                 case SocketEventType.posted:
-                    SocketEventUtil1.handleNewPostEvent(msg, Ext.Viewport.lookup('IM').down('#recentChat'), Ext.Viewport.lookup('IM'));
+                    SocketEventUtil.handleNewPostEvent(msg, Ext.Viewport.lookup('IM').down('#recentChat'), Ext.Viewport.lookup('IM'));
                     break;
                 case SocketEventType.createGrp:
-                    SocketEventHelper.handleGrpAddEvent(msg);
+                    SocketEventUtil.handleGrpAddEvent(msg);
                     break;
                 case SocketEventType.memAdd:
                     SocketEventHelper.handleMemAddEvent(msg);

@@ -62,7 +62,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             // <debug>
             console.log('操作本地数据库出错：', err.message);
             // </debug>
-            alert('出错了' + err.message);
+            // alert('出错了' + err.message);
         });
     },
 
@@ -476,54 +476,54 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             var msgType = '', content = '', filePath = '', status = '0'; // 所有的消息不一样的地方
 
             if (data[i].wrapper_type == MsgWrapperType.Notice) {
-                var grpChangeMsg = ''; // 组织提示信息
-                var memIDs = ParseUtil.getNoticeMemsByContent(data[i].notice.operator_id, data[i].notice.content);
+                // var grpChangeMsg = ''; // 组织提示信息 data[i].notice.content_ex
+                // var memIDs = ParseUtil.getNoticeMemsByContent(data[i].notice.operator_id, data[i].notice.content);
 
-                // 这个是复制过来的，之后直接放到SocketUtil中
-                if (data[i].notice.operator_id == User.ownerID) { // 发起者的展示信息
-                    switch (data[i].notice.notice_type) {
-                        case NoticeType.CreateGrp:
-                            grpChangeMsg = SocketEventHelper.createOwnWelcomeMsg(data[i].notice.operator_id, memIDs);
-                            break;
-                        case NoticeType.AddMem:
-                            grpChangeMsg = SocketEventHelper.createMeAddSBMsg(data[i].notice.operator_id, memIDs);
-                            break;
-                        case NoticeType.RemoveMem:
-                            grpChangeMsg = SocketEventHelper.createMeRemoveSBMsg(data[i].notice.operator_id, memIDs[0]);
-                            break;
-                        case NoticeType.ChgTitle:
-                            grpChangeMsg = SocketEventHelper.createMeChgHeaderMsg(data[i].notice.content);
-                            break;
-                        case NoticeType.ChgManager:
-                            grpChangeMsg = SocketEventHelper.meChgMgrToSB(memIDs[0]);
-                            break;
-                        default:
-                            break;
-                    }
-                } else { // 被操作者的展示信息
-                    switch (data[i].notice.notice_type) {
-                        case NoticeType.CreateGrp:
-                            grpChangeMsg = SocketEventHelper.createOtherWelcomeMsg(data[i].notice.operator_id, memIDs);
-                            break;
-                        case NoticeType.AddMem:
-                            grpChangeMsg = SocketEventHelper.createSBAddSBMsg(data[i].notice.operator_id, memIDs);
-                            break;
-                        case NoticeType.RemoveMem:
-                            grpChangeMsg = SocketEventHelper.createSBRemoveMeMsg(data[i].notice.operator_id, memIDs[0]);
-                            break;
-                        case NoticeType.ChgTitle:
-                            grpChangeMsg = SocketEventHelper.createSBChgHeaderMsg(data[i].notice.content, data[i].notice.operator_id);
-                            break;
-                        case NoticeType.ChgManager:
-                            grpChangeMsg = SocketEventHelper.sbChgMgrToMe(data[i].notice.operator_id);
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                // // 这个是复制过来的，之后直接放到SocketUtil中
+                // if (data[i].notice.operator_id == User.ownerID) { // 发起者的展示信息
+                //     switch (data[i].notice.notice_type) {
+                //         case NoticeType.CreateGrp:
+                //             grpChangeMsg = SocketEventHelper.createOwnWelcomeMsg(data[i].notice.operator_id, memIDs);
+                //             break;
+                //         case NoticeType.AddMem:
+                //             grpChangeMsg = SocketEventHelper.createMeAddSBMsg(data[i].notice.operator_id, memIDs);
+                //             break;
+                //         case NoticeType.RemoveMem:
+                //             grpChangeMsg = SocketEventHelper.createMeRemoveSBMsg(data[i].notice.operator_id, memIDs[0]);
+                //             break;
+                //         case NoticeType.ChgTitle:
+                //             grpChangeMsg = SocketEventHelper.createMeChgHeaderMsg(data[i].notice.content);
+                //             break;
+                //         case NoticeType.ChgManager:
+                //             grpChangeMsg = SocketEventHelper.meChgMgrToSB(memIDs[0]);
+                //             break;
+                //         default:
+                //             break;
+                //     }
+                // } else { // 被操作者的展示信息
+                //     switch (data[i].notice.notice_type) {
+                //         case NoticeType.CreateGrp:
+                //             grpChangeMsg = SocketEventHelper.createOtherWelcomeMsg(data[i].notice.operator_id, memIDs);
+                //             break;
+                //         case NoticeType.AddMem:
+                //             grpChangeMsg = SocketEventHelper.createSBAddSBMsg(data[i].notice.operator_id, memIDs);
+                //             break;
+                //         case NoticeType.RemoveMem:
+                //             grpChangeMsg = SocketEventHelper.createSBRemoveMeMsg(data[i].notice.operator_id, memIDs[0]);
+                //             break;
+                //         case NoticeType.ChgTitle:
+                //             grpChangeMsg = SocketEventHelper.createSBChgHeaderMsg(data[i].notice.content, data[i].notice.operator_id);
+                //             break;
+                //         case NoticeType.ChgManager:
+                //             grpChangeMsg = SocketEventHelper.sbChgMgrToMe(data[i].notice.operator_id);
+                //             break;
+                //         default:
+                //             break;
+                //     }
+                // }
 
                 msgType = MsgType.GroupNotice; // G
-                content = grpChangeMsg;
+                content = ParseUtil.getGrpNotice(data[i].notice);
 
                 sql += 'INSERT INTO IMMsg (ChatID,MsgType,Content,CreateAt,SenderID,Status) VALUES ' +
                     '("' + data[i].notice.chat_id + '","' + msgType + '","' + content + '",' + data[i].notice.create_at + ',"' + data[i].notice.operator_id + '","' + status + '");';
@@ -541,7 +541,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
                         break;
                     case MsgType.FileMsg:
                         msgType = MsgType.FileMsg;
-                        filePath = '';
+                        filePath = Config.httpUrlForGo + 'files/' + data[i].message.attach_id;
                         status = '1';
                         break;
                     default:
@@ -555,97 +555,6 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         }
 
         me.commonExecSql(sql);
-    },
-
-    /**
-     * 通过unread api获取返回的数据，组织成指定的data返回
-     * @param {*} data 
-     */
-    getComDataByUnread(data) {
-        var result = '';
-
-    },
-
-    /**
-     * 将数据组织成json，直接发过来保存本地
-     * @param {json} data
-     */
-    meAddOffLineMsg(data) {
-        var me = this,
-            status = '1'; // 默认失败状态
-
-        var sql = 'INSERT INTO IMMsg (ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data.chatID + '","' + data.msgType + '","' + data.content + '","' + data.filePath + '",' + data.createAt + ',"' + data.userID + '","' + data.userName + '","' + status + '")';
-
-
-        me.getDB().transaction(function (trans) {
-            me.ensureMessageTable(trans);
-
-            me.handleSql(trans, sql);
-        });
-    },
-
-    /**
-     * 发送成功后，更新本地MSG
-     */
-    updateMsgBySendS(data) {
-        const me = this;
-        // status = '0';
-
-        me.getDB().transaction(function (trans) {
-            var sql = 'UPDATE IMMsg SET Status=0 WHERE ChatID="' + data.chat_id + '"';
-
-            me.handleSql(trans, sql);
-        });
-    },
-
-    /**
-     * 接收到websocket信息后，添加消息进入表中
-     * @param {json} data
-     */
-    insertOMsg(data) {
-        const me = this;
-
-        me.getDB().transaction(function (trans) {
-            // me.ensureMessageTable(trans);
-            var status = '0'; // 成功态
-            var sql = 'INSERT INTO IMMsg (MsgID, ChatID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES ("' + data.msg_id + '","' + data.chat_id + '","' + data.msg_type + '","' + data.message + '","' + data.filePath + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","' + status + '")';
-
-            me.handleSql(trans, sql);
-        });
-    },
-
-    /**
-     * 消息发送成功前调用
-     * @param {*} data
-     */
-    beforeSendMsgS(data) {
-        const me = this;
-
-        me.getDB().transaction(function (trans) {
-            var sql = 'INSERT INTO IMMsg ' +
-                '(ChatID, ClientID, MsgType, Content, FilePath, CreateAt, SenderID, SenderName, Status) VALUES' +
-                '("' + data.chatID + '","' + data.clientID + '","' + data.msgType + '","' + data.content + '","' + data.filePath + '",' + data.createAt + ',"' + data.userID + '","' + data.userName + '","0");';
-
-            sql += 'UPDATE IMRct SET LastPostAt=' + data.createAt + ', LastUserID="' + data.userID + '", LastUserName="' + data.userName + '", LastMessage="' + data.content + '", LastMsgType="' + data.msg_type + '" WHERE ChatID="' + data.chatID + '";';
-
-            me.handleSql(trans, sql);
-        });
-    },
-
-    /**
-     * 消息发送成功后调用
-     */
-    afterSendMsgS(data) {
-        const me = this;
-
-        me.getDB().transaction(function (trans) {
-            var sql = '';
-            for (var i = 0; i < data.length; i++) {
-                sql += 'UPDATE IMMsg SET MsgID="' + data[i].msg_id + '", MsgType="0" WHERE ClientID="' + data[i].client_id + '";';
-            }
-
-            me.handleSql(trans, sql);
-        });
     },
 
 
@@ -729,6 +638,7 @@ Ext.define('IMCommon.local.LocalDataMgr', {
      * 更新IMFile表和IMMsg的filePath、status
      */
     afterUploadSuc(data, nativePath) {
+
         var sql = 'UPDATE IMMsg SET FilePath="' + nativePath + '", Status="0" WHERE MsgID="' + data.msg_id + '";';
 
         // 这边的chat_id服务器没有返回值，file表中的加入机制是上传成功后调用
@@ -755,6 +665,9 @@ Ext.define('IMCommon.local.LocalDataMgr', {
             case MsgType.FileMsg:
                 me.addFileMsgByWS(data);
                 break;
+            case MsgType.GroupNotice:
+                me.addNoticeByWS(data);
+                break;
             default:
                 alert('暂未支持该类型：', data.msg_type);
         }
@@ -776,6 +689,13 @@ Ext.define('IMCommon.local.LocalDataMgr', {
         this.commonExecSql(sql);
     },
     addFileMsgByWS(data) { },
+    addNoticeByWS(data) {
+        var sql = 'INSERT INTO IMMsg' +
+            '(ChatID, MsgType, Content, CreateAt, SenderID, SenderName, Status) VALUES ' +
+            '("' + data.chat_id + '","' + data.msg_type + '","' + data.message + '",' + data.create_at + ',"' + data.user_id + '","' + data.user_name + '","0");';
+
+        this.commonExecSql(sql);
+    },
 
     /**
      * 通过ws更新最近会话，可以解决上一版遗留的问题

@@ -71,7 +71,8 @@ Ext.define('IMCommon.utils.UpImgMgr', {
                         if (chat) {
                             if (chat.getById(data.msg_id)) {
                                 // 这边只改变页面的消息状态即可
-                                // chat.getById(data.msg_id).set('sendText', ParseUtil.getLocalPic(path));
+                                chat.getById(data.msg_id).set('sendText', ParseUtil.getLocalPic(path));
+                                AddDataUtil.onScrolMsgView();
                             }
                         }
 

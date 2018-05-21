@@ -7,8 +7,9 @@ Ext.define('IMMobile.view.IMMobile', {
 
     requires: [
         'Ext.navigation.View',
-        'IMMobile.view.IMMobileMain.IMMobileMainTabPanel',
+        'IMMobile.view.main.MainTabPanel',
         
+        'IMCommon.utils.SocketEventUtil',
         'IMCommon.enumType.ChatType',
         'IMCommon.enumType.MsgType',
         'IMCommon.enumType.MsgWrapperType',
@@ -33,32 +34,102 @@ Ext.define('IMMobile.view.IMMobile', {
         navigationBar: null,
 
         items: [{
-            xtype: 'IMMobile-MainTabPanel'
+            xtype: 'mainTabPanel'
         }]
     }],
 
     
 
     initialize() {
-        // this.getMe(); 现在不需要个人信息
-        this.openConnection(); // 打开websocket连接
-    },
-    getMe() {
-        Utils.ajaxByZY('GET', 'users/me', {
-            success: function (data) {
-                User.crtUser = data;
-            }
-        });
+        const me = this,
+        rctView = Ext.Viewport.lookup('IMMobile').down('#navView').down('IMMobile-MainTabPanel').down('#IMMobile_Chat');
+
+        if(Config.isPhone) {
+            Utils.mask(rctView);
+            InitDb.initDB((trans) => {
+                LocalDataMgr.getRecentChat(trans, function (ta, resultSet) {
+                    // <debug>
+                    console.log('数据库初始化完毕');
+                    // </debug>
+
+                    var rows = resultSet.rows,
+                        len = rows.length;
+
+                    if (len > 0) {
+                        var recentStore = rctView.getStore(),
+                            datas = [],
+                            row = {};
+                        for (var i = 0; i < len; i++) {
+                            row = rows.item(i);
+                            if (row.ChatType == ChatType.Group) {
+                                if (row.UserIDs && row.UserNames) {
+                                    row.mems = [];
+
+                                    var us = row.UserIDs.split(','),
+                                        ns = row.UserNames.split(',');
+
+                                    for (var j = 0; j < us.length; j++) {
+                                        row.mems.push({
+                                            chat_id: row.ChatID,
+                                            user_id: us[j], // id
+                                            user_name: ns[j] // name
+                                        });
+                                    }
+
+                                    datas.push({
+                                        chat_id: row.ChatID,
+                                        name: row.DisplayName,
+                                        type: row.ChatType,
+                                        status: -2, // 不显示状态
+                                        isUnRead: row.UnreadCount > 0,
+                                        unReadNum: row.UnreadCount,
+                                        last_post_at: new Date(row.LastPostAt),
+                                        last_post_name: row.LastUserName,
+                                        last_msg_type: row.LastMsgType,
+                                        last_post_msg: row.LastMessage,
+                                        members: row.mems
+                                    });
+                                }
+                            } else if(row.ChatType == ChatType.Direct) {
+                                datas.push({
+                                    chat_id: row.ChatID,
+                                    name: row.DisplayName,
+                                    type: row.ChatType,
+                                    status: -2, // 不显示状态
+                                    isUnRead: row.UnreadCount > 0,
+                                    unReadNum: row.UnreadCount,
+                                    last_post_at: new Date(row.LastPostAt),
+                                    last_post_name: row.LastUserName,
+                                    last_msg_type: row.LastMsgType,
+                                    last_post_msg: row.LastMessage,
+                                    members: row.mems
+                                });
+                            }
+
+                        }
+                        // <debug>
+                        console.log('本地数据库最近会话', datas);
+                        // </debug>
+                        recentStore.add(datas);
+                    }
+                    Utils.unMask(rctView);
+
+                    me.openConnection();// 打开连接
+                });
+
+            });
+        } else {
+            me.openConnection();
+        }
     },
 
     // 打开连接，处理缓存数据
     openConnection() {
-        const me = this;
         WebSocketUtil.initialize(Config.wsGoUrl);
         WebSocketUtil.setEventCallback((msg) => {
             switch (msg.event) {
                 case SocketEventType.posted:
-                    me.handleNewPostEvent(msg);
+                    SocketEventUtil.handleNewPostEvent(msg);
                     break;
                 case SocketEventType.createGrp:
                     // SocketEventUtil.handleGrpAddEvent(msg);
@@ -82,63 +153,5 @@ Ext.define('IMMobile.view.IMMobile', {
         WebSocketUtil.setReconnectCallback(() => {
             User.isFirstCon = true;
         });
-    },
-
-    handleNewPostEvent(msg) {
-        // debugger;
-        const me = this,
-            data = JSON.parse(msg.data.message),
-            userName = AddDataUtil.getName(data.user_id);
-
-        // 自己发送的就在本地展示
-        if (data.user_id != User.ownerID) {
-            // 区分一个在当前页面，和不在当前页面
-            const view = Ext.Viewport.lookup('IMMobile'), // 总容器
-                recentChat = view.down('#ChatList'), // 最近会话
-                chatView = view.down('#IMMobile-chatView'); // 聊天页面
-            if (chatView && User.crtChannelId == data.chat_id) { // 有这个页面并且是当前会话
-                var text = data.message;
-                text = window.minEmoji(text);
-                text = ParseUtil.parsePic(text, data.attach_id);
-
-                var store = chatView.down('#IMMobileChatView').getStore();
-
-                store.add({
-                    senderName: userName,
-                    sendText: text,
-                    updateTime: new Date(data.update_at),
-                    msg_type: data.msg_type
-                });
-            } else { // 不在当前会话
-                // 判断频道，没有，加
-                var has = me.hasChat(data.chat_id);
-                if(!has) {
-                    AddDataUtil.addChatToRecent(data.chat_id);
-                }
-
-                // 提示未读
-                me.promptUnRead(data.chat_id, recentChat);
-            }
-        }
-
-    },
-
-    hasChat(cid) {
-        var flag = false;
-        for (var i = 0; i < User.allChannels.length; i++) {
-            if(User.allChannels[i].chat.chat_id == cid) {
-                flag = true;
-                break;
-            }
-        }
-
-        return flag;
-    },
-
-    promptUnRead(cid, view) {
-        var store = view.getStore(),
-            record = store.getById(cid);
-        record.set('isUnRead', true);
-        record.set('unReadNum', record.get('unReadNum') + 1);
     }
 });

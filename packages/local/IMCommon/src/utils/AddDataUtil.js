@@ -155,6 +155,16 @@ Ext.define('IMCommon.utils.AddDataUtil', {
         sc.scrollTo(0, scHeight);
     },
 
+    onScrolMsgView() {
+        if(Config.isPC) {
+            if(Ext.Viewport.lookup('IM').lookup('im-main')) {
+                if(Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView')) {
+                    this.onScroll(Ext.Viewport.lookup('IM').lookup('im-main').down('#chatView'));
+                }
+            }
+        }
+    },
+
     onShowChatTime(chatStore) {
         var data = chatStore.data.items,
             length = data.length;
@@ -241,6 +251,9 @@ Ext.define('IMCommon.utils.AddDataUtil', {
 
 
 
+
+
+
     // WS添加个人对话
     wsAddDirectChatToRct(store, data) {
         var rec = store.insert(0, {
@@ -318,9 +331,9 @@ Ext.define('IMCommon.utils.AddDataUtil', {
     },
 
     wsUpdateDitRct(store, data) {
-        
+
     },
 
-    wsUpdateGrpRct(store, data) {},
+    wsUpdateGrpRct(store, data) { },
 
 });

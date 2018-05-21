@@ -49,7 +49,7 @@ Ext.define('IMCommon.view.RctChat', {
                 '<a class="RecentUnRead" unRead="{unReadNum}" style="cursor:default;display:{[values.isUnRead?"block":"none"]}"></a>', // 未读
             '</div>',
             '<div class="evt">',
-                '<p>{last_post_at}</p></br>', // 最后发送时间
+                '<p>{[Utils.datetime2Ago(values.last_post_at, true)]}</p></br>', // 最后发送时间
                 '<p style="display:{[values.type=="D"?"block":"none"]};">{status}</p>', // 状态（不需要了吧）
             '</div>',
             '<div class="displayInfo">',
